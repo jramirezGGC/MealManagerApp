@@ -54,6 +54,23 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
+
+      <Tabs.Screen 
+        name="MainDashboard"
+        options={{
+          title: "Main Dashboard",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="RecoverPassword"
+        options={{
+          title: "Recover Password",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
     </Tabs>
+  
   );
 }
