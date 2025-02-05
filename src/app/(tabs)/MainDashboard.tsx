@@ -1,6 +1,4 @@
-import { StyleSheet } from 'react-native';
-
-import { Text, View } from '@/src/components/Themed';
+import { StyleSheet, Text, View } from 'react-native';
 import { FlatList } from 'react-native-reanimated/lib/typescript/Animated';
 
 
