@@ -1,12 +1,15 @@
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, Text, SafeAreaView } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RecoverPasswordScreen(){
     return (
-        <View style={styles.container}>
-            {/* No reference given on Figma*/}
-            <Text>Recover Password Screen</Text>
-            <Text>No Reference given on Figma</Text>
-        </View>
+        <SafeAreaProvider>
+            <SafeAreaView style={styles.container}>
+                {/* No reference given on Figma*/}
+                <Text>Recover Password Screen</Text>
+                <Text>No Reference given on Figma</Text>
+            </SafeAreaView>
+        </SafeAreaProvider>
     )   
 }
 
