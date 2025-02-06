@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, SafeAreaView } from "react-native";
+import { StyleSheet, Text, SafeAreaView } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RecoverPasswordScreen(){

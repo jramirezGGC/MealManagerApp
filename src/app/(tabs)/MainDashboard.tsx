@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, } from 'react-native';
 import { FlatList } from 'react-native-reanimated/lib/typescript/Animated';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 

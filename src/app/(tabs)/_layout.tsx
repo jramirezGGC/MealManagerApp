@@ -86,6 +86,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
+
+      <Tabs.Screen 
+        name="MoveMeals"
+        options={{
+          title: "Move Meals Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
    
    
     </Tabs>   

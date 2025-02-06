@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable, Button, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, Image, Pressable, Button, SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function OnboardingScreen() {
