@@ -46,6 +46,7 @@ export default function TabLayout() {
           //     </Pressable>
           //   </Link>
           // ),
+          href:null,
         }}
       />     
 
@@ -54,6 +55,7 @@ export default function TabLayout() {
         options={{
           title: "Main Dashboard",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
         }}
       />
 
@@ -62,6 +64,7 @@ export default function TabLayout() {
         options={{
           title: "Recover Password",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
         }}
       />
 
@@ -70,6 +73,7 @@ export default function TabLayout() {
         options={{
           title: "Onboarding Screen",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
         }}
       />
 
@@ -78,6 +82,7 @@ export default function TabLayout() {
         options={{
           title: "Edit Meal Screen",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
         }}
       />
 
@@ -86,6 +91,89 @@ export default function TabLayout() {
         options={{
           title: "Move Meals Screen",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="Fridge"
+        options={{
+          title: "Fridge Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="Profile"
+        options={{
+          title: "Profile Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="Inventory"
+        options={{
+          title: "Inventory Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="CreateMeal"
+        options={{
+          title: "Create Meal Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="SavedMeals"
+        options={{
+          title: "Saved Meals Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="ConfirmMeal"
+        options={{
+          title: "Confirm Meal Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+
+      <Tabs.Screen 
+        name="EditProfile"
+        options={{
+          title: "Edit Profile Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="CreateAccount"
+        options={{
+          title: "Create Account Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+
+      <Tabs.Screen 
+        name="ManageHousehold"
+        options={{
+          title: "Manage Household Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
         }}
       />
    
