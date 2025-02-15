@@ -1,15 +1,35 @@
-import { Button, Pressable, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
 import NavButton from '@/src/components/NavButton';
+import { RelativePathString } from 'expo-router'; // Assume this is the correct import
 
-
-import { Text, View } from '@/src/components/Themed';
-import { Link, RelativePathString, useRouter } from 'expo-router';
-import { navigate } from 'expo-router/build/global-state/routing';
+const buttonsData = [
+  { key: '1', text: 'Confirm Meal', href: '/(tabs)/ConfirmMeal' },
+  { key: '2', text: 'Create Account', href: '/(tabs)/CreateAccount' },
+  { key: '3', text: 'Create Meal', href: '/(tabs)/CreateMeal' },
+  { key: '4', text: 'Edit Meal', href: '/(tabs)/EditMeal' },
+  { key: '5', text: 'Edit Profile', href: '/(tabs)/EditProfile' },
+  { key: '6', text: 'Fridge', href: '/(tabs)/Fridge' },
+  { key: '7', text: 'Inventory', href: '/(tabs)/Inventory' },
+  { key: '8', text: 'Main Dashboard', href: '/(tabs)/MainDashboard' },
+  { key: '9', text: 'Manage Household', href: '/(tabs)/ManageHousehold' },
+  { key: '10', text: 'Move Meals', href: '/(tabs)/MoveMeals' },
+  { key: '11', text: 'Onboarding', href: '/(tabs)/Onboarding' },
+  { key: '12', text: 'Profile', href: '/(tabs)/Profile' },
+  { key: '13', text: 'Recover Password', href: '/(tabs)/RecoverPassword' },
+  { key: '14', text: 'Saved Meals', href: '/(tabs)/SavedMeals' }
+];
 
 export default function IndexScreen() {
   return (
-    <View style={styles.container}>      
-      <NavButton text='Confirm Meal' href={`/(tabs)/ConfirmMeal` as RelativePathString} />
+    <View style={styles.container}>
+      <FlatList
+        data={buttonsData}
+        renderItem={({ item }) => (
+          <NavButton text={item.text} href={item.href as RelativePathString} />
+        )}
+        contentContainerStyle={styles.listContent}
+      />
     </View>
   );
 }
@@ -17,16 +37,9 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  listContent: {
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    paddingVertical: 20,
   },
 });
