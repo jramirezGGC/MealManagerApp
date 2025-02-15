@@ -162,7 +162,7 @@ export default function TabLayout() {
       <Tabs.Screen 
         name="CreateAccount"
         options={{
-          title: "Create Account Screen",
+          title: "Create Account",
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           href:null,
         }}
