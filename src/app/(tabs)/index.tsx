@@ -1,14 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { Button, Pressable, StyleSheet } from 'react-native';
+import NavButton from '@/src/components/NavButton';
 
-import EditScreenInfo from '@/src/components/EditScreenInfo';
+
 import { Text, View } from '@/src/components/Themed';
+import { Link, RelativePathString, useRouter } from 'expo-router';
+import { navigate } from 'expo-router/build/global-state/routing';
 
-export default function TabOneScreen() {
+export default function IndexScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={styles.container}>      
+      <NavButton text='Confirm Meal' href={`/(tabs)/ConfirmMeal` as RelativePathString} />
     </View>
   );
 }
