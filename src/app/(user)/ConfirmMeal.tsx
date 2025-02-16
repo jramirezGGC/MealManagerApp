@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useState }from 'react';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View, Pressable, Image, Platform } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Image, Platform, TextInput } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { router, useRouter } from 'expo-router';
+import Colors from '@/src/constants/Colors';
 
-const ConfirmMealScreen = () => {
+export default function ConfirmMealScreen(){
+
+  const [fridgeMeals, setFridgeMeals] = useState('');
+  const [freezerMeals, setFreezerMeals] = useState('');
+
+  const totalMeals = (parseInt(fridgeMeals) || 0) + (parseInt(freezerMeals) || 0);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -12,37 +20,55 @@ const ConfirmMealScreen = () => {
           <View style={styles.header}>
             {/* Back Button */}
             <Pressable style={styles.goBackButton} onPress={() => {}}>
-              <AntDesign name="arrowleft" size={24} color="black" />
+              <AntDesign name="arrowleft" size={24} color="white" />
             </Pressable>
 
             {/* Title */}
             <Text style={styles.screenTitle}>Confirm Meal</Text>
           </View>
 
+          {/* Horizontal Divider */}
+          <View style={styles.divider} />
+
           {/* Main Section */}
           <View style={styles.mainContent}>
             {/* Placeholder Image */}
-            <Image source={{ uri: 'https://via.placeholder.com/100' }} style={styles.mealImage} />
+            {/* Meal Navigation Tab */}
+            <Pressable style={styles.mealTab} onPress={() => {}}>
+              <Image source={require('../../../assets/images/favicon.png')} style={styles.mealImage} />
+              <Text style={styles.mealName}>Meal Name</Text>
+              <AntDesign name="right" size={20} color="black" />
+            </Pressable>
 
-            {/* Meal Information Fields */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.label}>Meal Name</Text>
-              <Text style={styles.placeholder}>Example Meal Name</Text>
+            {/* Input Fields Section */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}># of Meals to place into Fridge</Text>
+              <TextInput
+                style={styles.inputField}
+                placeholder="##"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+                maxLength={2}
+                value={fridgeMeals}
+                onChangeText={setFridgeMeals}
+              />
 
-              <Text style={styles.label}>Meal Description</Text>
-              <Text style={styles.placeholder}>This is a delicious meal...</Text>
+              <Text style={styles.label}># of Meals to place into Freezer</Text>
+              <TextInput
+                style={styles.inputField}
+                placeholder="##"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+                maxLength={2}
+                value={freezerMeals}
+                onChangeText={setFreezerMeals}
+              />
 
-              <Text style={styles.label}>Ingredients</Text>
-              <Text style={styles.placeholder}>Ingredient 1, Ingredient 2...</Text>
-
-              <Text style={styles.label}>Number of Meals</Text>
-              <Text style={styles.placeholder}>2</Text>
-
-              <Text style={styles.label}>Placed Into</Text>
-              <Text style={styles.placeholder}>Freezer</Text>
+              {/* Total Meals Display */}
+              <Text style={styles.totalLabel}>Total of Meals added to Inventory</Text>
+              <Text style={styles.totalMeals}>{totalMeals || '##'}</Text>
             </View>
           </View>
-
           {/* Confirm Meal Button */}
           <Pressable style={styles.confirmButton} onPress={() => {}}>
             <Text style={styles.confirmText}>Confirm Meal</Text>
@@ -56,11 +82,11 @@ const ConfirmMealScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.backgroundColor,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.backgroundColor,
   },
   header: {
     flexDirection: 'row',
@@ -69,11 +95,18 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? 40 : 10,
     paddingBottom: 10,
   },
+  divider: {
+    width: 375,
+    height: 1,
+    backgroundColor: Colors.lineDivider,
+    alignSelf: 'center',
+    marginTop: 10,
+  },  
   goBackButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: Colors.goBackButtonColor,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -88,23 +121,66 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: 20,
   },
-  mealImage: {
-    width: 100,
-    height: 100,
+  mealTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.rectangleBGColor,
+    padding: 10,
     borderRadius: 10,
-    alignSelf: 'center',
     marginBottom: 20,
+    justifyContent: 'space-between',
   },
-  infoContainer: {
-    backgroundColor: '#f8f8f8',
+  mealImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    marginBottom: 5,
+  },
+  mealName: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginLeft: -40,
+  },
+  inputContainer: {
+    backgroundColor: Colors.rectangleBGColor,
     padding: 15,
     borderRadius: 10,
+    marginHorizontal: 20,
+    marginTop: 10,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 10,
     color: '#333',
+  },
+  inputField: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginTop: 5,
+    fontSize: 16,
+    color: '#333',
+    backgroundColor: '#fff',
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  totalMeals: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 5,
   },
   placeholder: {
     fontSize: 14,
@@ -116,7 +192,7 @@ const styles = StyleSheet.create({
     bottom: Platform.OS === 'android' ? 30 : 50,
     left: '10%',
     right: '10%',
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.mainBottomButton,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
@@ -127,5 +203,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default ConfirmMealScreen;
