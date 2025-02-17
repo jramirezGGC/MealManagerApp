@@ -3,7 +3,7 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons'; //again placeholder.
 
-const ManageHouseholdScreen = () => {
+export default function ManageHouseholdScreen(){
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -163,4 +163,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManageHouseholdScreen;
