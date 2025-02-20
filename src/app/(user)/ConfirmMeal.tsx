@@ -19,7 +19,7 @@ export default function ConfirmMealScreen(){
           {/* Header Section */}
           <View style={styles.header}>
             {/* Back Button */}
-            <Pressable style={styles.goBackButton} onPress={() => {}}>
+            <Pressable style={styles.goBackButton} onPress={() => router.back()}>
               <AntDesign name="arrowleft" size={24} color="white" />
             </Pressable>
 

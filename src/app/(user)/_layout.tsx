@@ -176,7 +176,14 @@ export default function TabLayout() {
           href:null,
         }}
       />
-   
+      <Tabs.Screen 
+        name="MealDetails"
+        options={{
+          title: "Meal Details Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
    
     </Tabs>   
   );

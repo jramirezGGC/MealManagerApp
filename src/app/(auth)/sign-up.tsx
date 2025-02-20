@@ -1,121 +1,214 @@
-import React from 'react';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet, TextInput, View, Button, Text, Pressable } from 'react-native';
-import { AntDesign } from '@expo/vector-icons'; //placeholder for actualy styling
+"use client"
 
-const TextInputExample = () => {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [confirmPassword, setConfirmPassword] = React.useState('');
+import { useState } from "react"
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { router } from "expo-router"
+
+export default function SignUpScreen() {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const handleSignUp = () => {
+    // Add your sign up logic here
+    if (password !== confirmPassword) {
+      alert("Passwords do not match")
+      return
+    }
+    console.log({ name, email, password })
+  }
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        {/* Go Back Button */}
-        <Pressable style={styles.goBackButton} onPress={() => { /* Add navigation logic here */ }}>
-          <AntDesign name="arrowleft" size={24} color="black" />
-        </Pressable>
-
-        <SafeAreaView style={styles.formContainer}>
-          {/* Title and Subtitle */}
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Create an Account</Text>
-            <Text style={styles.subtitle}>Sign up to get started</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Text style={styles.backIcon}>‹</Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Input Fields */}
-          <TextInput
-            style={styles.input}
-            onChangeText={setName}
-            placeholder="Name"
-            value={name}
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setEmail}
-            value={email}
-            placeholder="Email Address"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setPassword}
-            value={password}
-            placeholder="Password"
-            secureTextEntry
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setConfirmPassword}
-            value={confirmPassword}
-            placeholder="Re-type Password"
-            secureTextEntry
-          />
-        </SafeAreaView>
+          {/* Title Section */}
+          <View style={styles.titleSection}>
+            <Text style={styles.title}>Sign Up</Text>
+            <Text style={styles.subtitle}>Please Sign Up to get started</Text>
+          </View>
 
-        {/* Button positioned at the bottom center */}
-        <View style={styles.buttonContainer}>
-          <Button onPress={() => {}} title="Sign Up" />
-        </View>
-      </View>
-    </SafeAreaProvider>
-  );
-};
+          {/* Form */}
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>NAME</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="John doe"
+                value={name}
+                onChangeText={setName}
+                placeholderTextColor="#88a588"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>EMAIL</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="example@gmail.com"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#88a588"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>PASSWORD</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput]}
+                  placeholder="**********"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  placeholderTextColor="#88a588"
+                />
+                <TouchableOpacity style={styles.visibilityToggle} onPress={() => setShowPassword(!showPassword)}>
+                  <Text style={styles.visibilityIcon}>{showPassword ? "👁" : "👁‍🗨"}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>RE-TYPE PASSWORD</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput]}
+                  placeholder="**********"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                  placeholderTextColor="#88a588"
+                />
+                <TouchableOpacity
+                  style={styles.visibilityToggle}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Text style={styles.visibilityIcon}>{showConfirmPassword ? "👁" : "👁‍🗨"}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+              <Text style={styles.signUpButtonText}>SIGN UP</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    backgroundColor: "#e6f2dc",
   },
-  formContainer: {
+  keyboardView: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
   },
-  titleContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
+  scrollContent: {
+    flexGrow: 1,
+  },
+  header: {
+    padding: 16,
+    paddingTop: Platform.OS === "android" ? 16 : 0,
+  },
+  backButton: {
+    padding: 8,
+  },
+  backIcon: {
+    fontSize: 32,
+    color: "#4e752d",
+  },
+  titleSection: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "600",
+    color: "#32343e",
+    marginBottom: 8,
   },
   subtitle: {
+    fontSize: 16,
+    color: "#6b6e82",
+  },
+  formContainer: {
+    flex: 1,
+    backgroundColor: "#74af44",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 16,
+    gap: 16,
+  },
+  inputGroup: {
+    gap: 8,
+  },
+  label: {
     fontSize: 14,
-    color: 'gray',
-    marginTop: 5,
+    fontWeight: "600",
+    color: "white",
   },
   input: {
-    height: 50,
-    marginBottom: 15,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: "#e6f2dc",
+    borderRadius: 12,
+    padding: Platform.OS === "ios" ? 16 : 12,
+    fontSize: 16,
+    color: "#32343e",
   },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+  passwordContainer: {
+    position: "relative",
   },
-  goBackButton: {
-    position: 'absolute',
-    top: 50,  // Adjust based on your layout
-    left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,  // Adds a shadow effect on Android
-    shadowColor: '#000', // Adds a shadow effect on iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+  passwordInput: {
+    paddingRight: 50,
   },
-});
-
-export default TextInputExample;
+  visibilityToggle: {
+    position: "absolute",
+    right: 16,
+    top: 0,
+    bottom: 0,
+    justifyContent: "center",
+  },
+  visibilityIcon: {
+    fontSize: 20,
+    color: "#6b6e82",
+  },
+  signUpButton: {
+    backgroundColor: "#4e752d",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  signUpButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+})

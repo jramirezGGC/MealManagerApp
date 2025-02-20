@@ -28,7 +28,7 @@ export default function MealDetailsScreen() {
               style={styles.mealImage} 
             />
           </View>
-
+          
           {/* Meal Information Section */}
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Meal Name</Text>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     position: 'absolute',
-    bottom: Platform.OS === 'android' ? 30 : 50,
+    bottom: Platform.OS === 'android' ? 30 : 'auto',
     left: '10%',
     right: '10%',
     backgroundColor: Colors.mainBottomButton,
