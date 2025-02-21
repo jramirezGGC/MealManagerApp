@@ -3,7 +3,7 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, Pressable, Image, Platform } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
-const ProfileScreen = () => {
+export default function ProfileScreen(){
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -131,5 +131,3 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Ensures text is centered inside the button
   },
 });
-
-export default ProfileScreen;

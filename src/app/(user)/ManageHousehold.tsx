@@ -1,166 +1,169 @@
-import React from 'react';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
-import { AntDesign, FontAwesome } from '@expo/vector-icons'; //again placeholder.
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, ScrollView } from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { router } from "expo-router"
 
-const ManageHouseholdScreen = () => {
+export default function ManageHouseholdScreen() {
+  const members = [
+    { id: 1, name: "Household Member 1" },
+    { id: 2, name: "Household Member 2" },
+    { id: 3, name: "Household Member 3" },
+  ]
+
+  // const handleMemberPress = (memberId: number) => {
+  //   router.push(`/member/${memberId}`)
+  // }
+
+  // const handleAddMember = () => {
+  //   router.push("/add-member")
+  // }
+
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          {/* Header Section */}
-          <View style={styles.header}>
-            {/* Back Button */}
-            <Pressable style={styles.goBackButton} onPress={() => { /* Navigation logic here */ }}>
-              <AntDesign name="arrowleft" size={24} color="black" />
-            </Pressable>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
 
-            {/* Title: Centered with compatibility */}
-            <View style={styles.titleContainer}>
-              <Text style={styles.dashboardTitle}>Manage Household</Text>
-            </View>
-          </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backIcon}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Manage Household</Text>
+      </View>
 
-          {/* Profile Section */}
-          <View style={styles.profileSection}>
-            <View style={styles.profileImage} />
-            <View>
-              <Text style={styles.username}>@Username</Text>
-              <Text style={styles.roleText}>Fridge Owner</Text>
-            </View>
-          </View>
-
-          {/* Household Members Section */}
-          <View style={styles.householdContainer}>
-            <Text style={styles.sectionTitle}>Household Members (3)</Text>
-
-            {/* Placeholder Household Members */}
-            <Pressable style={styles.memberButton} onPress={() => { /* Navigate to member details */ }}>
-              <FontAwesome name="user-circle" size={24} color="black" style={styles.memberIcon} />
-              <Text style={styles.memberText}>Household Member 1</Text>
-              <AntDesign name="right" size={20} color="black" />
-            </Pressable>
-
-            <Pressable style={styles.memberButton} onPress={() => { /* Navigate to member details */ }}>
-              <FontAwesome name="user-circle" size={24} color="black" style={styles.memberIcon} />
-              <Text style={styles.memberText}>Household Member 2</Text>
-              <AntDesign name="right" size={20} color="black" />
-            </Pressable>
-
-            <Pressable style={styles.memberButton} onPress={() => { /* Navigate to member details */ }}>
-              <FontAwesome name="user-circle" size={24} color="black" style={styles.memberIcon} />
-              <Text style={styles.memberText}>Household Member 3</Text>
-              <AntDesign name="right" size={20} color="black" />
-            </Pressable>
-          </View>
-
-          {/* Add New Member Button */}
-          <Pressable style={styles.addMemberButton} onPress={() => { /* Add member logic */ }}>
-            <Text style={styles.addMemberText}>Add New Member</Text>
-          </Pressable>
+      <ScrollView style={styles.content}>
+        {/* Profile Section */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileImage} />
+          <Text style={styles.username}>Username</Text>
+          <Text style={styles.role}>Fridge Owner</Text>
         </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
-  );
-};
+
+        {/* Members List */}
+        <View style={styles.membersContainer}>
+          {members.map((member) => (
+            <TouchableOpacity
+              key={member.id}
+              style={[styles.memberItem, member.id !== members.length && styles.memberItemBorder]}
+              /*onPress={() => handleMemberPress(member.id)}*/
+            >
+              <View style={styles.memberContent}>
+                <View style={styles.memberAvatar}>
+                  <Text style={styles.avatarIcon}>👤</Text>
+                </View>
+                <Text style={styles.memberName}>{member.name}</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Add Member Button */}
+        <TouchableOpacity style={styles.addButton} /*onPress={handleAddMember}*/>
+          <Text style={styles.addButtonText}>ADD NEW MEMBER</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#e6f2dc",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start', // Ensures the back button stays on the left
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 40 : 10,
-    paddingBottom: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    paddingTop: Platform.OS === "android" ? 16 : 0,
   },
-  goBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
+  backButton: {
+    padding: 8,
   },
-  titleContainer: {
-    flex: 1, // Makes the title container take available space
-    justifyContent: 'center', // Vertically centers the title
-    alignItems: 'center', // Horizontally centers the title
-    marginTop: Platform.OS === 'android' ? 0 : 10, // Adjust title spacing based on the platform
+  backIcon: {
+    fontSize: 32,
+    color: "#4e752d",
   },
-  dashboardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center', // Ensures title is centered
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginLeft: 12,
+    color: "#32343e",
+  },
+  content: {
+    flex: 1,
+    padding: 16,
   },
   profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
+    alignItems: "center",
+    marginBottom: 32,
   },
   profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#d9d9d9',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#4e752d",
+    marginBottom: 16,
   },
   username: {
     fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 15,
+    fontWeight: "600",
+    color: "#32343e",
+    marginBottom: 4,
   },
-  roleText: {
-    fontSize: 14,
-    color: 'gray',
-    marginLeft: 15,
-  },
-  householdContainer: {
-    marginTop: 30,
-    paddingHorizontal: 40,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  memberButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    justifyContent: 'space-between',
-  },
-  memberIcon: {
-    marginRight: 10,
-  },
-  memberText: {
-    flex: 1,
+  role: {
     fontSize: 16,
+    color: "#9c9ba6",
   },
-  addMemberButton: {
-    position: 'absolute',
-    bottom: 40,
-    alignSelf: 'center',
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 25,
+  membersContainer: {
+    backgroundColor: "#74af44",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 24,
   },
-  addMemberText: {
-    color: '#fff',
+  memberItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+  },
+  memberItemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.2)",
+  },
+  memberContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  memberAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  avatarIcon: {
+    fontSize: 20,
+  },
+  memberName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "500",
   },
-});
-
-export default ManageHouseholdScreen;
+  chevron: {
+    color: "white",
+    fontSize: 24,
+  },
+  addButton: {
+    backgroundColor: "#4e752d",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+})
