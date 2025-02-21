@@ -4,3 +4,4 @@ export type tempMeal = {
     image: string | null;
     count: number;
 }
+
