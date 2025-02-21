@@ -66,16 +66,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           href:null,
         }}
-      />
-
-      <Tabs.Screen 
-        name="Onboarding"
-        options={{
-          title: "Onboarding Screen",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          href:null,
-        }}
-      />
+      />      
 
       <Tabs.Screen 
         name="EditMeal"
@@ -157,16 +148,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           href:null,
         }}
-      />
-
-      <Tabs.Screen 
-        name="CreateAccount"
-        options={{
-          title: "Create Account",
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          href:null,
-        }}
-      />
+      />      
 
       <Tabs.Screen 
         name="ManageHousehold"
