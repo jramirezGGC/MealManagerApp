@@ -66,7 +66,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           href:null,
         }}
-      />      
+      />
 
       <Tabs.Screen 
         name="EditMeal"
@@ -148,7 +148,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           href:null,
         }}
-      />      
+      />
 
       <Tabs.Screen 
         name="ManageHousehold"
@@ -166,7 +166,22 @@ export default function TabLayout() {
           href:null,
         }}
       />
-   
+      <Tabs.Screen 
+        name="Gallery"
+        options={{
+          title: "Gallery Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
+      <Tabs.Screen 
+        name="RecreateMeal"
+        options={{
+          title: "Recreate Meal Screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          href:null,
+        }}
+      />
     </Tabs>   
   );
 }
