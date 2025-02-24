@@ -1,201 +1,220 @@
-import React, { useState } from 'react';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View, Pressable, Image, FlatList, Platform } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { useState } from "react"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform, Alert } from "react-native"
+import { StatusBar } from "expo-status-bar"
+import { router } from "expo-router"
 
-const MyMealsScreen = () => {
-  const [activeTab, setActiveTab] = useState('Favorites');
+export default function MyMealsScreen() {
+  const [activeTab, setActiveTab] = useState("favorites")
 
-  // Sample meals for "Favorites"
   const meals = [
-    { id: '1', name: 'Spaghetti Bolognese', image: 'https://via.placeholder.com/80' },
-    { id: '2', name: 'Grilled Chicken Salad', image: 'https://via.placeholder.com/80' },
-  ];
+    { id: 0, name: "Food Name", details: "Details" },
+    { id: 1, name: "Food Name", details: "Details" },
+  ]
+
+  // const handleCreateMeal = (mealId: number) => {
+  //   router.push(`/create-meal/${mealId}`)
+  // }
+
+  const handleRemove = (mealId: number) => {
+    Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Remove", style: "destructive", onPress: () => console.log("Removing meal:", mealId) },
+    ])
+  }
+
+  // const handleSaveNewMeal = () => {
+  //   router.push("/create-meal")
+  // }
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          {/* Header Section */}
-          <View style={styles.header}>
-            {/* Back Button */}
-            <Pressable style={styles.goBackButton} onPress={() => {}}>
-              <AntDesign name="arrowleft" size={24} color="black" />
-            </Pressable>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
 
-            {/* Title */}
-            <Text style={styles.screenTitle}>My Meals</Text>
-          </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backIcon}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>My Meals</Text>
+      </View>
 
-          {/* Navigation Tabs */}
-          <View style={styles.navTabs}>
-            <Pressable
-              style={[styles.navTab, activeTab === 'Favorites' && styles.activeTab]}
-              onPress={() => setActiveTab('Favorites')}>
-              <Text style={[styles.navText, activeTab === 'Favorites' && styles.activeText]}>Favorites</Text>
-            </Pressable>
+      {/* Tabs */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "favorites" && styles.activeTab]}
+          onPress={() => setActiveTab("favorites")}
+        >
+          <Text style={[styles.tabText, activeTab === "favorites" && styles.activeTabText]}>Favorites</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "history" && styles.activeTab]}
+          onPress={() => setActiveTab("history")}
+        >
+          <Text style={[styles.tabText, activeTab === "history" && styles.activeTabText]}>History</Text>
+        </TouchableOpacity>
+      </View>
 
-            <Pressable
-              style={[styles.navTab, activeTab === 'History' && styles.activeTab]}
-              onPress={() => setActiveTab('History')}>
-              <Text style={[styles.navText, activeTab === 'History' && styles.activeText]}>History</Text>
-            </Pressable>
-          </View>
-
-          {/* Main Section - Display Meals in Favorites */}
-          {activeTab === 'Favorites' && (
-            <FlatList
-              data={meals}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.mealContainer}>
-                  {/* Meal Image */}
-                  <Image source={{ uri: item.image }} style={styles.mealImage} />
-                  
-                  {/* Meal Details */}
-                  <View style={styles.mealInfo}>
-                    <Text style={styles.mealName}>{item.name}</Text>
-                    
-                    {/* Action Buttons */}
-                    <View style={styles.actionButtons}>
-                      <Pressable style={styles.createMealButton}>
-                        <Text style={styles.createMealText}>Create Meal</Text>
-                      </Pressable>
-                      <Pressable style={styles.removeButton}>
-                        <Text style={styles.removeText}>Remove</Text>
-                      </Pressable>
-                    </View>
-                  </View>
+      {/* Meals List */}
+      <ScrollView style={styles.content}>
+        {meals.map((meal) => (
+          <View key={meal.id} style={styles.mealItem}>
+            <View style={styles.mealHeader}>
+              <View style={styles.mealContent}>
+                <View style={styles.mealImage} />
+                <View style={styles.mealInfo}>
+                  <Text style={styles.mealName}>{meal.name}</Text>
+                  <Text style={styles.mealDetails}>{meal.details}</Text>
                 </View>
-              )}
-            />
-          )}
+              </View>
+              <Text style={styles.mealNumber}>#{meal.id.toString().padStart(2, "0")}</Text>
+            </View>
 
-          {/* Save New Meal Button */}
-          <Pressable style={styles.saveMealButton} onPress={() => {}}>
-            <Text style={styles.saveMealText}>Save New Meal</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
-  );
-};
+            <View style={styles.mealActions}>
+              <TouchableOpacity style={styles.createButton} /*onPress={() => handleCreateMeal(meal.id)}*/>
+                <Text style={styles.createButtonText}>Create Meal</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.removeButton} /*onPress={() => handleRemove(meal.id)}*/>
+                <Text style={styles.removeButtonText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Save New Meal Button */}
+      <TouchableOpacity style={styles.saveButton} /*onPress={handleSaveNewMeal}*/>
+        <Text style={styles.saveButtonText}>SAVE NEW MEAL</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#e6f2dc",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 40 : 10,
-    paddingBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    paddingTop: Platform.OS === "android" ? 16 : 0,
   },
-  goBackButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
+  backButton: {
+    padding: 8,
   },
-  screenTitle: {
-    flex: 1,
-    textAlign: 'center',
+  backIcon: {
+    fontSize: 32,
+    color: "#4e752d",
+  },
+  headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    marginRight: 40, // Adjusting spacing to balance the centered title
+    fontWeight: "600",
+    marginLeft: 12,
+    color: "#32343e",
   },
-  navTabs: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#f5f5f5',
-    paddingVertical: 10,
+  tabContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
-  navTab: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 10,
+  tab: {
+    marginRight: 24,
+    paddingBottom: 8,
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#007AFF',
+    borderBottomColor: "#4e752d",
   },
-  navText: {
+  tabText: {
     fontSize: 16,
-    color: 'gray',
+    color: "#9c9ba6",
   },
-  activeText: {
-    fontWeight: 'bold',
-    color: '#007AFF',
+  activeTabText: {
+    color: "#32343e",
+    fontWeight: "500",
   },
-  mealContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    marginHorizontal: 20,
-    marginTop: 10,
-    borderRadius: 10,
-    padding: 10,
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  mealItem: {
+    marginBottom: 24,
+  },
+  mealHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  mealContent: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   mealImage: {
     width: 80,
     height: 80,
-    borderRadius: 10,
+    backgroundColor: "#98a8b8",
+    borderRadius: 8,
   },
   mealInfo: {
-    flex: 1,
-    marginLeft: 15,
+    marginLeft: 12,
   },
   mealName: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#32343e",
+    marginBottom: 4,
   },
-  actionButtons: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  createMealButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  createMealText: {
-    color: '#fff',
+  mealDetails: {
     fontSize: 14,
+    color: "#6b6e82",
+  },
+  mealNumber: {
+    fontSize: 14,
+    color: "#6b6e82",
+  },
+  mealActions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  createButton: {
+    flex: 1,
+    backgroundColor: "#4e752d",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  createButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
   },
   removeButton: {
-    backgroundColor: '#FF3B30',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 5,
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#74af44",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
   },
-  removeText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  saveMealButton: {
-    position: 'absolute',
-    bottom: 40,
-    alignSelf: 'center',
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 25,
-  },
-  saveMealText: {
-    color: '#fff',
+  removeButtonText: {
+    color: "#74af44",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "500",
   },
-});
+  saveButton: {
+    backgroundColor: "#4e752d",
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+})
 
-export default MyMealsScreen;

@@ -15,10 +15,12 @@ const buttonsData = [
   { key: '9', text: 'Main Dashboard', href: '/(user)/MainDashboard' },
   { key: '10', text: 'Manage Household', href: '/(user)/ManageHousehold' },
   { key: '11', text: 'Move Meals', href: '/(user)/MoveMeals' },
-  { key: '12', text:  'Create Meal', href: '/(user)/CreateMeal'},
+  { key: '12', text: 'Create Meal', href: '/(user)/CreateMeal'},
   { key: '13', text: 'Profile', href: '/(user)/Profile' },
   { key: '14', text: 'Recover Password', href: '/(user)/RecoverPassword' },
   { key: '15', text: 'Saved Meals', href: '/(user)/SavedMeals' },
+  { key: '16', text: 'Gallery', href: '/(user)/Gallery' },
+  { key: '17', text: 'Recreate Meal', href: '/(user)/RecreateMeal' },
 ];
 
 export default function IndexScreen() {
