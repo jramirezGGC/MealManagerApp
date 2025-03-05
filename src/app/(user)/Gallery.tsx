@@ -1,25 +1,44 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 
+// Define an interface for the meal item
+interface MealItem {
+  id: string
+  name: string
+  image: string
+}
+// This is just a placeholder for now, you can change this however you see fit
+
 export default function MealGalleryScreen() {
   // Sample data - replace with your actual meal data
-  const meals = [
-    { id: 1, name: "Chicken Pasta", image: "https://placeholder.com/300" },
-    { id: 2, name: "Vegetable Curry", image: "https://placeholder.com/300" },
-    { id: 3, name: "Grilled Salmon", image: "https://placeholder.com/300" },
-    { id: 4, name: "Caesar Salad", image: "https://placeholder.com/300" },
-    { id: 5, name: "Beef Stir Fry", image: "https://placeholder.com/300" },
-    { id: 7, name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: 8, name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: 9, name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: 10, name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: 11, name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+  const meals: MealItem[] = [
+    { id: "1", name: "Chicken Pasta", image: "https://placeholder.com/300" },
+    { id: "2", name: "Vegetable Curry", image: "https://placeholder.com/300" },
+    { id: "3", name: "Grilled Salmon", image: "https://placeholder.com/300" },
+    { id: "4", name: "Caesar Salad", image: "https://placeholder.com/300" },
+    { id: "5", name: "Beef Stir Fry", image: "https://placeholder.com/300" },
+    { id: "7", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+    { id: "8", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+    { id: "9", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+    { id: "10", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+    { id: "11", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
   ]
 
-//   const handleMealPress = (mealId: number) => {
-//     router.push(`/meal/${mealId}`)
-//   }
+  const renderMealItem = ({ item }: { item: MealItem }) => (
+    <TouchableOpacity
+      style={styles.mealItem}
+      /*onPress={() => handleMealPress(item.id)}*/
+      activeOpacity={0.7}
+    >
+      <View style={styles.imageContainer}>
+        <View style={styles.imagePlaceholder} />
+      </View>
+      <Text style={styles.mealName} numberOfLines={1}>
+        {item.name}
+      </Text>
+    </TouchableOpacity>
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,25 +53,14 @@ export default function MealGalleryScreen() {
       </View>
 
       {/* Gallery Grid */}
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.galleryGrid}>
-          {meals.map((meal) => (
-            <TouchableOpacity
-              key={meal.id}
-              style={styles.mealItem}
-              /*onPress={() => handleMealPress(meal.id)}*/
-              activeOpacity={0.7}
-            >
-              <View style={styles.imageContainer}>
-                <View style={styles.imagePlaceholder} />
-              </View>
-              <Text style={styles.mealName} numberOfLines={1}>
-                {meal.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+      <FlatList
+        data={meals}
+        renderItem={renderMealItem}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+      />
     </SafeAreaView>
   )
 }
@@ -81,13 +89,10 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     color: "#32343e",
   },
-  scrollView: {
-    flex: 1,
-  },
-  galleryGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  listContent: {
     padding: 8,
+  },
+  row: {
     justifyContent: "space-between",
   },
   mealItem: {

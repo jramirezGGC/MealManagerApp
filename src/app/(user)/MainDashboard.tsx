@@ -1,61 +1,72 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 
+interface Meal {
+  id: number
+  name: string
+  type: string
+}
+
 export default function MainDashboard() {
-  const meals = [
+  const meals: Meal[] = [
     { id: 1, name: "Meal Name", type: "Breakfast" },
     { id: 2, name: "Meal Name", type: "Breakfast" },
     { id: 3, name: "Meal Name", type: "Breakfast" },
+    { id: 4, name: "Meal Name", type: "Breakfast" },
+    { id: 5, name: "Meal Name", type: "Breakfast" },
+    { id: 6, name: "Meal Name", type: "Breakfast" },
+    { id: 7, name: "Meal Name", type: "Breakfast" },
+    { id: 8, name: "Meal Name", type: "Breakfast" },
+    { id: 9, name: "Meal Name", type: "Breakfast" },
   ]
 
   const handleMenuPress = (mealId: number) => {
-    // Add your menu logic here
     console.log("Menu pressed for meal:", mealId)
   }
 
   const handleTakeMeal = (mealId: number) => {
-    // Add your take meal logic here
     console.log("Taking meal:", mealId)
   }
+
+  const renderMealItem = ({ item }: { item: Meal }) => (
+    <View style={styles.mealItem}>
+      <View style={styles.mealContent}>
+        <View style={styles.mealImage} />
+        <View style={styles.mealInfo}>
+          <Text style={styles.mealName}>{item.name}</Text>
+          <View style={styles.mealTag}>
+            <Text style={styles.mealTagText}>{item.type}</Text>
+          </View>
+        </View>
+        <View style={styles.mealActions}>
+          <TouchableOpacity onPress={() => handleTakeMeal(item.id)}>
+            <Text style={styles.takeMealText}>Take Meal</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton} onPress={() => handleMenuPress(item.id)}>
+            <Text style={styles.menuButtonText}>⋯</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  )
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Main Dashboard</Text>
       </View>
 
-      {/* Content */}
-      <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>Fridge Items</Text>
+      <FlatList
+        data={meals}
+        renderItem={renderMealItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.content}
+        ListHeaderComponent={() => <Text style={styles.sectionTitle}>Fridge Items</Text>}
+      />
 
-        {meals.map((meal) => (
-          <View key={meal.id} style={styles.mealItem}>
-            <View style={styles.mealContent}>
-              <View style={styles.mealImage} />
-              <View style={styles.mealInfo}>
-                <Text style={styles.mealName}>{meal.name}</Text>
-                <View style={styles.mealTag}>
-                  <Text style={styles.mealTagText}>{meal.type}</Text>
-                </View>
-              </View>
-              <View style={styles.mealActions}>
-                <TouchableOpacity onPress={() => handleTakeMeal(meal.id)}>
-                  <Text style={styles.takeMealText}>Take Meal</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.menuButton} onPress={() => handleMenuPress(meal.id)}>
-                  <Text style={styles.menuButtonText}>⋯</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navButton} /*onPress={() => router.push("/fridge")}*/>
           <Text style={styles.navIcon}>🗄️</Text>
@@ -88,7 +99,6 @@ const styles = StyleSheet.create({
     color: "#32343e",
   },
   content: {
-    flex: 1,
     paddingHorizontal: 16,
   },
   sectionTitle: {

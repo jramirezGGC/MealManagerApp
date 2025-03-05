@@ -1,18 +1,46 @@
-"use client"
-
 import { useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+
+interface Meal {
+  id: number
+  name: string
+  calories: string
+  date: string
+}
 
 export default function RefrigeratorScreen() {
   const [activeTab, setActiveTab] = useState("fridge")
 
-  const meals = [
+  const meals: Meal[] = [
     { id: 1, name: "Meal Name", calories: "kal?", date: "date?" },
     { id: 2, name: "Meal Name", calories: "kal?", date: "date?" },
     { id: 3, name: "Meal Name", calories: "kal?", date: "date?" },
+    { id: 4, name: "Meal Name", calories: "kal?", date: "date?" },
+    { id: 5, name: "Meal Name", calories: "kal?", date: "date?" },
+    { id: 6, name: "Meal Name", calories: "kal?", date: "date?" },
   ]
+
+  const renderMealItem = ({ item }: { item: Meal }) => (
+    <View style={styles.mealItem}>
+      <View style={styles.mealContent}>
+        <View style={styles.mealImage} />
+        <View style={styles.mealInfo}>
+          <Text style={styles.mealName}>{item.name}</Text>
+          <View style={styles.mealDetails}>
+            <Text style={styles.mealDetailText}>{item.calories}</Text>
+            <Text style={styles.mealDetailSeparator}>|</Text>
+            <Text style={styles.mealDetailText}>{item.date}</Text>
+          </View>
+        </View>
+        <Text style={styles.mealNumber}>#{item.id}</Text>
+      </View>
+      <TouchableOpacity style={styles.editButton} /*onPress={() => router.push("/edit-meal")}*/>
+        <Text style={styles.editButtonText}>Edit</Text>
+      </TouchableOpacity>
+    </View>
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,30 +70,13 @@ export default function RefrigeratorScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Content */}
-      <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>List of Meals:</Text>
-
-        {meals.map((meal) => (
-          <View key={meal.id} style={styles.mealItem}>
-            <View style={styles.mealContent}>
-              <View style={styles.mealImage} />
-              <View style={styles.mealInfo}>
-                <Text style={styles.mealName}>{meal.name}</Text>
-                <View style={styles.mealDetails}>
-                  <Text style={styles.mealDetailText}>{meal.calories}</Text>
-                  <Text style={styles.mealDetailSeparator}>|</Text>
-                  <Text style={styles.mealDetailText}>{meal.date}</Text>
-                </View>
-              </View>
-              <Text style={styles.mealNumber}>#{meal.id}</Text>
-            </View>
-            <TouchableOpacity style={styles.editButton} /*onPress={() => } */>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
+      <FlatList
+        data={meals}
+        renderItem={renderMealItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.content}
+        ListHeaderComponent={() => <Text style={styles.sectionTitle}>List of Meals:</Text>}
+      />
     </SafeAreaView>
   )
 }
@@ -116,7 +127,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   content: {
-    flex: 1,
     paddingHorizontal: 16,
   },
   sectionTitle: {
