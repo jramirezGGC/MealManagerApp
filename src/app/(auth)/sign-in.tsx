@@ -37,7 +37,7 @@ function test2() {
   SQLite.deleteDatabaseAsync("App.db")
 }
 
-function Test3() {
+function DB() {
   const db = SQLite.useSQLiteContext();
   const result = db.getAllSync(`SELECT * FROM users`);
   console.log("???")
@@ -124,7 +124,7 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
               <Text style={styles.loginButtonText}>LOGIN</Text>
             </TouchableOpacity>
-            <Test3/>
+            <DB/>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
