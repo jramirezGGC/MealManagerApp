@@ -1,14 +1,24 @@
 import { useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform, Alert } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 
-export default function MyMealsScreen() {
+interface Meal {
+  id: number
+  name: string
+  details: string
+}
+
+export default function SavedHistoryMeals() {
   const [activeTab, setActiveTab] = useState("favorites")
 
-  const meals = [
+  const meals: Meal[] = [
     { id: 0, name: "Food Name", details: "Details" },
     { id: 1, name: "Food Name", details: "Details" },
+    { id: 2, name: "Food Name", details: "Details" },
+    { id: 3, name: "Food Name", details: "Details" },
+    { id: 4, name: "Food Name", details: "Details" },
+    { id: 5, name: "Food Name", details: "Details" },
   ]
 
   // const handleCreateMeal = (mealId: number) => {
@@ -26,11 +36,35 @@ export default function MyMealsScreen() {
   //   router.push("/create-meal")
   // }
 
+  const renderMealItem = ({ item }: { item: Meal }) => (
+    <View style={styles.mealItem}>
+      <View style={styles.mealHeader}>
+        <View style={styles.mealContent}>
+          <View style={styles.mealImage} />
+          <View style={styles.mealInfo}>
+            <Text style={styles.mealName}>{item.name}</Text>
+            <Text style={styles.mealDetails}>{item.details}</Text>
+          </View>
+        </View>
+        <Text style={styles.mealNumber}>#{item.id.toString().padStart(2, "0")}</Text>
+      </View>
+
+      <View style={styles.mealActions}>
+        <TouchableOpacity style={styles.createButton} /*onPress={() => handleCreateMeal(item.id)}*/>
+          <Text style={styles.createButtonText}>Create Meal</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.removeButton} onPress={() => handleRemove(item.id)}>
+          <Text style={styles.removeButtonText}>Remove</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backIcon}>‹</Text>
@@ -38,7 +72,6 @@ export default function MyMealsScreen() {
         <Text style={styles.headerTitle}>My Meals</Text>
       </View>
 
-      {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === "favorites" && styles.activeTab]}
@@ -54,35 +87,13 @@ export default function MyMealsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Meals List */}
-      <ScrollView style={styles.content}>
-        {meals.map((meal) => (
-          <View key={meal.id} style={styles.mealItem}>
-            <View style={styles.mealHeader}>
-              <View style={styles.mealContent}>
-                <View style={styles.mealImage} />
-                <View style={styles.mealInfo}>
-                  <Text style={styles.mealName}>{meal.name}</Text>
-                  <Text style={styles.mealDetails}>{meal.details}</Text>
-                </View>
-              </View>
-              <Text style={styles.mealNumber}>#{meal.id.toString().padStart(2, "0")}</Text>
-            </View>
+      <FlatList
+        data={meals}
+        renderItem={renderMealItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.content}
+      />
 
-            <View style={styles.mealActions}>
-              <TouchableOpacity style={styles.createButton} /*onPress={() => handleCreateMeal(meal.id)}*/>
-                <Text style={styles.createButtonText}>Create Meal</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.removeButton} /*onPress={() => handleRemove(meal.id)}*/>
-                <Text style={styles.removeButtonText}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Save New Meal Button */}
       <TouchableOpacity style={styles.saveButton} /*onPress={handleSaveNewMeal}*/>
         <Text style={styles.saveButtonText}>SAVE NEW MEAL</Text>
       </TouchableOpacity>
@@ -136,7 +147,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   content: {
-    flex: 1,
     paddingHorizontal: 16,
   },
   mealItem: {
@@ -217,4 +227,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 })
-

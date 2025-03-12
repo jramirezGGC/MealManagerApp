@@ -1,15 +1,25 @@
 import { useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+
+interface Meal {
+  id: number
+  name: string
+  calories: string
+  date: string
+}
 
 export default function MoveMealsScreen() {
   const [selectedMeals, setSelectedMeals] = useState<number[]>([])
 
-  const meals = [
+  const meals: Meal[] = [
     { id: 1, name: "Meal Name", calories: "kal?", date: "date?" },
     { id: 2, name: "Meal Name", calories: "kal?", date: "date?" },
     { id: 3, name: "Meal Name", calories: "kal?", date: "date?" },
+    { id: 4, name: "Meal Name", calories: "kal?", date: "date?" },
+    { id: 5, name: "Meal Name", calories: "kal?", date: "date?" },
+    { id: 6, name: "Meal Name", calories: "kal?", date: "date?" },
   ]
 
   const toggleMealSelection = (mealId: number) => {
@@ -17,15 +27,36 @@ export default function MoveMealsScreen() {
   }
 
   const handleMoveMeals = () => {
-    // Add your move meals logic here
     console.log("Moving meals:", selectedMeals)
   }
+
+  const renderMealItem = ({ item }: { item: Meal }) => (
+    <View style={styles.mealItem}>
+      <View style={styles.mealContent}>
+        <View style={styles.mealImage} />
+        <View style={styles.mealInfo}>
+          <Text style={styles.mealName}>{item.name}</Text>
+          <View style={styles.mealDetails}>
+            <Text style={styles.mealDetailText}>{item.calories}</Text>
+            <Text style={styles.mealDetailSeparator}>|</Text>
+            <Text style={styles.mealDetailText}>{item.date}</Text>
+          </View>
+        </View>
+        <Text style={styles.mealsLeft}>Meals Left: #{item.id}</Text>
+      </View>
+      <TouchableOpacity
+        style={[styles.selectButton, selectedMeals.includes(item.id) && styles.selectedButton]}
+        onPress={() => toggleMealSelection(item.id)}
+      >
+        <Text style={styles.selectButtonText}>{selectedMeals.includes(item.id) ? "Selected" : "Select Meal"}</Text>
+      </TouchableOpacity>
+    </View>
+  )
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backIcon}>‹</Text>
@@ -33,37 +64,14 @@ export default function MoveMealsScreen() {
         <Text style={styles.headerTitle}>Move Meals</Text>
       </View>
 
-      {/* Content */}
-      <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>List of Meals:</Text>
+      <FlatList
+        data={meals}
+        renderItem={renderMealItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.content}
+        ListHeaderComponent={() => <Text style={styles.sectionTitle}>List of Meals:</Text>}
+      />
 
-        {meals.map((meal) => (
-          <View key={meal.id} style={styles.mealItem}>
-            <View style={styles.mealContent}>
-              <View style={styles.mealImage} />
-              <View style={styles.mealInfo}>
-                <Text style={styles.mealName}>{meal.name}</Text>
-                <View style={styles.mealDetails}>
-                  <Text style={styles.mealDetailText}>{meal.calories}</Text>
-                  <Text style={styles.mealDetailSeparator}>|</Text>
-                  <Text style={styles.mealDetailText}>{meal.date}</Text>
-                </View>
-              </View>
-              <Text style={styles.mealsLeft}>Meals Left: #{meal.id}</Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.selectButton, selectedMeals.includes(meal.id) && styles.selectedButton]}
-              onPress={() => toggleMealSelection(meal.id)}
-            >
-              <Text style={styles.selectButtonText}>
-                {selectedMeals.includes(meal.id) ? "Selected" : "Select Meal"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Move Button */}
       <TouchableOpacity
         style={[styles.moveButton, selectedMeals.length === 0 && styles.moveButtonDisabled]}
         onPress={handleMoveMeals}
@@ -100,7 +108,6 @@ const styles = StyleSheet.create({
     color: "#32343e",
   },
   content: {
-    flex: 1,
     paddingHorizontal: 16,
   },
   sectionTitle: {
