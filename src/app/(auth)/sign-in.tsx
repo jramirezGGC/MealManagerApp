@@ -2,10 +2,8 @@
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system';
-import { Asset } from 'expo-asset';
 import * as SQLite from 'expo-sqlite';
 import React from 'react';
-import { SQLiteProvider } from 'expo-sqlite';
 import { useState } from "react"
 import {
   View,
@@ -25,23 +23,6 @@ import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 
 
-
-const loadDatabase = async () => {
-  const dbName = "App.db";
-  const dbAsset = require("../../lib/App.db");
-  const dbUri = Asset.fromModule(dbAsset).uri;
-  const dbFilePath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
-
-  const fileInfo = await FileSystem.getInfoAsync(dbFilePath);
-  if (!fileInfo.exists) {
-    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}SQLite`,
-      { intermediates: true }
-    );
-    await FileSystem.downloadAsync(dbUri, dbFilePath);
-    console.log('done')
-  }
-}
-
 function test() {
   FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'SQLite/')
     .then(files => {
@@ -56,7 +37,7 @@ function test2() {
   SQLite.deleteDatabaseAsync("App.db")
 }
 
-function Test3() {
+function DB() {
   const db = SQLite.useSQLiteContext();
   const result = db.getAllSync(`SELECT * FROM users`);
   console.log("???")
@@ -79,11 +60,6 @@ export default function LoginScreen() {
   
   const [DBLoaded, setDBLoaded] = React.useState<boolean>(false);
 
-  React.useEffect(() => {
-    loadDatabase()
-      .then(() => setDBLoaded(true))
-      .catch((e) => console.error(e));
-  }, [])
 
   /*
   const handleForgotPassword = () => {
@@ -92,7 +68,6 @@ export default function LoginScreen() {
   */
 
   return (
-    <SQLiteProvider databaseName="App.db" onInit={loadDatabase}>
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
@@ -149,11 +124,11 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
               <Text style={styles.loginButtonText}>LOGIN</Text>
             </TouchableOpacity>
+            <DB/>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-    </SQLiteProvider>
   )
 }
 

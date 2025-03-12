@@ -7,6 +7,10 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/src/components/useColorScheme';
+import { SQLiteProvider } from 'expo-sqlite';
+
+import { Asset } from 'expo-asset';
+import * as FileSystem from 'expo-file-system';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,16 +49,34 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+const loadDatabase = async () => {
+  const dbName = "App.db";
+  const dbAsset = require("../lib/App.db");
+  const dbUri = Asset.fromModule(dbAsset).uri;
+  const dbFilePath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
+
+  const fileInfo = await FileSystem.getInfoAsync(dbFilePath);
+  if (!fileInfo.exists) {
+    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}SQLite`,
+      { intermediates: true }
+    );
+    await FileSystem.downloadAsync(dbUri, dbFilePath);
+    console.log('done')
+  }
+}
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(user)" options={{ headerShown: false }} />      
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />    
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <SQLiteProvider databaseName={'App.db'} onInit={loadDatabase}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(user)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+      </ThemeProvider>
+    </SQLiteProvider>
   );
 }

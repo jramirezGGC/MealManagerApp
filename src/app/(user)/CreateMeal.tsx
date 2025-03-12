@@ -14,16 +14,34 @@ import {
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import * as SQLite from 'expo-sqlite';
 
 export default function CreateMealScreen() {
   const [mealName, setMealName] = useState("")
   const [description, setDescription] = useState("")
   const [ingredients, setIngredients] = useState("")
+  const db = SQLite.useSQLiteContext();
 
-  const handleCreateMeal = () => {
+  const handleCreateMeal = async () => {
     // Add your meal creation logic here
+    const result = db.getAllSync('SELECT * FROM meals');
+    try {
+      const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
+      console.log(result2.lastInsertRowId);
+    }
+    catch (error) {
+      console.error('Error fetching data:', error);
+    }
+   
+    for (const row of result){
+      console.log((row as any).id,(row as any).name,(row as any).description,(row as any).ingredients, (row as any).picture, (row as any).user_id)
+    }
     console.log({ mealName, description, ingredients })
     router.back()
+  }
+
+  const test = () =>{
+    
   }
 
   const handleSelectImage = () => {

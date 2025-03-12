@@ -2,12 +2,26 @@ import { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import * as SQLite from 'expo-sqlite';
 
 interface Meal {
   id: number
   name: string
   calories: string
   date: string
+}
+
+let db : SQLite.SQLiteDatabase;
+
+function DB() {
+  db = SQLite.useSQLiteContext();
+  const result = db.getAllSync(`SELECT * FROM users`);
+  console.log("Move Meals Database Loading...")
+  for (const row of result){
+    console.log(row.id,row.user)
+  }
+
+  return null
 }
 
 export default function MoveMealsScreen() {
@@ -28,6 +42,18 @@ export default function MoveMealsScreen() {
 
   const handleMoveMeals = () => {
     console.log("Moving meals:", selectedMeals)
+    const statement = db.prepareSync('UPDATE inventory SET is_fridge = ? WHERE ID = ?');
+    selectedMeals.forEach( mealID =>
+    {
+      console.log(mealID);
+      statement.executeSync(true, mealID);
+    })
+    statement.finalizeAsync();
+    let result = db.getAllSync(`SELECT * FROM inventory`);
+    for (const row of result){
+      console.log(row.id,row.is_fridge)
+    }
+
   }
 
   const renderMealItem = ({ item }: { item: Meal }) => (
@@ -56,6 +82,8 @@ export default function MoveMealsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
+      <View/>
+      <DB/>
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
