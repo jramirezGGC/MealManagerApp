@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   View,
@@ -46,46 +44,50 @@ export default function SignUpScreen() {
 
           {/* Title Section */}
           <View style={styles.titleSection}>
-            <Text style={styles.title}>Sign Up</Text>
-            <Text style={styles.subtitle}>Please Sign Up to get started</Text>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Please fill in your details to get started</Text>
           </View>
 
           {/* Form */}
           <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>NAME</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="John doe"
-                value={name}
-                onChangeText={setName}
-                placeholderTextColor="#88a588"
-              />
+              <Text style={styles.label}>Full Name</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="John Doe"
+                  value={name}
+                  onChangeText={setName}
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>EMAIL</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="example@gmail.com"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholderTextColor="#88a588"
-              />
+              <Text style={styles.label}>Email Address</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>PASSWORD</Text>
-              <View style={styles.passwordContainer}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.inputWrapper}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
-                  placeholder="**********"
+                  placeholder="••••••••••"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
-                  placeholderTextColor="#88a588"
+                  placeholderTextColor="#9ca3af"
                 />
                 <TouchableOpacity style={styles.visibilityToggle} onPress={() => setShowPassword(!showPassword)}>
                   <Text style={styles.visibilityIcon}>{showPassword ? "👁" : "👁‍🗨"}</Text>
@@ -94,15 +96,15 @@ export default function SignUpScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>RE-TYPE PASSWORD</Text>
-              <View style={styles.passwordContainer}>
+              <Text style={styles.label}>Confirm Password</Text>
+              <View style={styles.inputWrapper}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
-                  placeholder="**********"
+                  placeholder="••••••••••"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry={!showConfirmPassword}
-                  placeholderTextColor="#88a588"
+                  placeholderTextColor="#9ca3af"
                 />
                 <TouchableOpacity
                   style={styles.visibilityToggle}
@@ -114,8 +116,15 @@ export default function SignUpScreen() {
             </View>
 
             <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-              <Text style={styles.signUpButtonText}>SIGN UP</Text>
+              <Text style={styles.signUpButtonText}>Create Account</Text>
             </TouchableOpacity>
+
+            <View style={styles.loginPrompt}>
+              <Text style={styles.loginPromptText}>Already have an account?</Text>
+              <TouchableOpacity /*onPress={() => router.push("/login")}*/>
+                <Text style={styles.loginLink}>Login</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -146,12 +155,12 @@ const styles = StyleSheet.create({
     color: "#4e752d",
   },
   titleSection: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "600",
+    fontSize: 28,
+    fontWeight: "700",
     color: "#32343e",
     marginBottom: 8,
   },
@@ -161,23 +170,32 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    backgroundColor: "#74af44",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 16,
-    gap: 16,
+    backgroundColor: "white",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
   },
   inputGroup: {
-    gap: 8,
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "white",
+    color: "#4e752d",
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    backgroundColor: "#f9faf7",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   input: {
-    backgroundColor: "#e6f2dc",
-    borderRadius: 12,
     padding: Platform.OS === "ios" ? 16 : 12,
     fontSize: 16,
     color: "#32343e",
@@ -205,10 +223,28 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginTop: 16,
+    shadowColor: "#4e752d",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   signUpButtonText: {
     color: "white",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  loginPrompt: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 24,
+  },
+  loginPromptText: {
+    color: "#6b6e82",
+    marginRight: 4,
+  },
+  loginLink: {
+    color: "#4e752d",
     fontWeight: "600",
   },
 })
