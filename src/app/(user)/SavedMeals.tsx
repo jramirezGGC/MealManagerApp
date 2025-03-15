@@ -2,6 +2,7 @@ import { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 interface Meal {
   id: number
@@ -104,7 +105,7 @@ export default function SavedHistoryMeals() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -117,13 +118,13 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 12,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   tabContainer: {
     flexDirection: "row",
@@ -136,14 +137,14 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#4e752d",
+    borderBottomColor: Colors.primary,
   },
   tabText: {
     fontSize: 16,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
   },
   activeTabText: {
-    color: "#32343e",
+    color: Colors.textPrimary,
     fontWeight: "500",
   },
   content: {
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
   mealImage: {
     width: 80,
     height: 80,
-    backgroundColor: "#98a8b8",
+    backgroundColor: Colors.imagePlaceholder,
     borderRadius: 8,
   },
   mealInfo: {
@@ -174,16 +175,16 @@ const styles = StyleSheet.create({
   mealName: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   mealDetails: {
     fontSize: 14,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   mealNumber: {
     fontSize: 14,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   mealActions: {
     flexDirection: "row",
@@ -191,38 +192,38 @@ const styles = StyleSheet.create({
   },
   createButton: {
     flex: 1,
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   createButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "500",
   },
   removeButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#74af44",
+    borderColor: Colors.secondary,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   removeButtonText: {
-    color: "#74af44",
+    color: Colors.secondary,
     fontSize: 16,
     fontWeight: "500",
   },
   saveButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     margin: 16,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
   },
   saveButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

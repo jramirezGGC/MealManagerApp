@@ -82,11 +82,11 @@ export default function ConfirmMealScreen(){
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.backgroundColor,
+    backgroundColor: Colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundColor,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 375,
     height: 1,
-    backgroundColor: Colors.lineDivider,
+    backgroundColor: Colors.divider,
     alignSelf: 'center',
     marginTop: 10,
   },  
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.goBackButtonColor,
+    backgroundColor: Colors.backButtonColor,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 16,
     color: '#333',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
   },
   totalLabel: {
     fontSize: 16,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   totalMeals: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.white,
     textAlign: 'center',
     marginTop: 5,
   },
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },

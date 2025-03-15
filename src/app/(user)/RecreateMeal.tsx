@@ -2,6 +2,7 @@ import { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Platform, TextInput } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router, useLocalSearchParams } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 export default function RecreateMealScreen() {
   const { id } = useLocalSearchParams()
@@ -112,7 +113,7 @@ export default function RecreateMealScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -125,13 +126,13 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 12,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   content: {
     flex: 1,
@@ -147,12 +148,12 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#98a8b8",
+    backgroundColor: Colors.imagePlaceholder,
   },
   mealName: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   section: {
@@ -161,17 +162,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   description: {
     fontSize: 16,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
     lineHeight: 24,
   },
   ingredient: {
     fontSize: 16,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   quantityContainer: {
@@ -182,35 +183,35 @@ const styles = StyleSheet.create({
   quantityButton: {
     width: 40,
     height: 40,
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.secondary,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
   },
   quantityButtonText: {
     fontSize: 24,
-    color: "white",
+    color: Colors.white,
     fontWeight: "600",
   },
   quantityInput: {
     width: 60,
     height: 40,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     borderRadius: 8,
     marginHorizontal: 16,
     textAlign: "center",
     fontSize: 18,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   recreateButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     margin: 16,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
   },
   recreateButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

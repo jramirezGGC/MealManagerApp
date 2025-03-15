@@ -12,6 +12,7 @@ import {
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 export default function SignUpScreen() {
   const [name, setName] = useState("")
@@ -135,7 +136,7 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   titleSection: {
     paddingHorizontal: 24,
@@ -161,16 +162,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6b6e82",
+    color: Colors.textPrimary,
   },
   formContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 24,
@@ -186,19 +187,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#4e752d",
+    color: Colors.primary,
     marginBottom: 8,
   },
   inputWrapper: {
-    backgroundColor: "#f9faf7",
+    backgroundColor: Colors.fieldBackground,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: Colors.border,
   },
   input: {
     padding: Platform.OS === "ios" ? 16 : 12,
     fontSize: 16,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   passwordContainer: {
     position: "relative",
@@ -215,22 +216,22 @@ const styles = StyleSheet.create({
   },
   visibilityIcon: {
     fontSize: 20,
-    color: "#6b6e82",
+    color: Colors.textPrimary,
   },
   signUpButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
     marginTop: 16,
-    shadowColor: "#4e752d",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
   },
   signUpButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -240,11 +241,11 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   loginPromptText: {
-    color: "#6b6e82",
+    color: Colors.textPrimary,
     marginRight: 4,
   },
   loginLink: {
-    color: "#4e752d",
+    color: Colors.primary,
     fontWeight: "600",
   },
 })
