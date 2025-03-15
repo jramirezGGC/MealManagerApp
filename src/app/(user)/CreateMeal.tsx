@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   View,
@@ -15,6 +13,7 @@ import {
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import * as SQLite from 'expo-sqlite';
+import Colors from '@/src/constants/Colors';
 
 export default function CreateMealScreen() {
   const [mealName, setMealName] = useState("")
@@ -125,7 +124,7 @@ export default function CreateMealScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -145,13 +144,13 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 8,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   imageContainer: {
     alignItems: "center",
@@ -161,7 +160,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.imagePlaceholder,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -173,12 +172,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.secondary,
     justifyContent: "center",
     alignItems: "center",
   },
   editIcon: {
-    color: "white",
+    color: Colors.white,
     fontSize: 18,
   },
   imageLabel: {
@@ -196,14 +195,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   input: {
-    backgroundColor: "#b4d797",
+    backgroundColor: Colors.fieldBackground,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
     padding: Platform.OS === "ios" ? 16 : 12,
     fontSize: 16,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   textArea: {
     height: 100,
@@ -215,14 +216,14 @@ const styles = StyleSheet.create({
     }),
   },
   createButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     margin: 16,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
   },
   createButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 export default function PersonalInfoScreen() {
   const userInfo = {
@@ -74,7 +75,7 @@ export default function PersonalInfoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -92,16 +93,16 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 12,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   editButton: {
-    color: "#74af44",
+    color: Colors.secondary,
     fontSize: 16,
     fontWeight: "600",
     textDecorationLine: "underline",
@@ -114,17 +115,19 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     marginBottom: 16,
   },
   username: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   infoCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
     padding: 16,
     marginHorizontal: 16,
     gap: 24,
@@ -137,22 +140,22 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   infoLabel: {
     fontSize: 12,
-    color: "#6b6e82",
+    color: Colors.primary,
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 16,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   logoutButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     margin: 16,
     padding: 16,
     borderRadius: 12,
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
     marginTop: "auto",
   },
   logoutButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

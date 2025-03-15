@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 export default function InventoryScreen() {
   const menuItems = [
@@ -71,7 +72,7 @@ export default function InventoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -84,16 +85,18 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 8,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   menuContainer: {
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.border,
     margin: 16,
     borderRadius: 16,
     overflow: "hidden",
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 40,
     height: 40,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
@@ -125,17 +128,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   menuText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "500",
   },
   chevron: {
-    color: "white",
+    color: Colors.white,
     fontSize: 24,
   },
   bottomNav: {
     flexDirection: "row",
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.secondary,
     padding: 16,
     marginTop: "auto",
   },
@@ -148,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bottomNavText: {
-    color: "#4e752d",
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: "600",
   },
