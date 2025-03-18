@@ -11,31 +11,19 @@ interface Meal {
   date: string
 }
 
-let db : SQLite.SQLiteDatabase;
-
-function DB() {
-  db = SQLite.useSQLiteContext();
-  const result = db.getAllSync(`SELECT * FROM users`);
-  console.log("Move Meals Database Loading...")
-  let row: any
-  for (row of result){
-    console.log(row.id,row.user)
-  }
-
-  return null
-}
-
 export default function MoveMealsScreen() {
   const [selectedMeals, setSelectedMeals] = useState<number[]>([])
+  const db = SQLite.useSQLiteContext();
+  let row: any
 
-  const meals: Meal[] = [
-    { id: 1, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 2, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 3, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 4, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 5, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 6, name: "Meal Name", calories: "kal?", date: "date?" },
-  ]
+  var meals : Meal[] = [];
+
+  const result = db.getAllSync(`SELECT * FROM meals`);
+  console.log("Move Meals Database Loading...")
+  for (row of result){
+    console.log(row.id,row.name,row.description)
+    meals.push({ id: row.id, name: row.name, calories: "kal?", date: "date?"})
+  }
 
   const toggleMealSelection = (mealId: number) => {
     setSelectedMeals((prev) => (prev.includes(mealId) ? prev.filter((id) => id !== mealId) : [...prev, mealId]))
@@ -86,7 +74,6 @@ export default function MoveMealsScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       <View/>
-      <DB/>
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
