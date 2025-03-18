@@ -37,21 +37,19 @@ function test2() {
   SQLite.deleteDatabaseAsync("App.db")
 }
 
-function DB() {
-  const db = SQLite.useSQLiteContext();
-  const result = db.getAllSync(`SELECT * FROM users`);
-  console.log("???")
-  for (const row of result){
-    console.log(row.id,row.user)
-  }
-
-  return <Text>???</Text>
-}
-
 export default function LoginScreen() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+
+  const db = SQLite.useSQLiteContext();
+  const result = db.getAllSync(`SELECT * FROM users`);
+
+  let row: any
+  for (row of result){
+    console.log(row.id,row.user)
+  }
+
 
   const handleLogin = () => {
     // Add your login logic here
@@ -124,7 +122,6 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
               <Text style={styles.loginButtonText}>LOGIN</Text>
             </TouchableOpacity>
-            <DB/>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

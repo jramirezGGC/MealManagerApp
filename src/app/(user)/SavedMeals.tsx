@@ -2,6 +2,7 @@ import { useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import * as SQLite from 'expo-sqlite';
 
 interface Meal {
   id: number
@@ -9,17 +10,23 @@ interface Meal {
   details: string
 }
 
+let db : SQLite.SQLiteDatabase;
+
 export default function SavedHistoryMeals() {
   const [activeTab, setActiveTab] = useState("favorites")
 
-  const meals: Meal[] = [
-    { id: 0, name: "Food Name", details: "Details" },
-    { id: 1, name: "Food Name", details: "Details" },
-    { id: 2, name: "Food Name", details: "Details" },
-    { id: 3, name: "Food Name", details: "Details" },
-    { id: 4, name: "Food Name", details: "Details" },
-    { id: 5, name: "Food Name", details: "Details" },
-  ]
+  db = SQLite.useSQLiteContext();
+  console.log("Database Loading...");
+  
+  var meals : Meal[] = [];
+  const result = db.getAllSync(`SELECT * FROM meals`);
+  let row: any
+  for (row of result){
+    console.log(row.id,row.name,row.description)
+    meals.push({ id: row.id, name: row.name, details: row.description })
+  }
+
+
 
   // const handleCreateMeal = (mealId: number) => {
   //   router.push(`/create-meal/${mealId}`)

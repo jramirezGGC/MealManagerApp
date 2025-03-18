@@ -17,7 +17,8 @@ function DB() {
   db = SQLite.useSQLiteContext();
   const result = db.getAllSync(`SELECT * FROM users`);
   console.log("Move Meals Database Loading...")
-  for (const row of result){
+  let row: any
+  for (row of result){
     console.log(row.id,row.user)
   }
 
@@ -50,7 +51,9 @@ export default function MoveMealsScreen() {
     })
     statement.finalizeAsync();
     let result = db.getAllSync(`SELECT * FROM inventory`);
-    for (const row of result){
+    
+    let row: any
+    for (row of result){
       console.log(row.id,row.is_fridge)
     }
 
