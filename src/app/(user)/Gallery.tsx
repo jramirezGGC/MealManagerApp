@@ -1,7 +1,11 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+
 import * as SQLite from 'expo-sqlite';
+
+import Colors from '@/src/constants/Colors';
+
 
 // Define an interface for the meal item
 interface MealItem {
@@ -80,7 +84,7 @@ export default function MealGalleryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -93,13 +97,13 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 12,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   listContent: {
     padding: 8,
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -134,13 +138,13 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#98a8b8",
+    backgroundColor: Colors.imagePlaceholder,
     borderRadius: 16,
   },
   mealName: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#32343e",
+    color: Colors.textPrimary,
     textAlign: "center",
     paddingHorizontal: 4,
   },

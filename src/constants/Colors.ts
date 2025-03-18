@@ -1,31 +1,41 @@
-const tintColorLight = '#2f95dc';
-const tintColorDark = '#fff';
-const backgroundColor = '#E6F2DC';
-const lineDivider = '#74af44'
-const rectangleBGColor = '#82bc52';
-const goBackButtonColor = '#4E752D';
-const backGroundColorLight = '#B4D797';
-const mainBottomButton = '#5a8835';
+const Colors = {
 
-export default {
+  primary: "#4e752d",
+  secondary: "#74af44",
+  background: "#e6f2dc",
+  inputBackground: "#b4d797",
+  fieldBackground: "#f9faf7",
+
+  textPrimary: "#32343e",
+  textSecondary: "#6b6e82",
+  textTertiary: "#9c9ba6",
+  placeholderText: "#9ca3af",
+
+  white: "#ffffff",
+  border: "#e2e8f0",
+  divider: "#caccda",
+  imagePlaceholder: "#98a8b8",
+  cardBackground: "#e8f3df",
+  rectangleBGColor: "#82bc52",
+  backButtonColor: "#4e752d",
+  mainBottomButton: "#5a8835",
+
+  tagBackground: "#FFE5D9",
+  tagText: "#FF7622",
+
   light: {
-    text: '#000',
-    background: '#fff',
-    tint: tintColorLight,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorLight,
-  },
+        text: '#000',
+        background: '#fff',
+        tint: '#2f95dc',
+        tabIconDefault: '#ccc',
+        tabIconSelected: '#2f95dc',
+      },
   dark: {
-    text: '#fff',
-    background: '#000',
-    tint: tintColorDark,
-    tabIconDefault: '#ccc',
-    tabIconSelected: tintColorDark,
-  },
-  backgroundColor,
-  rectangleBGColor,
-  lineDivider,
-  goBackButtonColor,
-  backGroundColorLight,
-  mainBottomButton,
-};
+        text: '#fff',
+        background: '#000',
+        tint: '#fff',
+        tabIconDefault: '#ccc',
+        tabIconSelected: '#fff',
+      },
+}
+export default Colors

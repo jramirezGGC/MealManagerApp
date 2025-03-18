@@ -1,6 +1,3 @@
-"use client"
-
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as FileSystem from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
 import React from 'react';
@@ -21,6 +18,7 @@ import {
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 
 function test() {
@@ -132,7 +130,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -149,7 +147,7 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   titleSection: {
     paddingHorizontal: 16,
@@ -158,16 +156,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   formContainer: {
     flex: 1,
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.secondary,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 16,
@@ -179,14 +177,14 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "white",
+    color: Colors.white,
   },
   input: {
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
     borderRadius: 12,
     padding: Platform.OS === "ios" ? 16 : 12,
     fontSize: 16,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   passwordContainer: {
     position: "relative",
@@ -203,24 +201,24 @@ const styles = StyleSheet.create({
   },
   visibilityIcon: {
     fontSize: 20,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   forgotPassword: {
     alignSelf: "flex-start",
   },
   forgotPasswordText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
   },
   loginButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
     marginTop: 16,
   },
   loginButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

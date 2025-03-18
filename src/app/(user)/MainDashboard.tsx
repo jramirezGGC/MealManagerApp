@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from '@/src/constants/Colors';
 
 interface Meal {
   id: number
@@ -87,7 +88,7 @@ export default function MainDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     padding: 16,
@@ -96,19 +97,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   content: {
     paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 16,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
     marginBottom: 16,
   },
   mealItem: {
     marginBottom: 16,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     borderRadius: 12,
     padding: 12,
   },
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
   mealImage: {
     width: 80,
     height: 80,
-    backgroundColor: "#98a8b8",
+    backgroundColor: Colors.imagePlaceholder,
     borderRadius: 8,
   },
   mealInfo: {
@@ -129,18 +130,18 @@ const styles = StyleSheet.create({
   mealName: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   mealTag: {
-    backgroundColor: "#FFE5D9",
+    backgroundColor: Colors.tagBackground,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 16,
     alignSelf: "flex-start",
   },
   mealTagText: {
-    color: "#FF7622",
+    color: Colors.tagText,
     fontSize: 14,
   },
   mealActions: {
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   takeMealText: {
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
     fontSize: 14,
   },
   menuButton: {
@@ -157,11 +158,11 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 20,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   bottomNav: {
     flexDirection: "row",
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.secondary,
     padding: 16,
     justifyContent: "space-between",
     alignItems: "center",
@@ -171,12 +172,12 @@ const styles = StyleSheet.create({
   },
   navIcon: {
     fontSize: 24,
-    color: "white",
+    color: Colors.white,
   },
   addButton: {
     width: 56,
     height: 56,
-    backgroundColor: "white",
+    backgroundColor: Colors.white,
     borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
@@ -194,6 +195,6 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 32,
-    color: "#74af44",
+    color: Colors.secondary,
   },
 })

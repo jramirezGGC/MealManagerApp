@@ -64,11 +64,11 @@ export default function MealDetailsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.backgroundColor,
+    backgroundColor: Colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundColor,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.goBackButtonColor,
+    backgroundColor: Colors.backButtonColor,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   divider: {
       width: 375,
       height: 1,
-      backgroundColor: Colors.lineDivider,
+      backgroundColor: Colors.divider,
       alignSelf: 'center',
       marginTop: 10,
     }, 
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   infoContainer: {
-    backgroundColor: Colors.backGroundColorLight,
+    backgroundColor: Colors.inputBackground,
     padding: 15,
     borderRadius: 10,
     marginHorizontal: 20,
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.white,
     textAlign: 'center',
     marginTop: 5,
   },
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
