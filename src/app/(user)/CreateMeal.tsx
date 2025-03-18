@@ -33,8 +33,9 @@ export default function CreateMealScreen() {
     }
    
     const result = db.getAllSync('SELECT * FROM meals');
-    for (const row of result){
-      console.log((row as any).id,(row as any).name,(row as any).description,(row as any).ingredients, (row as any).picture, (row as any).user_id)
+    let row: any
+    for (row of result){
+      console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
     }
     console.log({ mealName, description, ingredients })
     router.back()

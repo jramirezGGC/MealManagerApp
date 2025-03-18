@@ -10,15 +10,13 @@ interface Meal {
   details: string
 }
 
-let db : SQLite.SQLiteDatabase;
-
 export default function SavedHistoryMeals() {
   const [activeTab, setActiveTab] = useState("favorites")
 
-  db = SQLite.useSQLiteContext();
+  const db = SQLite.useSQLiteContext();
   console.log("Database Loading...");
-  
   var meals : Meal[] = [];
+
   const result = db.getAllSync(`SELECT * FROM meals`);
   let row: any
   for (row of result){
@@ -35,7 +33,7 @@ export default function SavedHistoryMeals() {
   const handleRemove = (mealId: number) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => console.log("Removing meal:", mealId) },
+      { text: "Remove", style: "destructive", onPress: () => db.runSync('DELETE FROM meals WHERE id = $id', { $id: mealId }) },
     ])
   }
 
