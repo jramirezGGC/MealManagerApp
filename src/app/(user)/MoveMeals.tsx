@@ -11,14 +11,11 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import * as SQLite from "expo-sqlite";
+import Colors from "@/src/constants/Colors";
+import { Meal } from "@/src/types";
 
 
-interface Meal {
-  id: number;
-  name: string;
-  calories: string;
-  date: string;
-}
+
 
 let db: SQLite.SQLiteDatabase;
 
@@ -36,14 +33,14 @@ function DB() {
 export default function MoveMealsScreen() {
   const [selectedMeals, setSelectedMeals] = useState<number[]>([]);
 
-  const meals: Meal[] = [
-    { id: 1, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 2, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 3, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 4, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 5, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 6, name: "Meal Name", calories: "kal?", date: "date?" },
-  ];
+  // const meals: Meal[] = [
+  //   { id: 1, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 2, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 3, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 4, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 5, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 6, name: "Meal Name", image: "",calories: "kal?", date: "date?" },
+  // ];
 
   const toggleMealSelection = (mealId: number) => {
     setSelectedMeals((prev) =>
@@ -142,7 +139,7 @@ export default function MoveMealsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -155,26 +152,26 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 8,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   content: {
     paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 16,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
     marginBottom: 16,
   },
   mealItem: {
     marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#caccda",
+    borderBottomColor: Colors.divider,
     paddingBottom: 16,
   },
   mealContent: {
@@ -185,7 +182,7 @@ const styles = StyleSheet.create({
   mealImage: {
     width: 60,
     height: 60,
-    backgroundColor: "#98a8b8",
+    backgroundColor: Colors.imagePlaceholder,
     borderRadius: 8,
   },
   mealInfo: {
@@ -195,7 +192,7 @@ const styles = StyleSheet.create({
   mealName: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   mealDetails: {
@@ -204,34 +201,34 @@ const styles = StyleSheet.create({
   },
   mealDetailText: {
     fontSize: 14,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
   },
   mealDetailSeparator: {
     marginHorizontal: 8,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
   },
   mealsLeft: {
     fontSize: 14,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
     marginLeft: 12,
   },
   selectButton: {
-    backgroundColor: "#74af44",
+    backgroundColor: Colors.secondary,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
     alignSelf: "flex-end",
   },
   selectedButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
   },
   selectButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "500",
   },
   moveButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     margin: 16,
     padding: 16,
     borderRadius: 12,
@@ -241,7 +238,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   moveButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },

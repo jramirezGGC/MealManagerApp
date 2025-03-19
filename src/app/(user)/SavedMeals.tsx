@@ -3,6 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platf
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 
+import * as SQLite from 'expo-sqlite';
+
+import Colors from '@/src/constants/Colors';
+
+
 interface Meal {
   id: number
   name: string
@@ -12,14 +17,18 @@ interface Meal {
 export default function SavedHistoryMeals() {
   const [activeTab, setActiveTab] = useState("favorites")
 
-  const meals: Meal[] = [
-    { id: 0, name: "Food Name", details: "Details" },
-    { id: 1, name: "Food Name", details: "Details" },
-    { id: 2, name: "Food Name", details: "Details" },
-    { id: 3, name: "Food Name", details: "Details" },
-    { id: 4, name: "Food Name", details: "Details" },
-    { id: 5, name: "Food Name", details: "Details" },
-  ]
+  const db = SQLite.useSQLiteContext();
+  console.log("Database Loading...");
+  var meals : Meal[] = [];
+
+  const result = db.getAllSync(`SELECT * FROM meals`);
+  let row: any
+  for (row of result){
+    console.log(row.id,row.name,row.description)
+    meals.push({ id: row.id, name: row.name, details: row.description })
+  }
+
+
 
   // const handleCreateMeal = (mealId: number) => {
   //   router.push(`/create-meal/${mealId}`)
@@ -28,7 +37,7 @@ export default function SavedHistoryMeals() {
   const handleRemove = (mealId: number) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => console.log("Removing meal:", mealId) },
+      { text: "Remove", style: "destructive", onPress: () => db.runSync('DELETE FROM meals WHERE id = $id', { $id: mealId }) },
     ])
   }
 
@@ -104,7 +113,7 @@ export default function SavedHistoryMeals() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2dc",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -117,13 +126,13 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 32,
-    color: "#4e752d",
+    color: Colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
     marginLeft: 12,
-    color: "#32343e",
+    color: Colors.textPrimary,
   },
   tabContainer: {
     flexDirection: "row",
@@ -136,14 +145,14 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#4e752d",
+    borderBottomColor: Colors.primary,
   },
   tabText: {
     fontSize: 16,
-    color: "#9c9ba6",
+    color: Colors.textTertiary,
   },
   activeTabText: {
-    color: "#32343e",
+    color: Colors.textPrimary,
     fontWeight: "500",
   },
   content: {
@@ -165,7 +174,7 @@ const styles = StyleSheet.create({
   mealImage: {
     width: 80,
     height: 80,
-    backgroundColor: "#98a8b8",
+    backgroundColor: Colors.imagePlaceholder,
     borderRadius: 8,
   },
   mealInfo: {
@@ -174,16 +183,16 @@ const styles = StyleSheet.create({
   mealName: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#32343e",
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   mealDetails: {
     fontSize: 14,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   mealNumber: {
     fontSize: 14,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
   },
   mealActions: {
     flexDirection: "row",
@@ -191,38 +200,38 @@ const styles = StyleSheet.create({
   },
   createButton: {
     flex: 1,
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   createButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "500",
   },
   removeButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#74af44",
+    borderColor: Colors.secondary,
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
   removeButtonText: {
-    color: "#74af44",
+    color: Colors.secondary,
     fontSize: 16,
     fontWeight: "500",
   },
   saveButton: {
-    backgroundColor: "#4e752d",
+    backgroundColor: Colors.primary,
     margin: 16,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
   },
   saveButtonText: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
   },
