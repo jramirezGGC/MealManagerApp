@@ -1,15 +1,31 @@
-import React from 'react';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View, Pressable, Image, Platform } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import Colors from '@/src/constants/Colors';
+import React from "react";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  Image,
+  Platform,
+} from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import Colors from "@/src/constants/Colors";
+import { useLocalSearchParams } from "expo-router";
+import tempMeals from "@/assets/data/tempMeals";
 
 export default function MealDetailsScreen() {
+  const { id } = useLocalSearchParams();
+
+  const meal = tempMeals.find((m) => m.id.toString() === id)
+
+  if(!meal){
+    return<Text>Meal not found</Text>
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
-          
           {/* Header Section */}
           <View style={styles.header}>
             <Pressable style={styles.goBackButton} onPress={() => {}}>
@@ -23,12 +39,12 @@ export default function MealDetailsScreen() {
 
           {/* Meal Image Section */}
           <View style={styles.imageContainer}>
-            <Image 
-              source={require('../../../assets/images/favicon.png')} 
-              style={styles.mealImage} 
+            <Image
+              source={require("../../../assets/images/favicon.png")}
+              style={styles.mealImage}
             />
           </View>
-          
+
           {/* Meal Information Section */}
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Meal Name</Text>
@@ -54,7 +70,6 @@ export default function MealDetailsScreen() {
           <Pressable style={styles.editButton} onPress={() => {}}>
             <Text style={styles.editText}>EDIT</Text>
           </Pressable>
-
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -71,10 +86,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 40 : 10,
+    paddingTop: Platform.OS === "android" ? 40 : 10,
     paddingBottom: 10,
   },
   goBackButton: {
@@ -82,25 +97,25 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: Colors.backButtonColor,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   screenTitle: {
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 20,
-    fontWeight: 'bold',
-    marginRight: 40, 
+    fontWeight: "bold",
+    marginRight: 40,
   },
   divider: {
-      width: 375,
-      height: 1,
-      backgroundColor: Colors.divider,
-      alignSelf: 'center',
-      marginTop: 10,
-    }, 
+    width: 375,
+    height: 1,
+    backgroundColor: Colors.divider,
+    alignSelf: "center",
+    marginTop: 10,
+  },
   imageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   mealImage: {
@@ -117,42 +132,42 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginTop: 10,
   },
   value: {
     fontSize: 14,
-    color: '#777',
+    color: "#777",
     marginBottom: 10,
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
     marginTop: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   totalValue: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.white,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 5,
   },
   editButton: {
-    position: 'absolute',
-    bottom: Platform.OS === 'android' ? 30 : 'auto',
-    left: '10%',
-    right: '10%',
+    position: "absolute",
+    bottom: Platform.OS === "android" ? 30 : "auto",
+    left: "10%",
+    right: "10%",
     backgroundColor: Colors.mainBottomButton,
     paddingVertical: 12,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   editText: {
     color: Colors.white,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
