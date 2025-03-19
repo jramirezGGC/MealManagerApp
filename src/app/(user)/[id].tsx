@@ -13,13 +13,15 @@ import Colors from "@/src/constants/Colors";
 import { useLocalSearchParams } from "expo-router";
 import tempMeals from "@/assets/data/tempMeals";
 
+const defaultImage = require("../../../assets/images/defaultmeal.png");
+
 export default function MealDetailsScreen() {
   const { id } = useLocalSearchParams();
 
-  const meal = tempMeals.find((m) => m.id.toString() === id)
+  const meal = tempMeals.find((m) => m.id.toString() === id);
 
-  if(!meal){
-    return<Text>Meal not found</Text>
+  if (!meal) {
+    return <Text>Meal not found</Text>;
   }
 
   return (
@@ -40,7 +42,7 @@ export default function MealDetailsScreen() {
           {/* Meal Image Section */}
           <View style={styles.imageContainer}>
             <Image
-              source={require("../../../assets/images/favicon.png")}
+              source={meal.image ? meal.image : defaultImage}
               style={styles.mealImage}
             />
           </View>
@@ -48,22 +50,31 @@ export default function MealDetailsScreen() {
           {/* Meal Information Section */}
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Meal Name</Text>
-            <Text style={styles.value}>Place here</Text>
+            <Text style={styles.value}>{meal.name}</Text>
 
             <Text style={styles.label}>Meal Description</Text>
-            <Text style={styles.value}>Place here</Text>
+            <Text style={styles.value}>{meal.description}</Text>
 
             <Text style={styles.label}>Ingredients</Text>
-            <Text style={styles.value}>Place here</Text>
+            <Text style={styles.value}>
+              {meal.ingredients.map((ingredient, index) => (
+                <Text key={index}>
+                  {ingredient.name}
+                  {index < meal.ingredients.length - 1 ? ", " : ""}{" "}
+                </Text>
+              ))}
+            </Text>
 
             <Text style={styles.label}># of Meals in Fridge</Text>
-            <Text style={styles.value}>##</Text>
+            <Text style={styles.value}>{meal.numInFridge}</Text>
 
             <Text style={styles.label}># of Meals in Freezer</Text>
-            <Text style={styles.value}>##</Text>
+            <Text style={styles.value}>{meal.numInFreezer}</Text>
 
             <Text style={styles.totalLabel}>Total Meals in Inventory</Text>
-            <Text style={styles.totalValue}>##</Text>
+            <Text style={styles.totalValue}>
+              {meal.numInFridge + meal.numInFreezer}
+            </Text>
           </View>
 
           {/* Edit Button */}

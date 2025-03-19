@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Image } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Image, Pressable } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
+import { router, Link } from "expo-router"
 
 import * as SQLite from 'expo-sqlite';
 
@@ -46,11 +46,14 @@ export default function MealGalleryScreen() {
   //   { id: "11", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
   // ]
 
+  
+
   const renderMealItem = ({ item }: { item: Meal }) => (
-    <TouchableOpacity
+    <Link href={`/${item.id}`} asChild>
+    <Pressable
       style={styles.mealItem}
       /*onPress={() => handleMealPress(item.id)}*/
-      activeOpacity={0.7}
+      
     >
       <View style={styles.imageContainer}>
         <Image source={item.image ? item.image : defaultImage} style={styles.imagePlaceholder}/>
@@ -58,7 +61,8 @@ export default function MealGalleryScreen() {
       <Text style={styles.mealName} numberOfLines={1}>
         {item.name}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
+    </Link>
   )
 
   return (
