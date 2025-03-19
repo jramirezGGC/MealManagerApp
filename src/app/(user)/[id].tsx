@@ -10,12 +10,13 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import tempMeals from "@/assets/data/tempMeals";
 
 const defaultImage = require("../../../assets/images/defaultmeal.png");
 
 export default function MealDetailsScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams();
 
   const meal = tempMeals.find((m) => m.id.toString() === id);
@@ -24,13 +25,27 @@ export default function MealDetailsScreen() {
     return <Text>Meal not found</Text>;
   }
 
+  // const handleGoBack = () => {
+  //   // You can check for a specific condition to navigate to Gallery or other pages
+  //   const previousPage = router.asPath; // Or use router.history to get navigation history
+
+  //   // If you're coming from the Gallery page, go back
+  //   if (previousPage.includes("Gallery")) {
+  //     router.back();
+  //   } else {
+  //     router.push("/Gallery"); // Navigate directly to Gallery if not coming from it
+  //   }
+  // };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           {/* Header Section */}
           <View style={styles.header}>
-            <Pressable style={styles.goBackButton} onPress={() => {}}>
+            <Pressable style={styles.goBackButton} onPress={() => {
+              router.back();
+            }}>
               <AntDesign name="arrowleft" size={24} color="white" />
             </Pressable>
             <Text style={styles.screenTitle}>Meal Details</Text>

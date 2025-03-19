@@ -14,8 +14,8 @@ const tempMeals: Meal[] = [
       { name: "Lettuce", amount: "5g", calories: 25 },
       { name: "Corn", amount: "4g", calories: 25 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 2,
+    numInFreezer: 2,
   },
   {
     id: 2,
@@ -30,8 +30,8 @@ const tempMeals: Meal[] = [
       { name: "Olive Oil", amount: "1 tbsp", calories: 100 },
       { name: "Garlic", amount: "2g", calories: 5 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 2,
+    numInFreezer: 1,
   },
   {
     id: 3,
@@ -46,8 +46,8 @@ const tempMeals: Meal[] = [
       { name: "Soy Sauce", amount: "1 tbsp", calories: 50 },
       { name: "Carrots", amount: "50g", calories: 50 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 3,
+    numInFreezer: 3,
   },
   {
     id: 4,
@@ -62,8 +62,8 @@ const tempMeals: Meal[] = [
       { name: "Tomato Sauce", amount: "100ml", calories: 50 },
       { name: "Onion", amount: "50g", calories: 50 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 6,
+    numInFreezer: 2,
   },
   {
     id: 5,
@@ -77,8 +77,8 @@ const tempMeals: Meal[] = [
       { name: "Bacon", amount: "3 strips", calories: 250 },
       { name: "Toast", amount: "2 slices", calories: 150 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 5,
+    numInFreezer: 20,
   },
   {
     id: 6,
@@ -93,8 +93,8 @@ const tempMeals: Meal[] = [
       { name: "Broccoli", amount: "100g", calories: 50 },
       { name: "Olive Oil", amount: "1 tbsp", calories: 100 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 2,
+    numInFreezer: 1,
   },
   {
     id: 7,
@@ -109,8 +109,8 @@ const tempMeals: Meal[] = [
       { name: "Tomato Sauce", amount: "100ml", calories: 50 },
       { name: "Parmesan Cheese", amount: "20g", calories: 50 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 5,
+    numInFreezer: 4,
   },
   {
     id: 8,
@@ -126,7 +126,7 @@ const tempMeals: Meal[] = [
       { name: "Butter", amount: "1 tbsp", calories: 100 },
     ],
     numInFridge: 0,
-    numInFreezer: 0,
+    numInFreezer: 1,
   },
   {
     id: 9,
@@ -143,8 +143,8 @@ const tempMeals: Meal[] = [
       { name: "Onion", amount: "50g", calories: 50 },
       { name: "Garlic", amount: "5g", calories: 5 },
     ],
-    numInFridge: 0,
-    numInFreezer: 0,
+    numInFridge: 2,
+    numInFreezer: 2,
   },
 ];
 
