@@ -19,42 +19,57 @@ import {
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from '@/src/constants/Colors';
+import { FIREBASE_AUTH } from '@/src/lib/firebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 
-function test() {
-  FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'SQLite/')
-    .then(files => {
-      console.log('SQLite databases:', files);
-    })
-    .catch(error => {
-      console.error('Error reading directory:', error);
-    });
-}
 
-function test2() {
-  SQLite.deleteDatabaseAsync("App.db")
-}
+
+// function test() {
+//   FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'SQLite/')
+//     .then(files => {
+//       console.log('SQLite databases:', files);
+//     })
+//     .catch(error => {
+//       console.error('Error reading directory:', error);
+//     });
+// }
+
+// function test2() {
+//   SQLite.deleteDatabaseAsync("App.db")
+// }
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
-  const db = SQLite.useSQLiteContext();
-  const result = db.getAllSync(`SELECT * FROM users`);
+  // const db = SQLite.useSQLiteContext();
+  // const result = db.getAllSync(`SELECT * FROM users`);
 
-  let row: any
-  for (row of result){
-    console.log(row.id,row.user)
-  }
+  // let row: any
+  // for (row of result){
+  //   console.log(row.id,row.user)
+  // }
 
 
-  const handleLogin = () => {
-    // Add your login logic here
-    console.log({ email, password })
+  const signIn = async () => {
+    setLoading(true);
+    try{
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      if(user) {
+        router.replace(`/(user)/MainDashboard`);
+      }
+    } catch (error: any){
+      console.log(error);
+      alert('Sign in failed: ' + error.message);
+    }
+    setLoading(false);
   }
   
-  const [DBLoaded, setDBLoaded] = React.useState<boolean>(false);
+  // const [DBLoaded, setDBLoaded] = React.useState<boolean>(false);
 
 
   /*
@@ -117,7 +132,7 @@ export default function LoginScreen() {
               <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <TouchableOpacity style={styles.loginButton} onPress={signIn}>
               <Text style={styles.loginButtonText}>LOGIN</Text>
             </TouchableOpacity>
           </View>

@@ -14,6 +14,9 @@ import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from '@/src/constants/Colors';
 
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { FIREBASE_AUTH } from "@/src/lib/firebaseConfig";
+
 export default function SignUpScreen() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -21,14 +24,24 @@ export default function SignUpScreen() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
-  const handleSignUp = () => {
-    // Add your sign up logic here
+  const handleSignUp = async () => {    
     if (password !== confirmPassword) {
-      alert("Passwords do not match")
-      return
+      alert("Passwords do not match")      
+    } else {
+      try{
+        const user = await createUserWithEmailAndPassword(auth, email, password);
+        if (user) {
+          router.replace(`/(user)/MainDashboard`);
+        }
+      } catch (error: any){
+        console.log(error);
+        alert('Sign up failed ' + error.message);
+      }
     }
-    console.log({ name, email, password })
+    
   }
 
   return (
