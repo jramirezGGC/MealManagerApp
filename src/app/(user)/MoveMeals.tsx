@@ -1,52 +1,70 @@
-import { useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
-import * as SQLite from 'expo-sqlite';
-import Colors from '@/src/constants/Colors';
+import { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Platform,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import * as SQLite from "expo-sqlite";
+import Colors from "@/src/constants/Colors";
+import { Meal } from "@/src/types";
 
-interface Meal {
-  id: number
-  name: string
-  calories: string
-  date: string
+
+
+
+let db: SQLite.SQLiteDatabase;
+
+function DB() {
+  db = SQLite.useSQLiteContext();
+  const result = db.getAllSync(`SELECT * FROM users`);
+  console.log("Move Meals Database Loading...");
+  for (const row of result) {
+    console.log(row.id, row.user);
+  }
+
+  return null;
 }
 
 export default function MoveMealsScreen() {
-  const [selectedMeals, setSelectedMeals] = useState<number[]>([])
-  const db = SQLite.useSQLiteContext();
-  let row: any
+  const [selectedMeals, setSelectedMeals] = useState<number[]>([]);
 
-  var meals : Meal[] = [];
-
-  const result = db.getAllSync(`SELECT * FROM meals`);
-  console.log("Move Meals Database Loading...")
-  for (row of result){
-    console.log(row.id,row.name,row.description)
-    meals.push({ id: row.id, name: row.name, calories: "kal?", date: "date?"})
-  }
+  // const meals: Meal[] = [
+  //   { id: 1, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 2, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 3, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 4, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 5, name: "Meal Name", image: "", calories: "kal?", date: "date?" },
+  //   { id: 6, name: "Meal Name", image: "",calories: "kal?", date: "date?" },
+  // ];
 
   const toggleMealSelection = (mealId: number) => {
-    setSelectedMeals((prev) => (prev.includes(mealId) ? prev.filter((id) => id !== mealId) : [...prev, mealId]))
-  }
+    setSelectedMeals((prev) =>
+      prev.includes(mealId)
+        ? prev.filter((id) => id !== mealId)
+        : [...prev, mealId]
+    );
+  };
 
   const handleMoveMeals = () => {
-    console.log("Moving meals:", selectedMeals)
-    const statement = db.prepareSync('UPDATE inventory SET is_fridge = ? WHERE ID = ?');
-    selectedMeals.forEach( mealID =>
-    {
+    console.log("Moving meals:", selectedMeals);
+    const statement = db.prepareSync(
+      "UPDATE inventory SET is_fridge = ? WHERE ID = ?"
+    );
+    selectedMeals.forEach((mealID) => {
       console.log(mealID);
       statement.executeSync(true, mealID);
-    })
+    });
     statement.finalizeAsync();
     let result = db.getAllSync(`SELECT * FROM inventory`);
-    
-    let row: any
-    for (row of result){
-      console.log(row.id,row.is_fridge)
+    for (const row of result) {
+      console.log(row.id, row.is_fridge);
     }
-
-  }
+  };
 
   const renderMealItem = ({ item }: { item: Meal }) => (
     <View style={styles.mealItem}>
@@ -63,21 +81,30 @@ export default function MoveMealsScreen() {
         <Text style={styles.mealsLeft}>Meals Left: #{item.id}</Text>
       </View>
       <TouchableOpacity
-        style={[styles.selectButton, selectedMeals.includes(item.id) && styles.selectedButton]}
+        style={[
+          styles.selectButton,
+          selectedMeals.includes(item.id) && styles.selectedButton,
+        ]}
         onPress={() => toggleMealSelection(item.id)}
       >
-        <Text style={styles.selectButtonText}>{selectedMeals.includes(item.id) ? "Selected" : "Select Meal"}</Text>
+        <Text style={styles.selectButtonText}>
+          {selectedMeals.includes(item.id) ? "Selected" : "Select Meal"}
+        </Text>
       </TouchableOpacity>
     </View>
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      <View/>
+      <View />
+      <DB />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Move Meals</Text>
@@ -88,18 +115,25 @@ export default function MoveMealsScreen() {
         renderItem={renderMealItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.content}
-        ListHeaderComponent={() => <Text style={styles.sectionTitle}>List of Meals:</Text>}
+        ListHeaderComponent={() => (
+          <Text style={styles.sectionTitle}>List of Meals:</Text>
+        )}
       />
 
       <TouchableOpacity
-        style={[styles.moveButton, selectedMeals.length === 0 && styles.moveButtonDisabled]}
+        style={[
+          styles.moveButton,
+          selectedMeals.length === 0 && styles.moveButtonDisabled,
+        ]}
         onPress={handleMoveMeals}
         disabled={selectedMeals.length === 0}
       >
-        <Text style={styles.moveButtonText}>MOVE MEAL{selectedMeals.length !== 1 ? "(S)" : ""}</Text>
+        <Text style={styles.moveButtonText}>
+          MOVE MEAL{selectedMeals.length !== 1 ? "(S)" : ""}
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -208,4 +242,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-})
+});

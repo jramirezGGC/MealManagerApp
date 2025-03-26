@@ -1,59 +1,68 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Image, Pressable } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
+import { router, Link } from "expo-router"
 
 import * as SQLite from 'expo-sqlite';
 
 import Colors from '@/src/constants/Colors';
 
+import tempMeals from "@/assets/data/tempMeals";
+import { Meal } from "@/src/types";
 
-// Define an interface for the meal item
-interface MealItem {
-  id: string
-  name: string
-  image: string
-}
+const defaultImage = require('../../../assets/images/defaultmeal.png');
+
+
+// // Define an interface for the meal item
+// interface MealItem {
+//   id: string
+//   name: string
+//   image: string
+// }
 // This is just a placeholder for now, you can change this however you see fit
 
 export default function MealGalleryScreen() {
-  const db = SQLite.useSQLiteContext();
-  console.log("Gallery Database Loading...");
-  var meals2 : MealItem[] = []
+  // const db = SQLite.useSQLiteContext();
+  // console.log("Gallery Database Loading...");
+  // // var meals2 : MealItem[] = []
 
-  const result = db.getAllSync(`SELECT * FROM meals`);
-  let row: any
-  for (row of result){
-    console.log(row.id,row.name,row.description)
-    meals2.push({ id: row.id, name: row.name, image: "placeholder" })
-  }
+  // const result = db.getAllSync(`SELECT * FROM meals`);
+  // let row: any
+  // for (row of result){
+  //   console.log(row.id,row.name,row.description)
+  //   meals2.push({ id: row.id, name: row.name, image: "placeholder" })
+  // }
   
   // Sample data - replace with your actual meal data
-  const meals: MealItem[] = [
-    { id: "1", name: "Chicken Pasta", image: "https://placeholder.com/300" },
-    { id: "2", name: "Vegetable Curry", image: "https://placeholder.com/300" },
-    { id: "3", name: "Grilled Salmon", image: "https://placeholder.com/300" },
-    { id: "4", name: "Caesar Salad", image: "https://placeholder.com/300" },
-    { id: "5", name: "Beef Stir Fry", image: "https://placeholder.com/300" },
-    { id: "7", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: "8", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: "9", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: "10", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-    { id: "11", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
-  ]
+  // const meals: MealItem[] = [
+  //   { id: "1", name: "Chicken Pasta", image: "https://placeholder.com/300" },
+  //   { id: "2", name: "Vegetable Curry", image: "https://placeholder.com/300" },
+  //   { id: "3", name: "Grilled Salmon", image: "https://placeholder.com/300" },
+  //   { id: "4", name: "Caesar Salad", image: "https://placeholder.com/300" },
+  //   { id: "5", name: "Beef Stir Fry", image: "https://placeholder.com/300" },
+  //   { id: "7", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+  //   { id: "8", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+  //   { id: "9", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+  //   { id: "10", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+  //   { id: "11", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
+  // ]
 
-  const renderMealItem = ({ item }: { item: MealItem }) => (
-    <TouchableOpacity
+  
+
+  const renderMealItem = ({ item }: { item: Meal }) => (
+    <Link href={`/${item.id}`} asChild>
+    <Pressable
       style={styles.mealItem}
       /*onPress={() => handleMealPress(item.id)}*/
-      activeOpacity={0.7}
+      
     >
       <View style={styles.imageContainer}>
-        <View style={styles.imagePlaceholder} />
+        <Image source={item.image ? item.image : defaultImage} style={styles.imagePlaceholder}/>
       </View>
       <Text style={styles.mealName} numberOfLines={1}>
         {item.name}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
+    </Link>
   )
 
   return (
@@ -69,10 +78,19 @@ export default function MealGalleryScreen() {
       </View>
 
       {/* Gallery Grid */}
-      <FlatList
+      {/* <FlatList
         data={meals2}
         renderItem={renderMealItem}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.listContent}
+      /> */}
+
+      <FlatList 
+        data={tempMeals}
+        renderItem={renderMealItem}
+        keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
