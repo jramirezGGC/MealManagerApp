@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   },
   imageLabel: {
     marginTop: 8,
-    color: "#6b6e82",
+    color: Colors.textSecondary,
     fontSize: 16,
   },
   form: {
