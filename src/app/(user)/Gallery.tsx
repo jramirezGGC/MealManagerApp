@@ -1,16 +1,24 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Image, Pressable } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router, Link } from "expo-router"
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Platform,
+  Image,
+  Pressable,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router, Link } from "expo-router";
 
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite";
 
-import Colors from '@/src/constants/Colors';
+import Colors from "@/src/constants/Colors";
 
-import tempMeals from "@/assets/data/tempMeals";
-import { Meal } from "@/src/types";
+import GalleryImages from "@/src/components/GalleryImages";
 
-const defaultImage = require('../../../assets/images/defaultmeal.png');
-
+const defaultImage = require("../../../assets/images/defaultmeal.png");
 
 // // Define an interface for the meal item
 // interface MealItem {
@@ -31,7 +39,7 @@ export default function MealGalleryScreen() {
   //   console.log(row.id,row.name,row.description)
   //   meals2.push({ id: row.id, name: row.name, image: "placeholder" })
   // }
-  
+
   // Sample data - replace with your actual meal data
   // const meals: MealItem[] = [
   //   { id: "1", name: "Chicken Pasta", image: "https://placeholder.com/300" },
@@ -46,57 +54,23 @@ export default function MealGalleryScreen() {
   //   { id: "11", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
   // ]
 
-  
-
-  const renderMealItem = ({ item }: { item: Meal }) => (
-    <Link href={`/${item.id}`} asChild>
-    <Pressable
-      style={styles.mealItem}
-      /*onPress={() => handleMealPress(item.id)}*/
-      
-    >
-      <View style={styles.imageContainer}>
-        <Image source={item.image ? item.image : defaultImage} style={styles.imagePlaceholder}/>
-      </View>
-      <Text style={styles.mealName} numberOfLines={1}>
-        {item.name}
-      </Text>
-    </Pressable>
-    </Link>
-  )
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meal Gallery</Text>
       </View>
 
-      {/* Gallery Grid */}
-      {/* <FlatList
-        data={meals2}
-        renderItem={renderMealItem}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-      /> */}
-
-      <FlatList 
-        data={tempMeals}
-        renderItem={renderMealItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-      />
+      <GalleryImages />
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -123,47 +97,4 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     color: Colors.textPrimary,
   },
-  listContent: {
-    padding: 8,
-  },
-  row: {
-    justifyContent: "space-between",
-  },
-  mealItem: {
-    width: "48%", // Slightly less than 50% to allow for spacing
-    marginBottom: 16,
-    alignItems: "center",
-  },
-  imageContainer: {
-    width: "100%",
-    aspectRatio: 1, // Makes it square
-    marginBottom: 8,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: Colors.white,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  imagePlaceholder: {
-    width: "100%",
-    height: "100%",
-    backgroundColor: Colors.imagePlaceholder,
-    borderRadius: 16,
-  },
-  mealName: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: Colors.textPrimary,
-    textAlign: "center",
-    paddingHorizontal: 4,
-  },
-})
+});
