@@ -39,6 +39,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 //   SQLite.deleteDatabaseAsync("App.db")
 // }
 
+
 export default function LoginScreen() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -77,6 +78,9 @@ export default function LoginScreen() {
     router.push("/forgot-password")
   }
   */
+  const handleCreateAccount = () => {
+    router.push("/(auth)/sign-up")
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,35 +96,37 @@ export default function LoginScreen() {
 
           {/* Title Section */}
           <View style={styles.titleSection}>
-            <Text style={styles.title}>Login</Text>
-            <Text style={styles.subtitle}>Please Login to your account</Text>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Sign in to continue</Text>
           </View>
 
           {/* Form */}
           <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>EMAIL</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="example@gmail.com"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholderTextColor="#88a588"
-              />
+              <Text style={styles.label}>Email Address</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>PASSWORD</Text>
-              <View style={styles.passwordContainer}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.inputWrapper}>
                 <TextInput
                   style={[styles.input, styles.passwordInput]}
-                  placeholder="**********"
+                  placeholder="••••••••••"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
-                  placeholderTextColor="#88a588"
+                  placeholderTextColor="#9ca3af"
                 />
                 <TouchableOpacity style={styles.visibilityToggle} onPress={() => setShowPassword(!showPassword)}>
                   <Text style={styles.visibilityIcon}>{showPassword ? "👁" : "👁‍🗨"}</Text>
@@ -133,8 +139,15 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.loginButton} onPress={signIn}>
-              <Text style={styles.loginButtonText}>LOGIN</Text>
+              <Text style={styles.loginButtonText}>Sign In</Text>
             </TouchableOpacity>
+
+            <View style={styles.createAccountPrompt}>
+              <Text style={styles.createAccountPromptText}>Don't have an account?</Text>
+              <TouchableOpacity onPress={handleCreateAccount}>
+                <Text style={styles.createAccountLink}>Create Account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -165,12 +178,12 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   titleSection: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     marginBottom: 32,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "600",
+    fontSize: 28,
+    fontWeight: "700",
     color: Colors.textPrimary,
     marginBottom: 8,
   },
@@ -180,29 +193,35 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    backgroundColor: Colors.secondary,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 16,
-    gap: 16,
+    backgroundColor: "white",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
   },
   inputGroup: {
-    gap: 8,
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: Colors.white,
+    color: Colors.primary,
+    marginBottom: 8,
+  },
+  inputWrapper: {
+    backgroundColor: "#f9faf7",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   input: {
-    backgroundColor: Colors.background,
-    borderRadius: 12,
     padding: Platform.OS === "ios" ? 16 : 12,
     fontSize: 16,
     color: Colors.textPrimary,
-  },
-  passwordContainer: {
-    position: "relative",
   },
   passwordInput: {
     paddingRight: 50,
@@ -219,22 +238,41 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   forgotPassword: {
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
+    marginBottom: 24,
   },
   forgotPasswordText: {
-    color: Colors.white,
-    fontSize: 16,
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: "500",
   },
   loginButton: {
     backgroundColor: Colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
-    marginTop: 16,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   loginButtonText: {
-    color: Colors.white,
+    color: "white",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  createAccountPrompt: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 24,
+  },
+  createAccountPromptText: {
+    color: Colors.textSecondary,
+    marginRight: 4,
+  },
+  createAccountLink: {
+    color: Colors.primary,
     fontWeight: "600",
   },
 })

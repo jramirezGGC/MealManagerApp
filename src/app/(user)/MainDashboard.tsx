@@ -1,88 +1,57 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
 import Colors from '@/src/constants/Colors';
-
-interface Meal {
-  id: number
-  name: string
-  type: string
-}
+import MealContainer from '@/src/components/MealContainer';
 
 export default function MainDashboard() {
-  const meals: Meal[] = [
-    { id: 1, name: "Meal Name", type: "Breakfast" },
-    { id: 2, name: "Meal Name", type: "Breakfast" },
-    { id: 3, name: "Meal Name", type: "Breakfast" },
-    { id: 4, name: "Meal Name", type: "Breakfast" },
-    { id: 5, name: "Meal Name", type: "Breakfast" },
-    { id: 6, name: "Meal Name", type: "Breakfast" },
-    { id: 7, name: "Meal Name", type: "Breakfast" },
-    { id: 8, name: "Meal Name", type: "Breakfast" },
-    { id: 9, name: "Meal Name", type: "Breakfast" },
-  ]
-
-  const handleMenuPress = (mealId: number) => {
-    console.log("Menu pressed for meal:", mealId)
-  }
-
-  const handleTakeMeal = (mealId: number) => {
-    console.log("Taking meal:", mealId)
-  }
-
-  const renderMealItem = ({ item }: { item: Meal }) => (
-    <View style={styles.mealItem}>
-      <View style={styles.mealContent}>
-        <View style={styles.mealImage} />
-        <View style={styles.mealInfo}>
-          <Text style={styles.mealName}>{item.name}</Text>
-          <View style={styles.mealTag}>
-            <Text style={styles.mealTagText}>{item.type}</Text>
-          </View>
-        </View>
-        <View style={styles.mealActions}>
-          <TouchableOpacity onPress={() => handleTakeMeal(item.id)}>
-            <Text style={styles.takeMealText}>Take Meal</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton} onPress={() => handleMenuPress(item.id)}>
-            <Text style={styles.menuButtonText}>⋯</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  )
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Main Dashboard</Text>
+      {/* Header Section */}
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Welcome Back</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
       </View>
 
-      <FlatList
-        data={meals}
-        renderItem={renderMealItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.content}
-        ListHeaderComponent={() => <Text style={styles.sectionTitle}>Fridge Items</Text>}
-      />
+      {/* Content Section */}
+      <View style={styles.contentContainer}>
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statLabel}>Total Meals</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>5</Text>
+            <Text style={styles.statLabel}>This Week</Text>
+          </View>
+        </View>
 
+        <MealContainer />
+      </View>
+
+      {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} /*onPress={() => router.push("/fridge")}*/>
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Fridge")}>
           <Text style={styles.navIcon}>🗄️</Text>
+          <Text style={styles.navText}>Fridge</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.addButton} /*onPress={() => router.push("/create-meal")}*/>
+        <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(user)/CreateMeal")}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navButton} /*onPress={() => router.push("/profile")}*/>
-          <Text style={styles.navIcon}>👤</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Settings")}>
+          <Text style={styles.navIcon}>⚙️</Text>
+          <Text style={styles.navText}>Settings</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -90,111 +59,126 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  header: {
-    padding: 16,
+  headerContainer: {
+    paddingHorizontal: 24,
     paddingTop: Platform.OS === "android" ? 16 : 0,
+    paddingBottom: 16,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: Colors.textPrimary,
-  },
-  content: {
-    paddingHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    color: Colors.textTertiary,
-    marginBottom: 16,
-  },
-  mealItem: {
-    marginBottom: 16,
-    backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: 12,
-  },
-  mealContent: {
+  header: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-  },
-  mealImage: {
-    width: 80,
-    height: 80,
-    backgroundColor: Colors.imagePlaceholder,
-    borderRadius: 8,
-  },
-  mealInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  mealName: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: Colors.textPrimary,
     marginBottom: 8,
   },
-  mealTag: {
-    backgroundColor: Colors.tagBackground,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 16,
-    alignSelf: "flex-start",
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: Colors.textPrimary,
   },
-  mealTagText: {
-    color: Colors.tagText,
-    fontSize: 14,
-  },
-  mealActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  takeMealText: {
-    color: Colors.textTertiary,
-    fontSize: 14,
-  },
-  menuButton: {
-    padding: 8,
-  },
-  menuButtonText: {
-    fontSize: 20,
+  headerSubtitle: {
+    fontSize: 16,
     color: Colors.textSecondary,
+  },
+  profileButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileIcon: {
+    fontSize: 20,
+    color: Colors.white,
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingTop: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    marginHorizontal: 24,
+    backgroundColor: Colors.background,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: Colors.primary,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: Colors.textTertiary,
+    opacity: 0.3,
   },
   bottomNav: {
     flexDirection: "row",
-    backgroundColor: Colors.secondary,
-    padding: 16,
+    backgroundColor: Colors.background,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     justifyContent: "space-between",
     alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   navButton: {
-    padding: 8,
+    alignItems: "center",
+    width: 80,
   },
   navIcon: {
     fontSize: 24,
-    color: Colors.white,
+    color: Colors.primary,
+    marginBottom: 4,
+  },
+  navText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
   },
   addButton: {
     width: 56,
     height: 56,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.primary,
     borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+    marginBottom: 20,
   },
   addButtonText: {
     fontSize: 32,
-    color: Colors.secondary,
+    color: Colors.white,
+    fontWeight: "300",
   },
-})
+});
