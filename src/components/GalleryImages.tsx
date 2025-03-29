@@ -2,9 +2,7 @@ import { router, Link } from "expo-router";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   Platform,
   Image,

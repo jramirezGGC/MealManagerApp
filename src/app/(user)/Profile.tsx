@@ -28,7 +28,7 @@ export default function PersonalInfoScreen() {
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Personal Info</Text>
+          <Text style={styles.headerTitle}>Profile</Text>
         </View>
         <TouchableOpacity /*onPress={handleEdit}*/>
           <Text style={styles.editButton}>EDIT</Text>
@@ -63,11 +63,6 @@ export default function PersonalInfoScreen() {
           </View>
         </View>
       </View>
-
-      {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} /*onPress={handleLogout}*/>
-        <Text style={styles.logoutButtonText}>LOGOUT</Text>
-      </TouchableOpacity>
     </SafeAreaView>
   )
 }
