@@ -2,9 +2,11 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from "@/src/constants/Colors"
+import { getAuth } from "firebase/auth"
 
 // Default profile image
 const defaultProfileImage = require("../../../assets/images/silly-youtube-emotes.png")
+const auth = getAuth();
 
 export default function SettingsScreen() {
   // Mock user data - replace with actual user data from your auth system
@@ -35,9 +37,15 @@ export default function SettingsScreen() {
     },
   ]
 
-  const handleLogout = () => {
-    // Add your logout logic here
-    router.replace("/login")
+  const handleLogout = async () => {
+    try{
+      await auth.signOut();
+      console.log('User logged out')
+      router.replace(`/(auth)/sign-in`)
+    }catch (error){
+      console.error('Error logging out: ', error)
+    }
+    
   }
 
   return (

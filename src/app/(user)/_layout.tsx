@@ -183,6 +183,14 @@ export default function TabLayout() {
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="Pages"
+        options={{
+          title: "Pages screen",
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,          
+        }}
+      />
     </Tabs>
   );
 }
