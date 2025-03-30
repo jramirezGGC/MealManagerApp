@@ -18,7 +18,10 @@ export default function IndexScreen() {
     return () => unsubscribe();
   }, []);
 
-  console.log(user)
+  
+
+  // used for testing login
+  // console.log(user)
 
   if (isLoading) return null; // Avoid rendering until we know the user's auth state
 

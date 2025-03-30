@@ -1,6 +1,9 @@
 import NavButton from "@/src/components/NavButton";
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { RelativePathString } from "expo-router";
-import { StyleSheet, View, FlatList } from "react-native";
+import { useState } from "react";
+import { StyleSheet, View, FlatList, TextInput, Button } from "react-native";
+import { collection, addDoc } from "firebase/firestore";
 
 const buttonsData = [
   { key: "1", text: "Confirm Meal", href: "/(user)/ConfirmMeal" },
@@ -23,6 +26,20 @@ const buttonsData = [
 ];
 
 export default function Pages() {
+  const [fieldText, setFieldText] = useState("");
+  const db = FIREBASE_DB;
+
+  const addTextToDb = async (fieldText: string) => {
+    try {
+      const docRef = await addDoc(collection(db, "users"), {
+        name: fieldText,
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -32,6 +49,15 @@ export default function Pages() {
         )}
         contentContainerStyle={styles.listContent}
       />
+
+      <View >
+        <TextInput
+          placeholder="text for db test"
+          value={fieldText}
+          onChangeText={setFieldText}
+        />
+        <Button title="Test Firestore" onPress={() => addTextToDb(fieldText)} />
+      </View>
     </View>
   );
 }
