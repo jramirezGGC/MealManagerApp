@@ -1,11 +1,11 @@
 export type Meal = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   image: string | null;
-  calories: number;
-  date: Date;
-  ingredients: Ingredient[];
+  calories: number | 0;
+  date: Date | null;
+  ingredients: Ingredient[] | [];
   numInFridge: number;
   numInFreezer: number;
 };
@@ -15,3 +15,7 @@ export type Ingredient = {
   amount: string | null;
   calories: number | null;
 };
+
+export type User = {
+  name: string;
+}

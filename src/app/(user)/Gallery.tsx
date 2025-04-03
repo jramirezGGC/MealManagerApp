@@ -18,6 +18,13 @@ import Colors from "@/src/constants/Colors";
 
 import GalleryImages from "@/src/components/GalleryImages";
 
+import { Meal } from "../../types";
+import { doc, getDoc } from "firebase/firestore"
+import {AutoId} from "@/src/lib/util"
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const defaultImage = require("../../../assets/images/defaultmeal.png");
 
 // // Define an interface for the meal item
@@ -28,7 +35,41 @@ const defaultImage = require("../../../assets/images/defaultmeal.png");
 // }
 // This is just a placeholder for now, you can change this however you see fit
 
+let mealsArr : Meal[] = [];
+
+async function loadStuff() {
+  let householdID  
+  try {
+    householdID = await AsyncStorage.getItem("householdID")
+  } catch (error) {
+    console.error("Async Storage could not get householdID", error);
+  }
+  const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/fridge1`);
+  const snapshot = await getDoc(userDoc);
+  if (snapshot.exists()) {
+    const docData = snapshot.data();
+    const dict = {...docData.meals}
+    for (const key in dict) {
+      if (dict.hasOwnProperty(key) && (!mealsArr.find(obj => obj.id == key))) {
+        mealsArr.push( {
+          id: key,
+          name: dict[key].name,
+          description: dict[key].description,
+          image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
+          ingredients: dict[key].ingredients,
+        } as Meal);
+      }
+    }
+
+    console.log(`Data: ${JSON.stringify(mealsArr)}`);
+  }
+  else {
+    console.log("IT Broke")
+  }
+}
+
 export default function MealGalleryScreen() {
+  const [loading, setLoading] = useState(true);
   // const db = SQLite.useSQLiteContext();
   // console.log("Gallery Database Loading...");
   // // var meals2 : MealItem[] = []
@@ -54,6 +95,24 @@ export default function MealGalleryScreen() {
   //   { id: "11", name: "Mushroom Risotto", image: "https://placeholder.com/300" },
   // ]
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await loadStuff();
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -68,7 +127,7 @@ export default function MealGalleryScreen() {
         <Text style={styles.headerTitle}>Meal Gallery</Text>
       </View>
 
-      <GalleryImages />
+      <GalleryImages meals={mealsArr}/>
     </SafeAreaView>
   );
 }
