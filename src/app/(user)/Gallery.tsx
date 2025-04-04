@@ -37,27 +37,36 @@ const defaultImage = require("../../../assets/images/defaultmeal.png");
 
 let mealsArr : Meal[] = [];
 
-async function loadStuff() {
+async function loadStuff(storageUnit: string) {
   let householdID  
   try {
-    householdID = await AsyncStorage.getItem("householdID")
+    householdID = await AsyncStorage.getItem("householdID");
   } catch (error) {
     console.error("Async Storage could not get householdID", error);
   }
-  const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/fridge1`);
+  const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`);
   const snapshot = await getDoc(userDoc);
   if (snapshot.exists()) {
     const docData = snapshot.data();
     const dict = {...docData.meals}
     for (const key in dict) {
-      if (dict.hasOwnProperty(key) && (!mealsArr.find(obj => obj.id == key))) {
-        mealsArr.push( {
-          id: key,
-          name: dict[key].name,
-          description: dict[key].description,
-          image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
-          ingredients: dict[key].ingredients,
-        } as Meal);
+      if (dict.hasOwnProperty(key)){
+        if (!mealsArr.find(obj => obj.id == key)) {
+          mealsArr.push( {
+            id: key,
+            name: dict[key].name,
+            description: dict[key].description,
+            image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
+            ingredients: dict[key].ingredients,
+            ...(storageUnit == "fridge1"
+            ? { numInFridge: dict[key].servings }
+            : { numInFreezer: dict[key].servings })
+          } as Meal);
+        }
+        else {
+          let meal: any = mealsArr.find(obj => obj.id == key);
+          storageUnit == "fridge1" ? meal.numInFridge = dict[key].servings : meal.numInFreezer = dict[key].servings
+        }
       }
     }
 
@@ -98,7 +107,8 @@ export default function MealGalleryScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await loadStuff();
+        await loadStuff("fridge1");
+        await loadStuff("freezer1");
       } catch (error) {
         console.error("Error loading data:", error);
       } finally {
