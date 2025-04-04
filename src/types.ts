@@ -4,11 +4,19 @@ export type Meal = {
   description: string;
   image: string | null;
   calories: number | 0;
-  date: Date | null;
+  date: string | null;
   ingredients: Ingredient[] | [];
   numInFridge: number;
   numInFreezer: number;
 };
+
+export type SavedMeal = {
+  id: string;
+  name: string;
+  description: string;
+  ingredients: Ingredient[] | [];
+  image: string | null;
+}
 
 export type Ingredient = {
   name: string;

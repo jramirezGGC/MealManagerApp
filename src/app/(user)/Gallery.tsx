@@ -56,7 +56,7 @@ async function loadStuff(storageUnit: string) {
             id: key,
             name: dict[key].name,
             description: dict[key].description,
-            image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
+            image: dict[key].image,
             ingredients: dict[key].ingredients,
             ...(storageUnit == "fridge1"
             ? { numInFridge: dict[key].servings }
@@ -73,7 +73,7 @@ async function loadStuff(storageUnit: string) {
     console.log(`Data: ${JSON.stringify(mealsArr)}`);
   }
   else {
-    console.log("IT Broke")
+    console.error("Gallery Meals loading unsuccessful")
   }
 }
 
