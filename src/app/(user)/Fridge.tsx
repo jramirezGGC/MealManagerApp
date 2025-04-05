@@ -1,27 +1,93 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from '@/src/constants/Colors';
+import { Meal } from "@/src/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
-interface Meal {
-  id: number
-  name: string
-  calories: string
-  date: string
+
+let mealsArr: Meal[] = [];
+let meals: Meal[] = [];
+
+async function loadStuff(storageUnit: string) {
+  let householdID
+  try {
+    householdID = await AsyncStorage.getItem("householdID");
+  } catch (error) {
+    console.error("Async Storage could not get householdID", error);
+  }
+  const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`);
+  const snapshot = await getDoc(userDoc);
+  if (snapshot.exists()) {
+    const docData = snapshot.data();
+    const dict = { ...docData.meals }
+    for (const key in dict) {
+      if (dict.hasOwnProperty(key)) {
+        if (!mealsArr.find(obj => obj.id == key)) {
+          mealsArr.push({
+            id: key,
+            name: dict[key].name,
+            description: dict[key].description,
+            image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
+            ingredients: dict[key].ingredients,
+            ...(storageUnit == "fridge1"
+              ? { numInFridge: dict[key].servings }
+              : { numInFreezer: dict[key].servings })
+          } as Meal);
+        }
+        else {
+          let meal: any = mealsArr.find(obj => obj.id == key);
+          storageUnit == "fridge1" ? meal.numInFridge = dict[key].servings : meal.numInFreezer = dict[key].servings
+        }
+      }
+    }
+
+    console.log(`Data: ${JSON.stringify(mealsArr)}`);
+  }
+  else {
+    console.error("Gallery Meals loading unsuccessful")
+  }
 }
+
+
 
 export default function RefrigeratorScreen() {
   const [activeTab, setActiveTab] = useState("fridge")
+  const [loading, setLoading] = useState(true);
 
-  const meals: Meal[] = [
-    { id: 1, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 2, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 3, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 4, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 5, name: "Meal Name", calories: "kal?", date: "date?" },
-    { id: 6, name: "Meal Name", calories: "kal?", date: "date?" },
-  ]
+  /*   const meals: Meal[] = [
+      { id: 1, name: "Meal Name", calories: "kal?", date: "date?" },
+      { id: 2, name: "Meal Name", calories: "kal?", date: "date?" },
+      { id: 3, name: "Meal Name", calories: "kal?", date: "date?" },
+      { id: 4, name: "Meal Name", calories: "kal?", date: "date?" },
+      { id: 5, name: "Meal Name", calories: "kal?", date: "date?" },
+      { id: 6, name: "Meal Name", calories: "kal?", date: "date?" },
+    ] */
+
+  function switchTab(tab: string) {
+    meals = []
+    for (const key in mealsArr) {
+      if (tab == "fridge") {
+        if (!(typeof mealsArr[key].numInFridge === undefined)) {
+          if (mealsArr[key].numInFridge != undefined) {
+            meals.push(mealsArr[key])
+          }
+        }
+      }
+      else if (tab == "freezer") {
+        if (!(typeof mealsArr[key].numInFreezer === undefined)) {
+          if (mealsArr[key].numInFreezer != undefined) {
+            meals.push(mealsArr[key])
+          }
+        }
+      }
+    }
+    console.log(`THE MEALS: ${JSON.stringify(meals)}`)
+    setActiveTab(tab)
+  }
 
   const renderMealItem = ({ item }: { item: Meal }) => (
     <View style={styles.mealItem}>
@@ -43,6 +109,26 @@ export default function RefrigeratorScreen() {
     </View>
   )
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await loadStuff("fridge1");
+        await loadStuff("freezer1");
+        switchTab("fridge")
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -59,13 +145,13 @@ export default function RefrigeratorScreen() {
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, activeTab === "fridge" && styles.activeTab]}
-          onPress={() => setActiveTab("fridge")}
+          onPress={() => switchTab("fridge")}
         >
           <Text style={[styles.tabText, activeTab === "fridge" && styles.activeTabText]}>Fridge</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === "freezer" && styles.activeTab]}
-          onPress={() => setActiveTab("freezer")}
+          onPress={() => switchTab("freezer")}
         >
           <Text style={[styles.tabText, activeTab === "freezer" && styles.activeTabText]}>Freezer</Text>
         </TouchableOpacity>

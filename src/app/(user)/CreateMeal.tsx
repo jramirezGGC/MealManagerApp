@@ -12,33 +12,52 @@ import {
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
-import * as SQLite from 'expo-sqlite';
 import Colors from '@/src/constants/Colors';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
+import { AutoId } from "@/src/lib/util";
 
 export default function CreateMealScreen() {
   const [mealName, setMealName] = useState("")
   const [description, setDescription] = useState("")
   const [ingredients, setIngredients] = useState("")
-  // const db = SQLite.useSQLiteContext();
+  //const db = SQLite.useSQLiteContext();
 
-  // const handleCreateMeal = async () => {
-  //   // Add your meal creation logic here
-  //   try {
-  //     const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
-  //     console.log(result2.lastInsertRowId);
-  //   }
-  //   catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
+  const handleCreateMeal = async () => {
+    let householdID  
+    try {
+      householdID = await AsyncStorage.getItem("householdID")
+    } catch (error) {
+      console.error("Async Storage could not get householdID", error);
+    }
+
+    const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
+    const mealID = AutoId()
+    await updateDoc(mealsDoc, {
+        [mealID]: {
+        "name": mealName,
+        "description": description,
+        "ingredients": [ingredients], // once we have input for multiple ingredients, break this into an array
+      }
+    })
+    // Add your meal creation logic here
+    /* try {
+      const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
+      console.log(result2.lastInsertRowId);
+    }
+    catch (error) {
+      console.error('Error fetching data:', error);
+    }
    
-  //   const result = db.getAllSync('SELECT * FROM meals');
-  //   let row: any
-  //   for (row of result){
-  //     console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
-  //   }
-  //   console.log({ mealName, description, ingredients })
-  //   router.back()
-  // }
+    const result = db.getAllSync('SELECT * FROM meals');
+    let row: any
+    for (row of result){
+      console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
+    } */
+    console.log({ mealName, description, ingredients })
+    router.back()
+  }
 
   // const test = () =>{
     
