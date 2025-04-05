@@ -3,8 +3,37 @@ import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
 import Colors from '@/src/constants/Colors';
 import MealContainer from '@/src/components/MealContainer';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+
+
+const getHouseholdID = async () => {
+  const userID = FIREBASE_AUTH.currentUser?.uid
+  const userDoc = doc(FIREBASE_DB, `users/${userID}`);
+  const snapshot = await getDoc(userDoc);
+  let householdID
+  
+  if (snapshot.exists()) {
+    const docData = snapshot.data();
+    console.log(`Data: ${JSON.stringify(docData)}`);
+    householdID = docData.householdID
+  }
+  else {
+    console.log("IT Broke")
+  }
+
+  try {
+    await AsyncStorage.setItem("householdID", householdID)
+  } catch (error) {
+    console.error("Async Storage could not set householdID", error);
+  }
+}
 
 export default function MainDashboard() {
+
+  getHouseholdID()
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
