@@ -6,6 +6,7 @@ import { Pressable } from 'react-native';
 import Colors from '@/src/constants/Colors';
 import { useColorScheme } from '@/src/components/useColorScheme';
 import { useClientOnlyValue } from '@/src/components/useClientOnlyValue';
+import { Stack } from "expo-router";
 
 function TabBarIcon(props: {
     name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -16,8 +17,9 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
-
+    <Stack screenOptions={{ headerShown: false }} />
     return (
+        
         <Tabs 
             screenOptions={{
                 tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -42,5 +44,6 @@ export default function TabLayout() {
                 }}
             />
         </Tabs>
+        
     );
 }

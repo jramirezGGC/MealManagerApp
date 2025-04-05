@@ -33,23 +33,6 @@ export default function MainDashboard() {
 
         <MealContainer />
       </View>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Fridge")}>
-          <Text style={styles.navIcon}>🗄️</Text>
-          <Text style={styles.navText}>Fridge</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(user)/CreateMeal")}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Settings")}>
-          <Text style={styles.navIcon}>⚙️</Text>
-          <Text style={styles.navText}>Settings</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
