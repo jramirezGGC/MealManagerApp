@@ -33,10 +33,10 @@ const renderMealItem = ({ item }: { item: Meal }) => (
   </Link>
 );
 
-function GalleryImages() {
+function GalleryImages({ meals } : { meals: Meal[]}) {
   return (
     <FlatList
-      data={tempMeals}
+      data={meals}
       renderItem={renderMealItem}
       keyExtractor={(item) => item.id.toString()}
       numColumns={2}

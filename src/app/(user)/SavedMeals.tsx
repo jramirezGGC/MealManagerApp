@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
@@ -6,27 +6,55 @@ import { router } from "expo-router"
 import * as SQLite from 'expo-sqlite';
 
 import Colors from '@/src/constants/Colors';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { SavedMeal } from "@/src/types";
 
 
-interface Meal {
-  id: number
-  name: string
-  details: string
+let savedMealsArr: SavedMeal[] = [];
+
+async function loadStuff() {
+  let householdID
+  try {
+    householdID = await AsyncStorage.getItem("householdID");
+  } catch (error) {
+    console.error("Async Storage could not get householdID", error);
+  }
+  const userDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`);
+  const snapshot = await getDoc(userDoc);
+  if (snapshot.exists()) {
+    const docData = snapshot.data();
+    const dict = { ...docData }
+    for (const key in dict) {
+      savedMealsArr.push({
+        id: key,
+        name: dict[key].name,
+        description: dict[key].description,
+        ingredients: dict[key].ingredients,
+      } as SavedMeal)
+    }
+    console.log(`Data: ${JSON.stringify(savedMealsArr)}`);
+  }
+  else {
+    console.error("Saved Meals loading unsuccessful")
+  }
 }
 
 export default function SavedHistoryMeals() {
   const [activeTab, setActiveTab] = useState("favorites")
+  const [loading, setLoading] = useState(true);
 
-  const db = SQLite.useSQLiteContext();
-  console.log("Database Loading...");
-  var meals : Meal[] = [];
-
-  const result = db.getAllSync(`SELECT * FROM meals`);
-  let row: any
-  for (row of result){
-    console.log(row.id,row.name,row.description)
-    meals.push({ id: row.id, name: row.name, details: row.description })
-  }
+  /*   const db = SQLite.useSQLiteContext();
+    console.log("Database Loading...");
+    var meals : Meal[] = [];
+  
+    const result = db.getAllSync(`SELECT * FROM meals`);
+    let row: any
+    for (row of result){
+      console.log(row.id,row.name,row.description)
+      meals.push({ id: row.id, name: row.name, details: row.description })
+    } */
 
 
 
@@ -34,10 +62,10 @@ export default function SavedHistoryMeals() {
   //   router.push(`/create-meal/${mealId}`)
   // }
 
-  const handleRemove = (mealId: number) => {
+  const handleRemove = (mealId: string) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => db.runSync('DELETE FROM meals WHERE id = $id', { $id: mealId }) },
+      { text: "Remove", style: "destructive", onPress: () => console.log("Delete: " + mealId) /* db.runSync('DELETE FROM meals WHERE id = $id', { $id: mealId }) */ },
     ])
   }
 
@@ -45,14 +73,14 @@ export default function SavedHistoryMeals() {
   //   router.push("/create-meal")
   // }
 
-  const renderMealItem = ({ item }: { item: Meal }) => (
+  const renderMealItem = ({ item }: { item: SavedMeal }) => (
     <View style={styles.mealItem}>
       <View style={styles.mealHeader}>
         <View style={styles.mealContent}>
           <View style={styles.mealImage} />
           <View style={styles.mealInfo}>
             <Text style={styles.mealName}>{item.name}</Text>
-            <Text style={styles.mealDetails}>{item.details}</Text>
+            <Text style={styles.mealDetails}>{item.description}</Text>
           </View>
         </View>
         <Text style={styles.mealNumber}>#{item.id.toString().padStart(2, "0")}</Text>
@@ -69,6 +97,24 @@ export default function SavedHistoryMeals() {
       </View>
     </View>
   )
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await loadStuff();
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,7 +143,7 @@ export default function SavedHistoryMeals() {
       </View>
 
       <FlatList
-        data={meals}
+        data={savedMealsArr}
         renderItem={renderMealItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.content}
