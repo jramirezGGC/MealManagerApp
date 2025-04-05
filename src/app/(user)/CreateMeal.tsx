@@ -19,30 +19,30 @@ export default function CreateMealScreen() {
   const [mealName, setMealName] = useState("")
   const [description, setDescription] = useState("")
   const [ingredients, setIngredients] = useState("")
-  const db = SQLite.useSQLiteContext();
+  // const db = SQLite.useSQLiteContext();
 
-  const handleCreateMeal = async () => {
-    // Add your meal creation logic here
-    try {
-      const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
-      console.log(result2.lastInsertRowId);
-    }
-    catch (error) {
-      console.error('Error fetching data:', error);
-    }
+  // const handleCreateMeal = async () => {
+  //   // Add your meal creation logic here
+  //   try {
+  //     const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
+  //     console.log(result2.lastInsertRowId);
+  //   }
+  //   catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
    
-    const result = db.getAllSync('SELECT * FROM meals');
-    let row: any
-    for (row of result){
-      console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
-    }
-    console.log({ mealName, description, ingredients })
-    router.back()
-  }
+  //   const result = db.getAllSync('SELECT * FROM meals');
+  //   let row: any
+  //   for (row of result){
+  //     console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
+  //   }
+  //   console.log({ mealName, description, ingredients })
+  //   router.back()
+  // }
 
-  const test = () =>{
+  // const test = () =>{
     
-  }
+  // }
 
   const handleSelectImage = () => {
     // Add your image picker logic here
@@ -113,7 +113,7 @@ export default function CreateMealScreen() {
           </View>
 
           {/* Create Button */}
-          <TouchableOpacity style={styles.createButton} onPress={handleCreateMeal}>
+          <TouchableOpacity style={styles.createButton} >
             <Text style={styles.createButtonText}>CREATE MEAL</Text>
           </TouchableOpacity>
         </ScrollView>

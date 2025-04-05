@@ -34,6 +34,7 @@ export default function SignUpScreen() {
       try{
         const user = await createUserWithEmailAndPassword(auth, email, password);
         if (user) {
+          // TODO: add user details to database: username, UID
           router.replace(`/(user)/MainDashboard`);
         }
       } catch (error: any){

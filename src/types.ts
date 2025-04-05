@@ -15,3 +15,5 @@ export type Ingredient = {
   amount: string | null;
   calories: number | null;
 };
+
+// TODO: Create User type
