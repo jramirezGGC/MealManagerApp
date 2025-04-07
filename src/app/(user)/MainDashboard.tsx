@@ -1,11 +1,12 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
 import Colors from '@/src/constants/Colors';
 import MealContainer from '@/src/components/MealContainer';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import { router, useRouter } from "expo-router"
+import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 
 
 const getHouseholdID = async () => {
@@ -34,6 +35,41 @@ export default function MainDashboard() {
 
   getHouseholdID()
 
+  // Mock data - replace with actual data from your state management
+  const mealCounts = {
+    fridge: 8,
+    freezer: 14,
+  }
+
+  const router = useRouter();
+  // Navigation options
+  const navigationOptions = [
+    {
+      id: "inventory",
+      title: "Inventory",
+      description: "Manage your food items",
+      icon: <Feather name="package" size={32} color={Colors.white} />,
+      route: "/(user)/Inventory",
+      color: Colors.primary,
+    },
+    {
+      id: "mealManager",
+      title: "Manage Refrigerator",
+      description: "Edit meals",
+      icon: <MaterialIcons name="restaurant-menu" size={32} color={Colors.white} />,
+      route: "/(user)/Fridge",
+      color: "#4CAF50", // Green color
+    },
+    {
+      id: "savedMeals",
+      title: "Saved Meals",
+      description: "View meal history",
+      icon: <Ionicons name="time" size={32} color={Colors.white} />,
+      route: "/(user)/SavedMeals",
+      color: "#FF9800", // Orange color
+    },
+  ]
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -48,39 +84,43 @@ export default function MainDashboard() {
 
       {/* Content Section */}
       <View style={styles.contentContainer}>
+        {/* Stats Container - Updated to show Fridge and Freezer counts */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Total Meals</Text>
+            <Text style={styles.statValue}>{mealCounts.fridge}</Text>
+            <Text style={styles.statLabel}>Fridge Meals</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>5</Text>
-            <Text style={styles.statLabel}>This Week</Text>
+            <Text style={styles.statValue}>{mealCounts.freezer}</Text>
+            <Text style={styles.statLabel}>Freezer Meals</Text>
           </View>
         </View>
 
+        {/* Navigation Cards */}
+        <View style={styles.navigationContainer}>
+          {navigationOptions.map((option) => (
+            <TouchableOpacity
+              key={option.id}
+              style={[styles.navigationCard, { backgroundColor: option.color }]}
+              onPress={() => router.push(option.route as any)}
+            >
+              <View style={styles.navigationIconContainer}>{option.icon}</View>
+              <View style={styles.navigationTextContainer}>
+                <Text style={styles.navigationTitle}>{option.title}</Text>
+                <Text style={styles.navigationDescription}>{option.description}</Text>
+              </View>
+              <View style={styles.navigationArrow}>
+                <Text style={styles.navigationArrowText}>›</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        
         <MealContainer />
-      </View>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Fridge")}>
-          <Text style={styles.navIcon}>🗄️</Text>
-          <Text style={styles.navText}>Fridge</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(user)/CreateMeal")}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Settings")}>
-          <Text style={styles.navIcon}>⚙️</Text>
-          <Text style={styles.navText}>Settings</Text>
-        </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -126,6 +166,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
+    paddingBottom: 80, // Add padding for bottom nav
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -164,50 +205,54 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.textTertiary,
     opacity: 0.3,
   },
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: Colors.background,
-    paddingVertical: 12,
+  navigationContainer: {
     paddingHorizontal: 24,
-    justifyContent: "space-between",
+  },
+  navigationCard: {
+    flexDirection: "row",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  navButton: {
-    alignItems: "center",
-    width: 80,
-  },
-  navIcon: {
-    fontSize: 24,
-    color: Colors.primary,
-    marginBottom: 4,
-  },
-  navText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-  },
-  addButton: {
+  navigationIconContainer: {
     width: 56,
     height: 56,
-    backgroundColor: Colors.primary,
     borderRadius: 28,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-    marginBottom: 20,
+    marginRight: 16,
   },
-  addButtonText: {
-    fontSize: 32,
+  navigationTextContainer: {
+    flex: 1,
+  },
+  navigationTitle: {
+    fontSize: 18,
+    fontWeight: "700",
     color: Colors.white,
-    fontWeight: "300",
+    marginBottom: 4,
+  },
+  navigationDescription: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  navigationArrow: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  navigationArrowText: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.white,
   },
 });
