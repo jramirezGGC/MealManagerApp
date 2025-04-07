@@ -5,6 +5,52 @@ import { router, useLocalSearchParams } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import type { Meal } from "@/src/types"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+
+
+// let mealsArr: Meal[] = [];
+// let meals: Meal[] = [];
+
+// async function loadStuff(storageUnit: string) {
+//   let householdID
+//   try {
+//     householdID = await AsyncStorage.getItem("householdID");
+//   } catch (error) {
+//     console.error("Async Storage could not get householdID", error);
+//   }
+//   const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`);
+//   const snapshot = await getDoc(userDoc);
+//   if (snapshot.exists()) {
+//     const docData = snapshot.data();
+//     const dict = { ...docData.meals }
+//     for (const key in dict) {
+//       if (dict.hasOwnProperty(key)) {
+//         if (!mealsArr.find(obj => obj.id == key)) {
+//           mealsArr.push({
+//             id: key,
+//             name: dict[key].name,
+//             description: dict[key].description,
+//             image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
+//             ingredients: dict[key].ingredients,
+//             ...(storageUnit == "fridge1"
+//               ? { numInFridge: dict[key].servings }
+//               : { numInFreezer: dict[key].servings })
+//           } as Meal);
+//         }
+//         else {
+//           let meal: any = mealsArr.find(obj => obj.id == key);
+//           storageUnit == "fridge1" ? meal.numInFridge = dict[key].servings : meal.numInFreezer = dict[key].servings
+//         }
+//       }
+//     }
+
+//     console.log(`Data: ${JSON.stringify(mealsArr)}`);
+//   }
+//   else {
+//     console.error("Gallery Meals loading unsuccessful")
+//   }
+// }
 
 // Initial dummy meals (will be overridden by AsyncStorage)
 const initialDummyMeals: Meal[] = [

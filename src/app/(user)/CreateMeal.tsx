@@ -24,6 +24,7 @@ export default function CreateMealScreen() {
   const [description, setDescription] = useState("")
   const [ingredients, setIngredients] = useState("")
   const [loading, setLoading] = useState(false)
+  //const db = SQLite.useSQLiteContext();
 
   const handleCreateMeal = async () => {
     if (!mealName.trim()) {
@@ -34,29 +35,33 @@ export default function CreateMealScreen() {
     setLoading(true)
 
     try {
-      // Comment out Firebase logic
       /*
-      let householdID
-      try {
-        householdID = await AsyncStorage.getItem("householdID")
-      } catch (error) {
-        console.error("Async Storage could not get householdID", error)
-        throw error
-      }
+      const handleCreateMeal = async () => {
+        let householdID  
+        try {
+          householdID = await AsyncStorage.getItem("householdID")
+        } catch (error) {
+          console.error("Async Storage could not get householdID", error);
+        }
+    
+        const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
+        const mealID = AutoId()
+        await updateDoc(mealsDoc, {
+            [mealID]: {
+            "name": mealName,
+            "description": description,
+            "ingredients": [ingredients], // once we have input for multiple ingredients, break this into an array
+          }
+        })
 
-      const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
-      const mealID = AutoId()
-      await updateDoc(mealsDoc, {
-        [mealID]: {
-          name: mealName,
-          description: description,
-          ingredients: ingredients
-            .split(",")
-            .map((item) => item.trim())
-            .filter((item) => item), // Convert comma-separated string to array
-          createdAt: new Date().toISOString(),
-        },
-      })
+
+      console.log({ mealName, description, ingredients })
+      router.back()
+
+
+      const test = () =>{
+      
+      }
       */
 
       // Create dummy meal data for testing
