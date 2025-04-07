@@ -35,43 +35,6 @@ export default function CreateMealScreen() {
     setLoading(true)
 
     try {
-<<<<<<< HEAD
-      householdID = await AsyncStorage.getItem("householdID")
-    } catch (error) {
-      console.error("Async Storage could not get householdID", error);
-    }
-
-    const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
-    const mealID = AutoId()
-    await updateDoc(mealsDoc, {
-        [mealID]: {
-        "name": mealName,
-        "description": description,
-        "ingredients": [ingredients], // once we have input for multiple ingredients, break this into an array
-      }
-    })
-    // Add your meal creation logic here
-    /* try {
-      const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
-      console.log(result2.lastInsertRowId);
-    }
-    catch (error) {
-      console.error('Error fetching data:', error);
-    }
-   
-    const result = db.getAllSync('SELECT * FROM meals');
-    let row: any
-    for (row of result){
-      console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
-    } */
-    console.log({ mealName, description, ingredients })
-    router.back()
-  }
-
-  // const test = () =>{
-    
-  // }
-=======
       /*
       const handleCreateMeal = async () => {
         let householdID  
@@ -132,7 +95,6 @@ export default function CreateMealScreen() {
       setLoading(false)
     }
   }
->>>>>>> 872cf1c4c1d1b0e4b69f2c50a0828deba46d16d5
 
   const handleSelectImage = () => {
     // Add your image picker logic here
@@ -234,54 +196,6 @@ export default function CreateMealScreen() {
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
-<<<<<<< HEAD
-
-          {/* Form */}
-          <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>MEAL NAME:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                value={mealName}
-                onChangeText={setMealName}
-                placeholderTextColor="#88a588"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>MEAL DESCRIPTION:</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-                multiline
-                numberOfLines={Platform.OS === "ios" ? undefined : 4}
-                placeholderTextColor="#88a588"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>INGREDIENTS</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Ingredients"
-                value={ingredients}
-                onChangeText={setIngredients}
-                multiline
-                numberOfLines={Platform.OS === "ios" ? undefined : 4}
-                placeholderTextColor="#88a588"
-              />
-            </View>
-          </View>
-
-          {/* Create Button */}
-          <TouchableOpacity style={styles.createButton} >
-            <Text style={styles.createButtonText}>CREATE MEAL</Text>
-          </TouchableOpacity>
-=======
->>>>>>> 872cf1c4c1d1b0e4b69f2c50a0828deba46d16d5
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
