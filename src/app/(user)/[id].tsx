@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import {
   StyleSheet,
@@ -11,31 +11,20 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import Colors from "@/src/constants/Colors";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import tempMeals from "@/assets/data/tempMeals";
-
-const defaultImage = require("../../../assets/images/defaultmeal.png");
+import { useMeals } from "@/src/context/MealsContext";
+import { Images } from "@/src/constants/Images";
 
 export default function MealDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { meals } = useMeals();
+  const [imageError, setImageError] = useState(false);
 
-  const meal = tempMeals.find((m) => m.id.toString() === id);
+  const meal = meals.find((m) => m.id === id);
 
   if (!meal) {
     return <Text>Meal not found</Text>;
   }
-
-  // const handleGoBack = () => {
-  //   // You can check for a specific condition to navigate to Gallery or other pages
-  //   const previousPage = router.asPath; // Or use router.history to get navigation history
-
-  //   // If you're coming from the Gallery page, go back
-  //   if (previousPage.includes("Gallery")) {
-  //     router.back();
-  //   } else {
-  //     router.push("/Gallery"); // Navigate directly to Gallery if not coming from it
-  //   }
-  // };
 
   return (
     <SafeAreaProvider>
@@ -57,8 +46,10 @@ export default function MealDetailsScreen() {
           {/* Meal Image Section */}
           <View style={styles.imageContainer}>
             <Image
-              source={meal.image ? meal.image : defaultImage}
+              source={!imageError && meal.image ? { uri: meal.image } : Images.defaultMeal}
               style={styles.mealImage}
+              onError={() => setImageError(true)}
+              onLoadStart={() => setImageError(false)}
             />
           </View>
 
@@ -81,14 +72,14 @@ export default function MealDetailsScreen() {
             </Text>
 
             <Text style={styles.label}># of Meals in Fridge</Text>
-            <Text style={styles.value}>{meal.numInFridge}</Text>
+            <Text style={styles.value}>{meal.numInFridge || 0}</Text>
 
             <Text style={styles.label}># of Meals in Freezer</Text>
-            <Text style={styles.value}>{meal.numInFreezer}</Text>
+            <Text style={styles.value}>{meal.numInFreezer || 0}</Text>
 
             <Text style={styles.totalLabel}>Total Meals in Inventory</Text>
             <Text style={styles.totalValue}>
-              {meal.numInFridge + meal.numInFreezer}
+              {Number(meal.numInFridge || 0) + Number(meal.numInFreezer || 0)}
             </Text>
           </View>
 

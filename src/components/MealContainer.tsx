@@ -2,15 +2,15 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Platform } from "react-native";
 import { router } from "expo-router";
 import Colors from '@/src/constants/Colors';
+import { Meal } from '../types';
 
-interface Meal {
-  id: number;
-  name: string;
-  type: string;
+
+interface MealContainerProp {
+  meals: Meal[];
 }
 
 // Sample meal data
-const meals: Meal[] = [
+/* const meals2: Meal[] = [
   { id: 1, name: "Chicken Pasta", type: "Lunch" },
   { id: 2, name: "Avocado Toast", type: "Breakfast" },
   { id: 3, name: "Vegetable Stir Fry", type: "Dinner" },
@@ -20,14 +20,14 @@ const meals: Meal[] = [
   { id: 7, name: "Fruit Smoothie", type: "Breakfast" },
   { id: 8, name: "Beef Stew", type: "Dinner" },
   { id: 9, name: "Quinoa Bowl", type: "Lunch" },
-];
+]; */
 
-function MealContainer() {
-  const handleMenuPress = (mealId: number) => {
+function MealContainer({ meals }: MealContainerProp) {
+  const handleMenuPress = (mealId: string) => {
     console.log("Menu pressed for meal:", mealId);
   };
 
-  const handleTakeMeal = (mealId: number) => {
+  const handleTakeMeal = (mealId: string) => {
     console.log("Taking meal:", mealId);
   };
 
@@ -45,7 +45,7 @@ function MealContainer() {
   };
 
   const renderMealItem = ({ item }: { item: Meal }) => {
-    const typeColors = getMealTypeColor(item.type);
+    const typeColors = getMealTypeColor(item.description);
     
     return (
       <View style={styles.mealItem}>
@@ -54,7 +54,7 @@ function MealContainer() {
           <View style={styles.mealInfo}>
             <Text style={styles.mealName}>{item.name}</Text>
             <View style={[styles.mealTag, { backgroundColor: typeColors.bg }]}>
-              <Text style={[styles.mealTagText, { color: typeColors.text }]}>{item.type}</Text>
+              <Text style={[styles.mealTagText, { color: typeColors.text }]}>{item.description}</Text>
             </View>
           </View>
         </View>
