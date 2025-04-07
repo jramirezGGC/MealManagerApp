@@ -5,8 +5,10 @@ import MealContainer from '@/src/components/MealContainer';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import { Meal } from "@/src/types";
 import { router, useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
+
 
 
 const getHouseholdID = async () => {
@@ -30,6 +32,90 @@ const getHouseholdID = async () => {
     console.error("Async Storage could not set householdID", error);
   }
 }
+
+const meals: Meal[] = [
+  {
+    id: "1", name: "Chicken Pasta", description: "Lunch",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "2", name: "Avocado Toast", description: "Breakfast",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "3", name: "Vegetable Stir Fry", description: "Dinner",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "4", name: "Greek Yogurt", description: "Breakfast",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "5", name: "Salmon with Rice", description: "Dinner",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "6", name: "Caesar Salad", description: "Lunch",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "7", name: "Fruit Smoothie", description: "Breakfast",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "8", name: "Beef Stew", description: "Dinner",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+  {
+    id: "9", name: "Quinoa Bowl", description: "Lunch",
+    image: null,
+    calories: 0,
+    date: null,
+    ingredients: [],
+    numInFridge: 0,
+    numInFreezer: 0
+  },
+];
 
 export default function MainDashboard() {
 
@@ -97,6 +183,10 @@ export default function MainDashboard() {
           </View>
         </View>
 
+
+        
+      </View>
+
         {/* Navigation Cards */}
         <View style={styles.navigationContainer}>
           {navigationOptions.map((option) => (
@@ -116,8 +206,9 @@ export default function MainDashboard() {
             </TouchableOpacity>
           ))}
         
-        <MealContainer />
+        <MealContainer meals = {meals}/>
         </View>
+
       </View>
     </SafeAreaView>
   )
