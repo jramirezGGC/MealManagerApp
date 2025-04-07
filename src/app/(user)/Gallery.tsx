@@ -24,6 +24,7 @@ import {AutoId} from "@/src/lib/util"
 import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMeals } from "@/src/context/MealsContext";
 
 const defaultImage = require("../../../assets/images/defaultmeal.png");
 
@@ -79,6 +80,7 @@ async function loadStuff(storageUnit: string) {
 
 export default function MealGalleryScreen() {
   const [loading, setLoading] = useState(true);
+  const { meals } = useMeals();
   // const db = SQLite.useSQLiteContext();
   // console.log("Gallery Database Loading...");
   // // var meals2 : MealItem[] = []
@@ -137,7 +139,7 @@ export default function MealGalleryScreen() {
         <Text style={styles.headerTitle}>Meal Gallery</Text>
       </View>
 
-      <GalleryImages meals={mealsArr}/>
+      <GalleryImages meals={meals}/>
     </SafeAreaView>
   );
 }

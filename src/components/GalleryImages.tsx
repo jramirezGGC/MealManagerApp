@@ -8,36 +8,40 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import tempMeals from "@/assets/data/tempMeals";
 import { Meal } from "../types";
 import Colors from "../constants/Colors";
+import { Images } from "../constants/Images";
+import { useState } from "react";
 
-const defaultImage = require("../../assets/images/defaultmeal.png");
+const MealItem = ({ item }: { item: Meal }) => {
+  const [imageError, setImageError] = useState(false);
 
-const renderMealItem = ({ item }: { item: Meal }) => (
-  <Link href={`/${item.id}`} asChild>
-    <Pressable
-      style={styles.mealItem}
-      /*onPress={() => handleMealPress(item.id)}*/
-    >
-      <View style={styles.imageContainer}>
-        <Image
-          source={item.image ? item.image : defaultImage}
-          style={styles.imagePlaceholder}
-        />
-      </View>
-      <Text style={styles.mealName} numberOfLines={1}>
-        {item.name}
-      </Text>
-    </Pressable>
-  </Link>
-);
+  return (
+    <Link href={`/${item.id}`} asChild>
+      <Pressable
+        style={styles.mealItem}
+      >
+        <View style={styles.imageContainer}>
+          <Image
+            source={!imageError && item.image ? { uri: item.image } : Images.defaultMeal}
+            style={styles.imagePlaceholder}
+            onError={() => setImageError(true)}
+            onLoadStart={() => setImageError(false)}
+          />
+        </View>
+        <Text style={styles.mealName} numberOfLines={1}>
+          {item.name}
+        </Text>
+      </Pressable>
+    </Link>
+  );
+};
 
 function GalleryImages({ meals } : { meals: Meal[]}) {
   return (
     <FlatList
       data={meals}
-      renderItem={renderMealItem}
+      renderItem={({ item }) => <MealItem item={item} />}
       keyExtractor={(item) => item.id.toString()}
       numColumns={2}
       columnWrapperStyle={styles.row}
