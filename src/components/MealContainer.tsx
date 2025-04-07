@@ -78,7 +78,7 @@ function MealContainer() {
 
   return (
     <>
-      <Text style={styles.sectionTitle}>Fridge Meals</Text>
+      <Text style={styles.sectionTitle}>Fridge Meals For Today</Text>
       <FlatList
         data={meals}
         renderItem={renderMealItem}

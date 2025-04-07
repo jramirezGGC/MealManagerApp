@@ -5,7 +5,7 @@ import Colors from "@/src/constants/Colors"
 import { getAuth } from "firebase/auth"
 
 // Default profile image
-const defaultProfileImage = require("../../../assets/images/silly-youtube-emotes.png")
+// const defaultProfileImage = require("../../../assets/images/silly-youtube-emotes.png")
 const auth = getAuth();
 
 export default function SettingsScreen() {
@@ -13,6 +13,8 @@ export default function SettingsScreen() {
   const user = {
     name: "John Doe",
     email: "john.doe@example.com",
+    profileImageUri:
+      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/silly-youtube-emotes-fliZUQin7jZJL9FDHYS4xI0dzSIfs1.png", // Using the provided image URL
     // You can add more user properties as needed
   }
 
@@ -63,7 +65,11 @@ export default function SettingsScreen() {
       {/* Profile Section */}
       <View style={styles.profileSection}>
         <View style={styles.profileImageContainer}>
-          <Image source={defaultProfileImage} style={styles.profileImage} defaultSource={defaultProfileImage} />
+          <Image
+              source={{ uri: user.profileImageUri }}
+              style={styles.profileImage}
+              // No need for onError or defaultSource with a direct URL
+            />
         </View>
         <Text style={styles.userName}>{user.name}</Text>
         <Text style={styles.userEmail}>{user.email}</Text>
