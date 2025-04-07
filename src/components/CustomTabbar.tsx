@@ -29,7 +29,7 @@ export default function CustomTabbar(props: BottomTabBarProps) {
         <Text style={[
           styles.navText,
           pathname.includes('/(user)/Fridge') && styles.activeNavText
-        ]}>Fridge</Text>
+        ]}>Fridge</Text>        
       </TouchableOpacity>
 
       <TouchableOpacity 
@@ -51,6 +51,16 @@ export default function CustomTabbar(props: BottomTabBarProps) {
           styles.navText,
           pathname.includes('/(user)/Settings') && styles.activeNavText
         ]}>Settings</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.navButton}
+        onPress={() => router.push('/(user)/Pages')}
+      >
+      <Text style={[
+          styles.navText,
+          pathname.includes('/(user)/Pages') && styles.activeNavText
+        ]}>Pages</Text>
       </TouchableOpacity>
     </View>
   );
