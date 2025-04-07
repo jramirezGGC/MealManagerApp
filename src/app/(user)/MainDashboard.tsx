@@ -5,9 +5,9 @@ import MealContainer from '@/src/components/MealContainer';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
-import { Meal } from "@/src/types";
 import { router, useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
+import { Meal } from "@/src/types";
 
 
 
@@ -183,10 +183,6 @@ export default function MainDashboard() {
           </View>
         </View>
 
-
-        
-      </View>
-
         {/* Navigation Cards */}
         <View style={styles.navigationContainer}>
           {navigationOptions.map((option) => (
@@ -206,9 +202,8 @@ export default function MainDashboard() {
             </TouchableOpacity>
           ))}
         
-        <MealContainer meals = {meals}/>
+        <MealContainer meals={meals}/>
         </View>
-
       </View>
     </SafeAreaView>
   )

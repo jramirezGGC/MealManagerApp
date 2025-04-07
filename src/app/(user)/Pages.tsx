@@ -32,7 +32,7 @@ export default function Pages() {
   const addTextToDb = async (fieldText: string) => {
     try {
       const docRef = await addDoc(collection(db, "users"), {
-        name: fieldText,
+        name: fieldText,     
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
