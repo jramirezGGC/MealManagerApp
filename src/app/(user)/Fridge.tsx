@@ -7,6 +7,7 @@ import type { Meal } from "@/src/types"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
+import React from "react"
 
 
 // let mealsArr: Meal[] = [];

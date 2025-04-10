@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
+import React from "react"
 
 export default function MealNotificationsScreen() {
   // State for notification toggles

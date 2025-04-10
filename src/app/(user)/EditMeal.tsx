@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,15 +9,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
+import { router, useLocalSearchParams } from "expo-router"
 import Colors from "@/src/constants/Colors"
+import { Images } from "@/src/constants/Images"
+import { useMeals } from "@/src/context/MealsContext"
 
 export default function EditMealScreen() {
-  const [mealName, setMealName] = useState("")
-  const [description, setDescription] = useState("")
-  const [numberOfMeals, setNumberOfMeals] = useState("")
+  const { id } = useLocalSearchParams();
+  const { meals } = useMeals();
+  const [imageError, setImageError] = useState(false);
+  
+  const meal = meals.find((m) => m.id === id);
+  
+  if (!meal) {
+    return <Text>Meal not found</Text>;
+  }
+
+  const [mealName, setMealName] = useState(meal.name);
+  const [description, setDescription] = useState(meal.description || "");
+  const [numberOfMeals, setNumberOfMeals] = useState(String(meal.numInFridge || 0));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -112,7 +125,7 @@ export default function EditMealScreen() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

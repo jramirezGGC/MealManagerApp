@@ -23,6 +23,9 @@ const Colors = {
   tagBackground: "#FFE5D9",
   tagText: "#FF7622",
 
+  lightGray: '#D3D3D3',
+  darkGray: '#A9A9A9',
+
   light: {
         text: '#000',
         background: '#fff',

@@ -1,43 +1,13 @@
-import { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from "@/src/constants/Colors"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
-import { doc, getDoc } from "firebase/firestore"
-import type { SavedMeal } from "@/src/types"
-
-const savedMealsArr: SavedMeal[] = []
-
-async function loadStuff() {
-  let householdID
-  try {
-    householdID = await AsyncStorage.getItem("householdID")
-  } catch (error) {
-    console.error("Async Storage could not get householdID", error)
-  }
-  const userDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
-  const snapshot = await getDoc(userDoc)
-  if (snapshot.exists()) {
-    const docData = snapshot.data()
-    const dict = { ...docData }
-    for (const key in dict) {
-      savedMealsArr.push({
-        id: key,
-        name: dict[key].name,
-        description: dict[key].description,
-        ingredients: dict[key].ingredients,
-      } as SavedMeal)
-    }
-    console.log(`Data: ${JSON.stringify(savedMealsArr)}`)
-  } else {
-    console.error("Saved Meals loading unsuccessful")
-  }
-}
+import { useSavedMeals } from "@/src/context/MealsContext"
+import { SavedMeal } from "@/src/types"
 
 export default function SavedMealsScreen() {
-  const [loading, setLoading] = useState(true)
+  const { savedMeals, loading, error } = useSavedMeals() 
 
   const handleRemove = (mealId: string) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
@@ -75,20 +45,6 @@ export default function SavedMealsScreen() {
     </View>
   )
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await loadStuff()
-      } catch (error) {
-        console.error("Error loading data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -112,14 +68,14 @@ export default function SavedMealsScreen() {
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading your saved meals...</Text>
           </View>
-        ) : savedMealsArr.length === 0 ? (
+        ) : savedMeals.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>You don't have any saved meals yet.</Text>
             <Text style={styles.emptySubtext}>Save a meal to see it here!</Text>
           </View>
         ) : (
           <FlatList
-            data={savedMealsArr}
+            data={savedMeals}
             renderItem={renderMealItem}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.listContent}

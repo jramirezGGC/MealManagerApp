@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import Colors from '@/src/constants/Colors';
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH } from "@/src/lib/firebaseConfig";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignUpScreen() {
   const [name, setName] = useState("")
@@ -26,6 +27,14 @@ export default function SignUpScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
+
+  useEffect(() => {
+    // Clear AsyncStorage when the component mounts
+    const clearStorage = async () => {
+      await AsyncStorage.clear();
+    };
+    clearStorage();
+  }, []); // Empty dependency array to run on mount
 
   const handleSignUp = async () => {    
     if (password !== confirmPassword) {

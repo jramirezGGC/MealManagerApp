@@ -8,6 +8,7 @@ import { doc, getDoc } from "firebase/firestore"
 import { useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 import type { Meal } from "@/src/types"
+import React from "react"
 
 const getHouseholdID = async () => {
   const userID = FIREBASE_AUTH.currentUser?.uid
