@@ -15,12 +15,14 @@ interface MealsContextType {
   error: string | null;
   updateMeal: (mealId: string, updatedMeal: Partial<Meal>, storageUnit: string) => Promise<void>;
   deleteMeal: (mealId: string, storageUnit: string) => Promise<void>;
+  refreshMeals: () => Promise<void>;
+  fetchSavedMeals: () => Promise<void>;
 }
 
 const MealsContext = createContext<MealsContextType | undefined>(undefined);
 
 export function MealsProvider({ children }: { children: React.ReactNode }) {
-  console.log("MealsProvider is being rendered");
+  // console.log("MealsProvider is being rendered");
   const [meals, setMeals] = useState<Meal[]>([]);
   const [savedMeals, setSavedMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,21 +31,21 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
   const fetchMeals = async (storageUnit: string) => {
     try {
       const householdID = await AsyncStorage.getItem("householdID");
-      console.log("Household ID:", householdID);
+      // console.log("Household ID:", householdID);
       if (!householdID) {
-        console.log("No householdID found");
+        // console.log("No householdID found");
         setError("No household ID found");
         return;
       }
 
-      console.log("Fetching meals for household:", householdID);
+      // console.log("Fetching meals for household:", householdID);
       const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`);
       const snapshot = await getDoc(mealsDoc);
       
       if (snapshot.exists()) {
-        console.log("Meals document exists");
+        // console.log("Meals document exists");
         const docData = snapshot.data();
-        console.log("Fetched meals data:", docData);
+        // console.log("Fetched meals data:", docData);
         const dict = { ...docData.meals };
         
         setMeals(prevMeals => {
@@ -91,7 +93,7 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
   const fetchSavedMeals = async () => {
     try {
       const householdID = await AsyncStorage.getItem("householdID");
-      console.log("Household ID for saved meals:", householdID);
+      // console.log("Household ID for saved meals:", householdID);
       if (!householdID) {
         setError("No household ID found");
         return;
@@ -102,7 +104,7 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
       
       if (snapshot.exists()) {
         const data = snapshot.data();
-        console.log("Fetched saved meals data:", data);
+        // console.log("Fetched saved meals data:", data);
         const mealsArray = Object.entries(data).map(([id, mealData]) => ({
           id,
           ...mealData,
@@ -211,7 +213,7 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <MealsContext.Provider value={{ meals, savedMeals, loading, error, updateMeal, deleteMeal }}>
+    <MealsContext.Provider value={{ meals, savedMeals, loading, error, updateMeal, deleteMeal, refreshMeals, fetchSavedMeals }}>
       {children}
     </MealsContext.Provider>
   );
@@ -230,5 +232,5 @@ export function useSavedMeals() {
   if (context === undefined) {
     throw new Error('useSavedMeals must be used within a MealsProvider');
   }
-  return { savedMeals: context.savedMeals, loading: context.loading, error: context.error };
+  return { savedMeals: context.savedMeals, loading: context.loading, error: context.error, fetchSavedMeals: context.fetchSavedMeals };
 } 

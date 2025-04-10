@@ -10,26 +10,26 @@ import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 import type { Meal } from "@/src/types"
 import React from "react"
 
-const getHouseholdID = async () => {
-  const userID = FIREBASE_AUTH.currentUser?.uid
-  const userDoc = doc(FIREBASE_DB, `users/${userID}`)
-  const snapshot = await getDoc(userDoc)
-  let householdID
+// const getHouseholdID = async () => {
+//   const userID = FIREBASE_AUTH.currentUser?.uid
+//   const userDoc = doc(FIREBASE_DB, `users/${userID}`)
+//   const snapshot = await getDoc(userDoc)
+//   let householdID
 
-  if (snapshot.exists()) {
-    const docData = snapshot.data()
-    console.log(`Data: ${JSON.stringify(docData)}`)
-    householdID = docData.householdID
-  } else {
-    console.log("IT Broke")
-  }
+//   if (snapshot.exists()) {
+//     const docData = snapshot.data()
+//     console.log(`Data: ${JSON.stringify(docData)}`)
+//     householdID = docData.householdID
+//   } else {
+//     console.log("IT Broke")
+//   }
 
-  try {
-    await AsyncStorage.setItem("householdID", householdID)
-  } catch (error) {
-    console.error("Async Storage could not set householdID", error)
-  }
-}
+//   try {
+//     await AsyncStorage.setItem("householdID", householdID)
+//   } catch (error) {
+//     console.error("Async Storage could not set householdID", error)
+//   }
+// }
 
 const meals: Meal[] = [
   {
@@ -134,7 +134,7 @@ const meals: Meal[] = [
 ]
 
 export default function MainDashboard() {
-  getHouseholdID()
+  // getHouseholdID()
 
   // Mock data - replace with actual data from your state management
   const mealCounts = {
