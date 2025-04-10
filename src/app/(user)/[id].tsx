@@ -84,7 +84,12 @@ export default function MealDetailsScreen() {
           </View>
 
           {/* Edit Button */}
-          <Pressable style={styles.editButton} onPress={() => {}}>
+          <Pressable style={styles.editButton} onPress={() => {
+            router.push({
+              pathname: "/EditMeal",
+              params: { id: meal.id }
+            });
+          }}>
             <Text style={styles.editText}>EDIT</Text>
           </Pressable>
         </View>

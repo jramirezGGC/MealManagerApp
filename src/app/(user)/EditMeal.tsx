@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,24 +9,46 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router, useRouter } from 'expo-router';
-import Colors from '@/src/constants/Colors';
+  Image
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router, useLocalSearchParams } from "expo-router";
+import Colors from "@/src/constants/Colors";
+import { Images } from "@/src/constants/Images";
+import { useMeals } from "@/src/context/MealsContext";
 
 export default function EditMealScreen() {
-  const [mealName, setMealName] = useState("")
-  const [description, setDescription] = useState("")
-  const [numberOfMeals, setNumberOfMeals] = useState("")
+  const { id } = useLocalSearchParams();
+  const { meals } = useMeals();
+  const [imageError, setImageError] = useState(false);
+  
+  const meal = meals.find((m) => m.id === id);
+  
+  if (!meal) {
+    return <Text>Meal not found</Text>;
+  }
+
+  const [mealName, setMealName] = useState(meal.name);
+  const [description, setDescription] = useState(meal.description || "");
+  const [numberOfMeals, setNumberOfMeals] = useState(String(meal.numInFridge || 0));
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back() } style={styles.backButton}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
               <Text style={styles.backIcon}>‹</Text>
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Edit Meal</Text>
@@ -35,9 +57,18 @@ export default function EditMealScreen() {
           {/* Meal Image */}
           <View style={styles.imageContainer}>
             <View style={styles.imagePlaceholder}>
+              <Image
+                source={!imageError && meal.image ? { uri: meal.image } : Images.defaultMeal}
+                style={styles.imagePlaceholder}
+                onError={(e) => {
+                  console.log('Image load error:', e.nativeEvent.error);
+                  setImageError(true);
+                }}
+              />
               <TouchableOpacity style={styles.editImageButton}>
                 <View style={styles.editIconContainer}>
                   <Text style={styles.editIcon}>✎</Text>
+                  
                 </View>
               </TouchableOpacity>
             </View>
@@ -84,13 +115,16 @@ export default function EditMealScreen() {
           </View>
 
           {/* Save Button */}
-          <TouchableOpacity style={styles.saveButton} /*onPress={}*/ activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.saveButton}
+            /*onPress={}*/ activeOpacity={0.8}
+          >
             <Text style={styles.saveButtonText}>SAVE</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -206,5 +240,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-})
-
+});
