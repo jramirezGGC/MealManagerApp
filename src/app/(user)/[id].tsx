@@ -21,6 +21,8 @@ export default function MealDetailsScreen() {
     return <Text>Meal not found</Text>
   }
 
+  console.log(meal);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -33,13 +35,18 @@ export default function MealDetailsScreen() {
               </Pressable>
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Meal Details</Text>
-                <Text style={styles.headerSubtitle}>View meal information</Text>
+                
               </View>
             </View>
           </View>
 
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
             <View style={styles.contentContainer}>
+              {/* Meal Name Header */}
+              <View style={styles.mealNameContainer}>
+                <Text style={styles.mealName}>{meal.name}</Text>
+              </View>
+
               {/* Meal Image Section */}
               <View style={styles.imageContainer}>
                 <Image
@@ -50,27 +57,12 @@ export default function MealDetailsScreen() {
                 />
               </View>
 
-              {/* Meal Information Section */}
-              <View style={styles.infoContainer}>
-                <View style={styles.infoItem}>
-                  <Text style={styles.label}>Meal Name</Text>
-                  <Text style={styles.value}>{meal.name}</Text>
-                </View>
-
-                <View style={styles.infoItem}>
-                  <Text style={styles.label}>Meal Description</Text>
-                  <Text style={styles.value}>{meal.description}</Text>
-                </View>
-
-                <View style={styles.infoItem}>
-                  <Text style={styles.label}>Ingredients</Text>
-                  <Text style={styles.value}>
-                    {meal.ingredients.map((ingredient, index) => (
-                      <Text key={index}>
-                        {ingredient.name}
-                        {index < meal.ingredients.length - 1 ? ", " : ""}{" "}
-                      </Text>
-                    ))}
+              {/* Inventory Summary Section */}
+              <View style={styles.inventorySummary}>
+                <View style={styles.totalContainer}>
+                  <Text style={styles.totalLabel}>Total Meals in Inventory</Text>
+                  <Text style={styles.totalValue}>
+                    {Number(meal.numInFridge || 0) + Number(meal.numInFreezer || 0)}
                   </Text>
                 </View>
 
@@ -87,29 +79,49 @@ export default function MealDetailsScreen() {
                     <Text style={styles.servingValue}>{meal.numInFreezer || 0}</Text>
                   </View>
                 </View>
+              </View>
 
-                <View style={styles.totalContainer}>
-                  <Text style={styles.totalLabel}>Total Meals in Inventory</Text>
-                  <Text style={styles.totalValue}>
-                    {Number(meal.numInFridge || 0) + Number(meal.numInFreezer || 0)}
-                  </Text>
+              {/* Meal Information Section */}
+              <View style={styles.infoContainer}>
+                <View style={styles.infoItem}>
+                  <View style={styles.card}>
+                    <Text style={styles.label}>Description</Text>
+                    <Text style={styles.value}>{meal.description}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.infoItem}>
+                  <View style={styles.card}>
+                    <Text style={styles.label}>Ingredients</Text>
+                    <View style={styles.ingredientsContainer}>
+                      {meal.ingredients && meal.ingredients.length > 0 ? (
+                        meal.ingredients.map((ingredient, index) => (
+                          <Text key={index} style={styles.ingredientText}>
+                            {ingredient}
+                          </Text>
+                        ))
+                      ) : (
+                        <Text>No ingredients available</Text>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                {/* Edit Button */}
+                <View style={styles.buttonContainer}>
+                  <Pressable 
+                    style={styles.editButton} 
+                    onPress={() => router.push({
+                      pathname: "/EditMeal",
+                      params: { id: mealId }
+                    })}
+                  >
+                    <Text style={styles.editText}>Edit Meal</Text>
+                  </Pressable>
                 </View>
               </View>
             </View>
           </ScrollView>
-
-          {/* Edit Button */}
-          <View style={styles.buttonContainer}>
-            <Pressable 
-              style={styles.editButton} 
-              onPress={() => router.push({
-                pathname: "/EditMeal",
-                params: { id: mealId }
-              })}              
-            >
-              <Text style={styles.editText}>Edit Meal</Text>
-            </Pressable>
-          </View>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -127,25 +139,27 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === "android" ? 40 : 20,
+    paddingTop: Platform.OS === "android" ? 20 : 10,
     paddingBottom: 16,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   headerTextContainer: {
     flex: 1,
-    justifyContent: "center",
+    alignItems: "center",
   },
   backButton: {
+    position: "absolute",
+    left: 0,
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: Colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
   },
   backIcon: {
     fontSize: 28,
@@ -179,6 +193,16 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
+  mealNameContainer: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  mealName: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+    textAlign: "center",
+  },
   imageContainer: {
     alignItems: "center",
     marginBottom: 24,
@@ -197,27 +221,56 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     paddingHorizontal: 24,
+    paddingBottom: 24,
   },
   infoItem: {
     marginBottom: 16,
   },
   label: {
-    fontSize: 14,
+    fontSize: 24,
     fontWeight: "600",
     color: Colors.primary,
     marginBottom: 4,
+    paddingTop: 16,
+    textAlign: "center",
   },
   value: {
     fontSize: 16,
     color: Colors.textPrimary,
     lineHeight: 22,
   },
+  inventorySummary: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  totalContainer: {
+    backgroundColor: Colors.primary,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+    marginBottom: 16,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.8)",
+    marginBottom: 8,
+  },
+  totalValue: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: Colors.white,
+  },
   servingsContainer: {
     flexDirection: "row",
     backgroundColor: Colors.background,
     borderRadius: 16,
     padding: 16,
-    marginVertical: 24,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -243,40 +296,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.textTertiary,
     opacity: 0.3,
   },
-  totalContainer: {
-    backgroundColor: Colors.primary,
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-    marginBottom: 24,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.8)",
-    marginBottom: 8,
-  },
-  totalValue: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: Colors.white,
-  },
   buttonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-    zIndex: 1,
-    elevation: 5,
+    marginTop: 16,
+    marginBottom: 24,
+    paddingHorizontal: 24,
   },
   editButton: {
     backgroundColor: Colors.primary,
@@ -293,5 +316,24 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
     fontWeight: "600",
+  },
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  ingredientText: {
+    fontSize: 16,
+    color: Colors.textPrimary,
+    marginVertical: 2,
+  },
+  ingredientsContainer: {
+    marginTop: 8,
   },
 })

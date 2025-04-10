@@ -3,6 +3,8 @@ import { doc, getDoc, updateDoc, deleteField } from "firebase/firestore";
 import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Meal } from "@/src/types";
+import { collection, getDocs } from "firebase/firestore";
+
 
 console.log("MealsContext is being initialized");
 

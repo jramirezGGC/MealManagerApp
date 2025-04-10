@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import { getAuth } from "firebase/auth"
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Default profile image
 // const defaultProfileImage = require("../../../assets/images/silly-youtube-emotes.png")
@@ -40,14 +41,19 @@ export default function SettingsScreen() {
   ]
 
   const handleLogout = async () => {
-    try{
+    try {
+      // Sign out from AWS
       await auth.signOut();
-      console.log('User logged out')
-      router.replace(`/(auth)/sign-in`)
-    }catch (error){
-      console.error('Error logging out: ', error)
+      console.log('User logged out');
+
+      // Clear all items from AsyncStorage
+      await AsyncStorage.clear();
+
+      // Redirect to sign-in page
+      router.replace(`/(auth)/sign-in`);
+    } catch (error) {
+      console.error('Error logging out: ', error);
     }
-    
   }
 
   return (
