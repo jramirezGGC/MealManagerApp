@@ -1,13 +1,19 @@
 import React, { useEffect } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert, ActivityIndicator } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import { useSavedMeals } from "@/src/context/MealsContext"
 import { SavedMeal } from "@/src/types"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
-export default function SavedMealsScreen() {
-  const { savedMeals, loading, error } = useSavedMeals() 
+export default function SavedMealsScreen() {  
+  const { savedMeals, loading, error, fetchSavedMeals} = useSavedMeals() 
+
+  useEffect(() => {
+    fetchSavedMeals();        
+  }, []); 
+
 
   const handleRemove = (mealId: string) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
@@ -45,6 +51,18 @@ export default function SavedMealsScreen() {
     </View>
   )
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    )
+  }
+
+  if (error) {
+    return <Text style={styles.errorText}>Error: {error}</Text>
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -64,11 +82,7 @@ export default function SavedMealsScreen() {
 
       {/* Content Section */}
       <View style={styles.contentContainer}>
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading your saved meals...</Text>
-          </View>
-        ) : savedMeals.length === 0 ? (
+        {savedMeals.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>You don't have any saved meals yet.</Text>
             <Text style={styles.emptySubtext}>Save a meal to see it here!</Text>
@@ -156,7 +170,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
   },
-  loadingText: {
+  errorText: {
     fontSize: 16,
     color: Colors.textSecondary,
     textAlign: "center",

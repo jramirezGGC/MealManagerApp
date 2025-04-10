@@ -12,13 +12,15 @@ import {
   Image,
   Pressable,
   Button,
+  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import Colors from "@/src/constants/Colors";
-import { FIREBASE_AUTH } from "@/src/lib/firebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -26,6 +28,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
+  const router = useRouter();
 
   useEffect(() => {
     // Clear AsyncStorage when the component mounts
@@ -38,13 +41,31 @@ export default function LoginScreen() {
   const signIn = async () => {
     setLoading(true);
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
-      if (user) {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userID = userCredential.user.uid;
+
+      // Fetch householdID from Firestore
+      const userDoc = doc(FIREBASE_DB, `users/${userID}`);
+      const snapshot = await getDoc(userDoc);
+      let householdID;
+
+      if (snapshot.exists()) {
+        const docData = snapshot.data();
+        householdID = docData.householdID;
+        console.log(`Household ID: ${householdID}`);
+
+        // Store householdID in AsyncStorage
+        await AsyncStorage.setItem("householdID", householdID);
+
+        // Navigate to MainDashboard after setting householdID
         router.replace(`/(user)/MainDashboard`);
+      } else {
+        console.log("User document does not exist");
+        Alert.alert("Error", "User data not found.");
       }
     } catch (error: any) {
       console.log(error);
-      alert("Sign in failed: " + error.message);
+      Alert.alert("Sign In Error", error.message);
     }
     setLoading(false);
   };

@@ -1,8 +1,10 @@
 import type React from "react"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
 import { Tabs } from "expo-router"
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native"
 import { usePathname, router } from "expo-router"
+import { useEffect, useState } from "react"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 import Colors from "@/src/constants/Colors"
 import { useColorScheme } from "@/src/components/useColorScheme"
@@ -92,6 +94,27 @@ function CustomTabBar() {
 
 export default function UserLayout() {
   const colorScheme = useColorScheme()
+  const [loading, setLoading] = useState(true)
+  const [householdID, setHouseholdID] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchHouseholdID = async () => {
+      try {
+        const id = await AsyncStorage.getItem("householdID")
+        setHouseholdID(id)
+      } catch (error) {
+        console.error("Error fetching householdID:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchHouseholdID()
+  }, [])
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />
+  }
 
   return (
     <MealsProvider>
@@ -184,6 +207,7 @@ export default function UserLayout() {
           }}
         />
 
+        
         <Tabs.Screen
           name="SavedMeals"
           options={{
@@ -192,6 +216,7 @@ export default function UserLayout() {
             href: null,
           }}
         />
+        
 
         <Tabs.Screen
           name="ConfirmMeal"
