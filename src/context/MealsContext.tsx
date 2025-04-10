@@ -10,6 +10,7 @@ console.log("MealsContext is being initialized");
 
 interface MealsContextType {
   meals: Meal[];
+  savedMeals: Meal[];
   loading: boolean;
   error: string | null;
   updateMeal: (mealId: string, updatedMeal: Partial<Meal>, storageUnit: string) => Promise<void>;
@@ -21,6 +22,7 @@ const MealsContext = createContext<MealsContextType | undefined>(undefined);
 export function MealsProvider({ children }: { children: React.ReactNode }) {
   console.log("MealsProvider is being rendered");
   const [meals, setMeals] = useState<Meal[]>([]);
+  const [savedMeals, setSavedMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,20 +39,47 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
         }
 
         console.log("Fetching meals for household:", householdID);
-        const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`);
+        const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`);
         const snapshot = await getDoc(mealsDoc);
         
         if (snapshot.exists()) {
           console.log("Meals document exists");
-          const data = snapshot.data();
-          const mealsArray = Object.entries(data).map(([id, mealData]) => ({
-            id,
-            ...mealData,
-          })) as Meal[];
-          setMeals(mealsArray);
+          const docData = snapshot.data();
+          const dict = { ...docData.meals };
+          
+          setMeals(prevMeals => {
+            const updatedMeals = [...prevMeals];
+            
+            for (const key in dict) {
+              if (dict.hasOwnProperty(key)) {
+                const existingMealIndex = updatedMeals.findIndex(obj => obj.id === key);
+                
+                if (existingMealIndex === -1) {
+                  updatedMeals.push({
+                    id: key,
+                    name: dict[key].name,
+                    description: dict[key].description,
+                    image: dict[key].image,
+                    ingredients: dict[key].ingredients,
+                    ...(storageUnit === "fridge1"
+                      ? { numInFridge: dict[key].servings }
+                      : { numInFreezer: dict[key].servings })
+                  } as Meal);
+                } else {
+                  const meal = updatedMeals[existingMealIndex];
+                  if (storageUnit === "fridge1") {
+                    meal.numInFridge = dict[key].servings;
+                  } else {
+                    meal.numInFreezer = dict[key].servings;
+                  }
+                }
+              }
+            }
+            
+            return updatedMeals;
+          });
         } else {
           console.log("No meals document found");
-          setMeals([]);
         }
       } catch (err) {
         console.error("Error in fetchMeals:", err);
@@ -60,7 +89,35 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    const fetchSavedMeals = async () => {
+      try {
+        const householdID = await AsyncStorage.getItem("householdID");
+        if (!householdID) {
+          setError("No household ID found");
+          return;
+        }
+
+        const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`);
+        const snapshot = await getDoc(mealsDoc);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const mealsArray = Object.entries(data).map(([id, mealData]) => ({
+            id,
+            ...mealData,
+          })) as Meal[];
+          setSavedMeals(mealsArray);
+        } else {
+          setSavedMeals([]);
+        }
+      } catch (err) {
+        console.error("Error fetching saved meals:", err);
+        setError(err instanceof Error ? err.message : "An error occurred");
+      }
+    };
+
     fetchMeals();
+    fetchSavedMeals();
   }, []);
 
   const loadMeals = async (storageUnit: string) => {
@@ -211,7 +268,7 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <MealsContext.Provider value={{ meals, loading, error, updateMeal, deleteMeal }}>
+    <MealsContext.Provider value={{ meals, savedMeals, loading, error, updateMeal, deleteMeal }}>
       {children}
     </MealsContext.Provider>
   );
@@ -223,4 +280,12 @@ export function useMeals() {
     throw new Error('useMeals must be used within a MealsProvider');
   }
   return context;
+}
+
+export function useSavedMeals() {
+  const context = useContext(MealsContext);
+  if (context === undefined) {
+    throw new Error('useSavedMeals must be used within a MealsProvider');
+  }
+  return { savedMeals: context.savedMeals, loading: context.loading, error: context.error };
 } 

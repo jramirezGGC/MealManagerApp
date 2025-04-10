@@ -11,69 +11,16 @@ import {
   Pressable,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { router, Link } from "expo-router";
-
-import * as SQLite from "expo-sqlite";
-
+import { router } from "expo-router";
 import Colors from "@/src/constants/Colors";
 
 import GalleryImages from "@/src/components/GalleryImages";
 
-import { Meal } from "../../types";
-import { doc, getDoc } from "firebase/firestore"
-import {AutoId} from "@/src/lib/util"
-import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
-import { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMeals } from "@/src/context/MealsContext";
-
-// const defaultImage = require("../../../assets/images/defaultmeal.png");
-
-
-// let mealsArr : Meal[] = [];
-
-// async function loadStuff(storageUnit: string) {
-//   let householdID  
-//   try {
-//     householdID = await AsyncStorage.getItem("householdID");
-//   } catch (error) {
-//     console.error("Async Storage could not get householdID", error);
-//   }
-//   const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`);
-//   const snapshot = await getDoc(userDoc);
-//   if (snapshot.exists()) {
-//     const docData = snapshot.data();
-//     const dict = {...docData.meals}
-//     for (const key in dict) {
-//       if (dict.hasOwnProperty(key)){
-//         if (!mealsArr.find(obj => obj.id == key)) {
-//           mealsArr.push( {
-//             id: key,
-//             name: dict[key].name,
-//             description: dict[key].description,
-//             image: dict[key].image,
-//             ingredients: dict[key].ingredients,
-//             ...(storageUnit == "fridge1"
-//             ? { numInFridge: dict[key].servings }
-//             : { numInFreezer: dict[key].servings })
-//           } as Meal);
-//         }
-//         else {
-//           let meal: any = mealsArr.find(obj => obj.id == key);
-//           storageUnit == "fridge1" ? meal.numInFridge = dict[key].servings : meal.numInFreezer = dict[key].servings
-//         }
-//       }
-//     }
-
-//     console.log(`Data: ${JSON.stringify(mealsArr)}`);
-//   }
-//   else {
-//     console.error("Gallery Meals loading unsuccessful")
-//   }
-// }
 
 export default function MealGalleryScreen() {
   const { meals, loading } = useMeals();
+  console.log(meals);
 
   if (loading) {
     return <Text>Loading...</Text>;

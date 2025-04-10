@@ -7,12 +7,14 @@ import Colors from "@/src/constants/Colors"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useMeals } from "@/src/context/MealsContext"
 import { Images } from "@/src/constants/Images"
+import { Ingredient } from "@/src/types"
 
 export default function MealDetailsScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams()
   const { meals } = useMeals()
   const [imageError, setImageError] = useState(false)
+  const [expandedIngredient, setExpandedIngredient] = useState<Ingredient | null>(null)
 
   const mealId = Array.isArray(id) ? id[0] : id
   const meal = meals.find((m) => m.id === mealId)
@@ -20,8 +22,15 @@ export default function MealDetailsScreen() {
   if (!meal) {
     return <Text>Meal not found</Text>
   }
+  
 
-  console.log(meal);
+  const toggleIngredient = (ingredient: Ingredient) => {
+    if (expandedIngredient === ingredient) {
+      setExpandedIngredient(null); // Collapse if already expanded
+    } else {
+      setExpandedIngredient(ingredient); // Expand the selected ingredient
+    }
+  };
 
   return (
     <SafeAreaProvider>
@@ -86,7 +95,7 @@ export default function MealDetailsScreen() {
                 <View style={styles.infoItem}>
                   <View style={styles.card}>
                     <Text style={styles.label}>Description</Text>
-                    <Text style={styles.value}>{meal.description}</Text>
+                    <Text style={styles.descriptionText}>{meal.description}</Text>
                   </View>
                 </View>
 
@@ -96,12 +105,30 @@ export default function MealDetailsScreen() {
                     <View style={styles.ingredientsContainer}>
                       {meal.ingredients && meal.ingredients.length > 0 ? (
                         meal.ingredients.map((ingredient, index) => (
-                          <Text key={index} style={styles.ingredientText}>
-                            {ingredient}
-                          </Text>
+                          <View key={index} style={styles.ingredientBox}>
+                            <Pressable
+                              onPress={() => toggleIngredient(ingredient)}
+                              style={({ pressed }) => [
+                                styles.ingredientPressable,
+                                { opacity: pressed ? 0.7 : 1 },
+                              ]}
+                            >
+                              <Text style={styles.ingredientText}>{ingredient.name}</Text>
+                            </Pressable>
+                            {expandedIngredient === ingredient && (
+                              <View style={styles.ingredientDetailsContainer}>
+                                <Text style={styles.ingredientDetails}>
+                                  Amount: {ingredient.amount || 'N/A'}
+                                </Text>
+                                <Text style={styles.ingredientDetails}>
+                                  Calories: {ingredient.calories || 'N/A'}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
                         ))
                       ) : (
-                        <Text>No ingredients available</Text>
+                        <Text style={styles.noIngredientsText}>No ingredients added</Text>
                       )}
                     </View>
                   </View>
@@ -230,7 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     color: Colors.primary,
-    marginBottom: 4,
+    marginBottom: 10,
     paddingTop: 16,
     textAlign: "center",
   },
@@ -329,11 +356,52 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   ingredientText: {
-    fontSize: 16,
+    fontSize: 18,
     color: Colors.textPrimary,
     marginVertical: 2,
+    padding: 10,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  ingredientPressable: {
+    marginBottom: 8,
+    borderRadius: 8,
+  },
+  ingredientDetailsContainer: {
+    marginTop: 5,
+    paddingLeft: 10,
+  },
+  ingredientDetails: {
+    fontSize: 16,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   ingredientsContainer: {
     marginTop: 8,
+  },
+  ingredientBox: {
+    backgroundColor: Colors.background,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  descriptionText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  noIngredientsText: {
+    fontSize: 16,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginVertical: 10,
   },
 })
