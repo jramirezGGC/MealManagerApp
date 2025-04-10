@@ -1,7 +1,4 @@
-import * as FileSystem from 'expo-file-system';
-import * as SQLite from 'expo-sqlite';
-import React from 'react';
-import { useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,81 +12,64 @@ import {
   Image,
   Pressable,
   Button,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
-import Colors from '@/src/constants/Colors';
-import { FIREBASE_AUTH } from '@/src/lib/firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-
-
-
-
-// function test() {
-//   FileSystem.readDirectoryAsync(FileSystem.documentDirectory + 'SQLite/')
-//     .then(files => {
-//       console.log('SQLite databases:', files);
-//     })
-//     .catch(error => {
-//       console.error('Error reading directory:', error);
-//     });
-// }
-
-// function test2() {
-//   SQLite.deleteDatabaseAsync("App.db")
-// }
-
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import Colors from "@/src/constants/Colors";
+import { FIREBASE_AUTH } from "@/src/lib/firebaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false); 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
 
-  // const db = SQLite.useSQLiteContext();
-  // const result = db.getAllSync(`SELECT * FROM users`);
-
-  // let row: any
-  // for (row of result){
-  //   console.log(row.id,row.user)
-  // }
-
+  useEffect(() => {
+    // Clear AsyncStorage when the component mounts
+    const clearStorage = async () => {
+      await AsyncStorage.clear();
+    };
+    clearStorage();
+  }, []); // Empty dependency array to run on mount
 
   const signIn = async () => {
     setLoading(true);
-    try{
+    try {
       const user = await signInWithEmailAndPassword(auth, email, password);
-      if(user) {
+      if (user) {
         router.replace(`/(user)/MainDashboard`);
       }
-    } catch (error: any){
+    } catch (error: any) {
       console.log(error);
-      alert('Sign in failed: ' + error.message);
+      alert("Sign in failed: " + error.message);
     }
     setLoading(false);
-  }
-  
-  // const [DBLoaded, setDBLoaded] = React.useState<boolean>(false);
+  };
 
-
-  /*
-  const handleForgotPassword = () => {
-    router.push("/forgot-password")
-  }
-  */
   const handleCreateAccount = () => {
-    router.push("/(auth)/sign-up")
-  }
+    router.push("/(auth)/sign-up");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Header */}
           <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
               <Text style={styles.backIcon}>‹</Text>
             </TouchableOpacity>
           </View>
@@ -128,13 +108,20 @@ export default function LoginScreen() {
                   secureTextEntry={!showPassword}
                   placeholderTextColor="#9ca3af"
                 />
-                <TouchableOpacity style={styles.visibilityToggle} onPress={() => setShowPassword(!showPassword)}>
-                  <Text style={styles.visibilityIcon}>{showPassword ? "👁" : "👁‍🗨"}</Text>
+                <TouchableOpacity
+                  style={styles.visibilityToggle}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={styles.visibilityIcon}>
+                    {showPassword ? "👁" : "👁‍🗨"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            <TouchableOpacity /*onPress={handleForgotPassword}*/ style={styles.forgotPassword}>
+            <TouchableOpacity
+              /*onPress={handleForgotPassword}*/ style={styles.forgotPassword}
+            >
               <Text style={styles.forgotPasswordText}>Forgot password?</Text>
             </TouchableOpacity>
 
@@ -143,7 +130,9 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <View style={styles.createAccountPrompt}>
-              <Text style={styles.createAccountPromptText}>Don't have an account?</Text>
+              <Text style={styles.createAccountPromptText}>
+                Don't have an account?
+              </Text>
               <TouchableOpacity onPress={handleCreateAccount}>
                 <Text style={styles.createAccountLink}>Create Account</Text>
               </TouchableOpacity>
@@ -152,7 +141,7 @@ export default function LoginScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -288,5 +277,4 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: "600",
   },
-})
-
+});
