@@ -2,29 +2,25 @@ import { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
+import Colors from "@/src/constants/Colors"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
+import { doc, getDoc } from "firebase/firestore"
+import type { SavedMeal } from "@/src/types"
 
-import * as SQLite from 'expo-sqlite';
-
-import Colors from '@/src/constants/Colors';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { SavedMeal } from "@/src/types";
-
-
-let savedMealsArr: SavedMeal[] = [];
+const savedMealsArr: SavedMeal[] = []
 
 async function loadStuff() {
   let householdID
   try {
-    householdID = await AsyncStorage.getItem("householdID");
+    householdID = await AsyncStorage.getItem("householdID")
   } catch (error) {
-    console.error("Async Storage could not get householdID", error);
+    console.error("Async Storage could not get householdID", error)
   }
-  const userDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`);
-  const snapshot = await getDoc(userDoc);
+  const userDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
+  const snapshot = await getDoc(userDoc)
   if (snapshot.exists()) {
-    const docData = snapshot.data();
+    const docData = snapshot.data()
     const dict = { ...docData }
     for (const key in dict) {
       savedMealsArr.push({
@@ -34,56 +30,37 @@ async function loadStuff() {
         ingredients: dict[key].ingredients,
       } as SavedMeal)
     }
-    console.log(`Data: ${JSON.stringify(savedMealsArr)}`);
-  }
-  else {
+    console.log(`Data: ${JSON.stringify(savedMealsArr)}`)
+  } else {
     console.error("Saved Meals loading unsuccessful")
   }
 }
 
-export default function SavedHistoryMeals() {
-  const [activeTab, setActiveTab] = useState("favorites")
-  const [loading, setLoading] = useState(true);
-
-  /*   const db = SQLite.useSQLiteContext();
-    console.log("Database Loading...");
-    var meals : Meal[] = [];
-  
-    const result = db.getAllSync(`SELECT * FROM meals`);
-    let row: any
-    for (row of result){
-      console.log(row.id,row.name,row.description)
-      meals.push({ id: row.id, name: row.name, details: row.description })
-    } */
-
-
-
-  // const handleCreateMeal = (mealId: number) => {
-  //   router.push(`/create-meal/${mealId}`)
-  // }
+export default function SavedMealsScreen() {
+  const [loading, setLoading] = useState(true)
 
   const handleRemove = (mealId: string) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => console.log("Delete: " + mealId) /* db.runSync('DELETE FROM meals WHERE id = $id', { $id: mealId }) */ },
+      { text: "Remove", style: "destructive", onPress: () => console.log("Delete: " + mealId) },
     ])
   }
 
-  // const handleSaveNewMeal = () => {
-  //   router.push("/create-meal")
-  // }
-
   const renderMealItem = ({ item }: { item: SavedMeal }) => (
     <View style={styles.mealItem}>
-      <View style={styles.mealHeader}>
-        <View style={styles.mealContent}>
-          <View style={styles.mealImage} />
-          <View style={styles.mealInfo}>
-            <Text style={styles.mealName}>{item.name}</Text>
-            <Text style={styles.mealDetails}>{item.description}</Text>
-          </View>
+      <View style={styles.mealContent}>
+        <View style={styles.mealImageContainer}>
+          <Text style={styles.mealImagePlaceholder}>🍲</Text>
         </View>
-        <Text style={styles.mealNumber}>#{item.id.toString().padStart(2, "0")}</Text>
+        <View style={styles.mealInfo}>
+          <Text style={styles.mealName}>{item.name}</Text>
+          <Text style={styles.mealDescription} numberOfLines={2}>
+            {item.description || "No description available"}
+          </Text>
+          <Text style={styles.ingredientsCount}>
+            {item.ingredients ? `${item.ingredients.length} ingredients` : "No ingredients"}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.mealActions}>
@@ -101,57 +78,62 @@ export default function SavedHistoryMeals() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await loadStuff();
+        await loadStuff()
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("Error loading data:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
+    fetchData()
+  }, [])
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Meals</Text>
+      {/* Header Section */}
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backIcon}>‹</Text>
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Saved Meals</Text>
+            <Text style={styles.headerSubtitle}>Your favorite meal recipes</Text>
+          </View>
+        </View>
       </View>
 
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "favorites" && styles.activeTab]}
-          onPress={() => setActiveTab("favorites")}
-        >
-          <Text style={[styles.tabText, activeTab === "favorites" && styles.activeTabText]}>Favorites</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "history" && styles.activeTab]}
-          onPress={() => setActiveTab("history")}
-        >
-          <Text style={[styles.tabText, activeTab === "history" && styles.activeTabText]}>History</Text>
-        </TouchableOpacity>
+      {/* Content Section */}
+      <View style={styles.contentContainer}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading your saved meals...</Text>
+          </View>
+        ) : savedMealsArr.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>You don't have any saved meals yet.</Text>
+            <Text style={styles.emptySubtext}>Save a meal to see it here!</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={savedMealsArr}
+            renderItem={renderMealItem}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
 
-      <FlatList
-        data={savedMealsArr}
-        renderItem={renderMealItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.content}
-      />
-
-      <TouchableOpacity style={styles.saveButton} /*onPress={handleSaveNewMeal}*/>
-        <Text style={styles.saveButtonText}>SAVE NEW MEAL</Text>
-      </TouchableOpacity>
+      {/* Save New Meal Button */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.saveButton} /*onPress={handleSaveNewMeal}*/>
+          <Text style={styles.saveButtonText}>Save New Meal</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   )
 }
@@ -161,84 +143,136 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  headerContainer: {
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === "android" ? 40 : 20,
+    paddingBottom: 16,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
+  },
+  headerTextContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   backIcon: {
-    fontSize: 32,
-    color: Colors.primary,
+    fontSize: 28,
+    color: Colors.white,
+    textAlign: "center",
+    lineHeight: 32,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginLeft: 12,
-    color: Colors.textPrimary,
-  },
-  tabContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  tab: {
-    marginRight: 24,
-    paddingBottom: 8,
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: Colors.primary,
-  },
-  tabText: {
-    fontSize: 16,
-    color: Colors.textTertiary,
-  },
-  activeTabText: {
-    color: Colors.textPrimary,
-    fontWeight: "500",
-  },
-  content: {
-    paddingHorizontal: 16,
-  },
-  mealItem: {
-    marginBottom: 24,
-  },
-  mealHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  mealContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  mealImage: {
-    width: 80,
-    height: 80,
-    backgroundColor: Colors.imagePlaceholder,
-    borderRadius: 8,
-  },
-  mealInfo: {
-    marginLeft: 12,
-  },
-  mealName: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 24,
+    fontWeight: "700",
     color: Colors.textPrimary,
     marginBottom: 4,
   },
-  mealDetails: {
-    fontSize: 14,
+  headerSubtitle: {
+    fontSize: 16,
     color: Colors.textSecondary,
   },
-  mealNumber: {
+  contentContainer: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingTop: 24,
+    paddingBottom: 100, // Extra space for the button
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 16,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
+  listContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+  },
+  mealItem: {
+    backgroundColor: Colors.background,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  mealContent: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  mealImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: Colors.imagePlaceholder,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  mealImagePlaceholder: {
+    fontSize: 32,
+  },
+  mealInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  mealName: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  mealDescription: {
     fontSize: 14,
     color: Colors.textSecondary,
+    marginBottom: 8,
+  },
+  ingredientsCount: {
+    fontSize: 12,
+    color: Colors.primary,
+    fontWeight: "500",
   },
   mealActions: {
     flexDirection: "row",
@@ -248,8 +282,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.primary,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
   },
   createButtonText: {
     color: Colors.white,
@@ -261,7 +300,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.secondary,
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
   },
   removeButtonText: {
@@ -269,12 +308,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 24,
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
+  },
   saveButton: {
     backgroundColor: Colors.primary,
-    margin: 16,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   saveButtonText: {
     color: Colors.white,

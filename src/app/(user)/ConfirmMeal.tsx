@@ -128,13 +128,15 @@ export default function ConfirmMealScreen() {
 
       {/* Header Section */}
       <View style={styles.headerContainer}>
-        <View style={styles.header}>
+        <View style={styles.headerContainer}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Confirm Meal</Text>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Confirm Meal</Text>
+            <Text style={styles.headerSubtitle}>Add this meal to your inventory</Text>
         </View>
-        <Text style={styles.headerSubtitle}>Add this meal to your inventory</Text>
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView}>
@@ -256,26 +258,37 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   headerContainer: {
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
+    paddingHorizontal: 12,
+    paddingTop: Platform.OS === "android" ? 40 : 20, // Increased from 16/0 to 40/20
     paddingBottom: 16,
-  },
-  header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    justifyContent: "flex-start",
+  },
+  headerTextContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backButtonColor,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   backIcon: {
-    fontSize: 32,
-    color: Colors.primary,
+    fontSize: 28, // Reduced from 32 to 28
+    color: Colors.background,
+    textAlign: "center",
+    lineHeight: 32, // Added line height to center the text vertically
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "700",
     color: Colors.textPrimary,
+    marginLeft: 0, // Added margin to separate from back button
   },
   headerSubtitle: {
     fontSize: 16,
