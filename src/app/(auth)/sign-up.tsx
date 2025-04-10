@@ -51,16 +51,17 @@ export default function SignUpScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backIcon}>‹</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Title Section */}
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Please fill in your details to get started</Text>
+          <View style={styles.headerContainer}>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Text style={styles.backIcon}>‹</Text>
+              </TouchableOpacity>
+              {/* Title Section */}
+              <View style={styles.headerTextContainer}>
+                <Text style={styles.headerTitle}>Create Account</Text>
+                <Text style={styles.subtitle}>Please fill in your details to get started</Text>
+              </View>
+            </View>
           </View>
 
           {/* Form */}
@@ -158,16 +159,39 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
+  headerContainer: {
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === "android" ? 40 : 20,
+    paddingBottom: 16,
+  },
   header: {
-    padding: 16,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerTextContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   backIcon: {
-    fontSize: 32,
-    color: Colors.primary,
+    fontSize: 28,
+    color: Colors.white,
+    textAlign: "center",
+    lineHeight: 32,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+    marginBottom: 4,
   },
   titleSection: {
     paddingHorizontal: 24,

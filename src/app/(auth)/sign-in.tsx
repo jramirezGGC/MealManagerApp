@@ -88,7 +88,7 @@ export default function LoginScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           {/* Header */}
-          <View style={styles.header}>
+          <View style={styles.headerContainer}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Text style={styles.backIcon}>‹</Text>
             </TouchableOpacity>
@@ -166,16 +166,29 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
+  headerContainer: {
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === "android" ? 40 : 20,
+    paddingBottom: 16,
+  },
   header: {
-    padding: 16,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
+    flexDirection: "row",
+    alignItems: "center",
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   backIcon: {
-    fontSize: 32,
-    color: Colors.primary,
+    fontSize: 28,
+    color: Colors.white,
+    textAlign: "center",
+    lineHeight: 32,
   },
   titleSection: {
     paddingHorizontal: 24,

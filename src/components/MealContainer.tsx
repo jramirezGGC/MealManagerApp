@@ -1,12 +1,12 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Platform } from "react-native";
-import { router } from "expo-router";
-import Colors from '@/src/constants/Colors';
-import { Meal } from '../types';
-
+import type React from "react"
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, type ViewStyle } from "react-native"
+import Colors from "@/src/constants/Colors"
+import type { Meal } from "../types"
 
 interface MealContainerProp {
-  meals: Meal[];
+  meals: Meal[]
+  ListHeaderComponent?: React.ReactElement | null
+  contentContainerStyle?: ViewStyle
 }
 
 // Sample meal data
@@ -22,31 +22,31 @@ interface MealContainerProp {
   { id: 9, name: "Quinoa Bowl", type: "Lunch" },
 ]; */
 
-function MealContainer({ meals }: MealContainerProp) {
+function MealContainer({ meals, ListHeaderComponent, contentContainerStyle }: MealContainerProp) {
   const handleMenuPress = (mealId: string) => {
-    console.log("Menu pressed for meal:", mealId);
-  };
+    console.log("Menu pressed for meal:", mealId)
+  }
 
   const handleTakeMeal = (mealId: string) => {
-    console.log("Taking meal:", mealId);
-  };
+    console.log("Taking meal:", mealId)
+  }
 
   const getMealTypeColor = (type: string) => {
     switch (type) {
       case "Breakfast":
-        return { bg: "#FFE5D9", text: "#FF7622" };
+        return { bg: "#FFE5D9", text: "#FF7622" }
       case "Lunch":
-        return { bg: "#E0F7FA", text: "#0097A7" };
+        return { bg: "#E0F7FA", text: "#0097A7" }
       case "Dinner":
-        return { bg: "#E8F5E9", text: "#388E3C" };
+        return { bg: "#E8F5E9", text: "#388E3C" }
       default:
-        return { bg: "#F5F5F5", text: "#757575" };
+        return { bg: "#F5F5F5", text: "#757575" }
     }
-  };
+  }
 
   const renderMealItem = ({ item }: { item: Meal }) => {
-    const typeColors = getMealTypeColor(item.description);
-    
+    const typeColors = getMealTypeColor(item.description)
+
     return (
       <View style={styles.mealItem}>
         <View style={styles.mealContent}>
@@ -59,38 +59,38 @@ function MealContainer({ meals }: MealContainerProp) {
           </View>
         </View>
         <View style={styles.mealActions}>
-          <TouchableOpacity 
-            style={styles.takeMealButton} 
-            onPress={() => handleTakeMeal(item.id)}
-          >
+          <TouchableOpacity style={styles.takeMealButton} onPress={() => handleTakeMeal(item.id)}>
             <Text style={styles.takeMealText}>Take Meal</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.menuButton} 
-            onPress={() => handleMenuPress(item.id)}
-          >
+          <TouchableOpacity style={styles.menuButton} onPress={() => handleMenuPress(item.id)}>
             <Text style={styles.menuButtonText}>⋯</Text>
           </TouchableOpacity>
         </View>
       </View>
-    );
-  };
+    )
+  }
+
+  // Create a combined header that includes both the passed ListHeaderComponent and our section title
+  const combinedHeader = () => (
+    <>
+      {ListHeaderComponent}
+      <Text style={styles.sectionTitle}>Fridge Meals For Today</Text>
+    </>
+  )
 
   return (
-    <>
-      <Text style={styles.sectionTitle}>Fridge Meals For Today</Text>
-      <FlatList
-        data={meals}
-        renderItem={renderMealItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
-    </>
-  );
+    <FlatList
+      data={meals}
+      renderItem={renderMealItem}
+      keyExtractor={(item) => item.id.toString()}
+      contentContainerStyle={[styles.listContent, contentContainerStyle]}
+      showsVerticalScrollIndicator={false}
+      ListHeaderComponent={combinedHeader()}
+    />
+  )
 }
 
-export default MealContainer;
+export default MealContainer
 
 const styles = StyleSheet.create({
   sectionTitle: {
@@ -176,4 +176,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Colors.textSecondary,
   },
-});
+})

@@ -1,124 +1,139 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import Colors from '@/src/constants/Colors';
-import MealContainer from '@/src/components/MealContainer';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
-import { router, useRouter } from "expo-router"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native"
+import { StatusBar } from "expo-status-bar"
+import Colors from "@/src/constants/Colors"
+import MealContainer from "@/src/components/MealContainer"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig"
+import { doc, getDoc } from "firebase/firestore"
+import { useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
-import { Meal } from "@/src/types";
-
-
+import type { Meal } from "@/src/types"
+import React from "react"
 
 const getHouseholdID = async () => {
   const userID = FIREBASE_AUTH.currentUser?.uid
-  const userDoc = doc(FIREBASE_DB, `users/${userID}`);
-  const snapshot = await getDoc(userDoc);
+  const userDoc = doc(FIREBASE_DB, `users/${userID}`)
+  const snapshot = await getDoc(userDoc)
   let householdID
-  
+
   if (snapshot.exists()) {
-    const docData = snapshot.data();
-    console.log(`Data: ${JSON.stringify(docData)}`);
+    const docData = snapshot.data()
+    console.log(`Data: ${JSON.stringify(docData)}`)
     householdID = docData.householdID
-  }
-  else {
+  } else {
     console.log("IT Broke")
   }
 
   try {
     await AsyncStorage.setItem("householdID", householdID)
   } catch (error) {
-    console.error("Async Storage could not set householdID", error);
+    console.error("Async Storage could not set householdID", error)
   }
 }
 
 const meals: Meal[] = [
   {
-    id: "1", name: "Chicken Pasta", description: "Lunch",
+    id: "1",
+    name: "Chicken Pasta",
+    description: "Lunch",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "2", name: "Avocado Toast", description: "Breakfast",
+    id: "2",
+    name: "Avocado Toast",
+    description: "Breakfast",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "3", name: "Vegetable Stir Fry", description: "Dinner",
+    id: "3",
+    name: "Vegetable Stir Fry",
+    description: "Dinner",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "4", name: "Greek Yogurt", description: "Breakfast",
+    id: "4",
+    name: "Greek Yogurt",
+    description: "Breakfast",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "5", name: "Salmon with Rice", description: "Dinner",
+    id: "5",
+    name: "Salmon with Rice",
+    description: "Dinner",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "6", name: "Caesar Salad", description: "Lunch",
+    id: "6",
+    name: "Caesar Salad",
+    description: "Lunch",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "7", name: "Fruit Smoothie", description: "Breakfast",
+    id: "7",
+    name: "Fruit Smoothie",
+    description: "Breakfast",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "8", name: "Beef Stew", description: "Dinner",
+    id: "8",
+    name: "Beef Stew",
+    description: "Dinner",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
   {
-    id: "9", name: "Quinoa Bowl", description: "Lunch",
+    id: "9",
+    name: "Quinoa Bowl",
+    description: "Lunch",
     image: null,
     calories: 0,
     date: null,
     ingredients: [],
     numInFridge: 0,
-    numInFreezer: 0
+    numInFreezer: 0,
   },
-];
+]
 
 export default function MainDashboard() {
-
   getHouseholdID()
 
   // Mock data - replace with actual data from your state management
@@ -127,15 +142,15 @@ export default function MainDashboard() {
     freezer: 14,
   }
 
-  const router = useRouter();
+  const router = useRouter()
   // Navigation options
   const navigationOptions = [
     {
-      id: "inventory",
-      title: "Inventory",
-      description: "Manage your food items",
+      id: "mealNotifs",
+      title: "Meal Notifications",
+      description: "Manage Meal Count Notifications",
       icon: <Feather name="package" size={32} color={Colors.white} />,
-      route: "/(user)/Inventory",
+      route: "/(user)/MealNotifications",
       color: Colors.primary,
     },
     {
@@ -156,6 +171,44 @@ export default function MainDashboard() {
     },
   ]
 
+  // Render the header content (stats and navigation cards)
+  const renderHeader = () => (
+    <>
+      {/* Stats Container - Updated to show Fridge and Freezer counts */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{mealCounts.fridge}</Text>
+          <Text style={styles.statLabel}>Fridge Meals</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{mealCounts.freezer}</Text>
+          <Text style={styles.statLabel}>Freezer Meals</Text>
+        </View>
+      </View>
+
+      {/* Navigation Cards */}
+      <View style={styles.navigationContainer}>
+        {navigationOptions.map((option) => (
+          <TouchableOpacity
+            key={option.id}
+            style={[styles.navigationCard, { backgroundColor: option.color }]}
+            onPress={() => router.push(option.route as any)}
+          >
+            <View style={styles.navigationIconContainer}>{option.icon}</View>
+            <View style={styles.navigationTextContainer}>
+              <Text style={styles.navigationTitle}>{option.title}</Text>
+              <Text style={styles.navigationDescription}>{option.description}</Text>
+            </View>
+            <View style={styles.navigationArrow}>
+              <Text style={styles.navigationArrowText}>›</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </>
+  )
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -168,42 +221,13 @@ export default function MainDashboard() {
         <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
       </View>
 
-      {/* Content Section */}
-      <View style={styles.contentContainer}>
-        {/* Stats Container - Updated to show Fridge and Freezer counts */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{mealCounts.fridge}</Text>
-            <Text style={styles.statLabel}>Fridge Meals</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{mealCounts.freezer}</Text>
-            <Text style={styles.statLabel}>Freezer Meals</Text>
-          </View>
-        </View>
-
-        {/* Navigation Cards */}
-        <View style={styles.navigationContainer}>
-          {navigationOptions.map((option) => (
-            <TouchableOpacity
-              key={option.id}
-              style={[styles.navigationCard, { backgroundColor: option.color }]}
-              onPress={() => router.push(option.route as any)}
-            >
-              <View style={styles.navigationIconContainer}>{option.icon}</View>
-              <View style={styles.navigationTextContainer}>
-                <Text style={styles.navigationTitle}>{option.title}</Text>
-                <Text style={styles.navigationDescription}>{option.description}</Text>
-              </View>
-              <View style={styles.navigationArrow}>
-                <Text style={styles.navigationArrowText}>›</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        
-        <MealContainer meals={meals}/>
-        </View>
+      {/* Content Section - Using MealContainer with ListHeaderComponent */}
+      <View style={styles.contentWrapper}>
+        <MealContainer
+          meals={meals}
+          ListHeaderComponent={renderHeader()}
+          contentContainerStyle={styles.mealContainerContent}
+        />
       </View>
     </SafeAreaView>
   )
@@ -234,30 +258,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.textSecondary,
   },
-  profileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  profileIcon: {
-    fontSize: 20,
-    color: Colors.white,
-  },
-  contentContainer: {
+  contentWrapper: {
     flex: 1,
     backgroundColor: Colors.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    paddingTop: 24,
-    paddingBottom: 80, // Add padding for bottom nav
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 5,
+  },
+  mealContainerContent: {
+    paddingTop: 24,
+    paddingBottom: 100, // Extra padding for bottom navigation
   },
   statsContainer: {
     flexDirection: "row",
@@ -293,6 +307,7 @@ const styles = StyleSheet.create({
   },
   navigationContainer: {
     paddingHorizontal: 24,
+    marginBottom: 24,
   },
   navigationCard: {
     flexDirection: "row",
@@ -341,4 +356,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Colors.white,
   },
-});
+})
