@@ -55,11 +55,13 @@ export default function SettingsScreen() {
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backIcon}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Settings</Text>
+        </View>
       </View>
 
       {/* Profile Section */}
@@ -103,24 +105,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  headerContainer: {
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === "android" ? 40 : 20,
+    paddingBottom: 16,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
   backIcon: {
-    fontSize: 32,
-    color: Colors.primary,
+    fontSize: 28,
+    color: Colors.white,
+    textAlign: "center",
+    lineHeight: 32,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginLeft: 12,
+    fontSize: 24,
+    fontWeight: "700",
     color: Colors.textPrimary,
+    marginBottom: 4,
   },
   profileSection: {
     alignItems: "center",

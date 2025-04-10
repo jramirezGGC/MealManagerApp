@@ -285,7 +285,7 @@ export default function RefrigeratorScreen() {
       </View>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
+      {/* <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/MainDashboard")}>
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navText}>Home</Text>
@@ -299,7 +299,7 @@ export default function RefrigeratorScreen() {
           <Text style={styles.navIcon}>🔄</Text>
           <Text style={styles.navText}>Move Meals</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </SafeAreaView>
   )
 }
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
+    paddingTop: Platform.OS === "android" ? 40 : 20,
     paddingBottom: 16,
   },
   header: {

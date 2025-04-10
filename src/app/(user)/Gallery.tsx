@@ -128,44 +128,61 @@ export default function MealGalleryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Meal Gallery</Text>
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Text style={styles.backIcon}>‹</Text>
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Meal Gallery</Text>
+          </View>
+        </View>
       </View>
-
       <GalleryImages meals={meals}/>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
-  },
-  backButton: {
-    padding: 8,
-  },
-  backIcon: {
-    fontSize: 32,
-    color: Colors.primary,
-  },
-  headerTitle: { 
-    fontSize: 20,
-    fontWeight: "600",
-    marginLeft: 12,
-    color: Colors.textPrimary,
-  },
+container: {
+  flex: 1,
+  backgroundColor: Colors.background,
+},
+headerContainer: {
+  paddingHorizontal: 24,
+  paddingTop: Platform.OS === "android" ? 40 : 20,
+  paddingBottom: 16,
+},
+header: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+headerTextContainer: {
+  flex: 1,
+  justifyContent: "center",
+},
+backButton: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  backgroundColor: Colors.primary,
+  justifyContent: "center",
+  alignItems: "center",
+  marginRight: 12,
+},
+backIcon: {
+  fontSize: 28,
+  color: Colors.white,
+  textAlign: "center",
+  lineHeight: 32,
+},
+headerTitle: {
+  fontSize: 24,
+  fontWeight: "700",
+  color: Colors.textPrimary,
+  marginBottom: 4,
+},
 });
