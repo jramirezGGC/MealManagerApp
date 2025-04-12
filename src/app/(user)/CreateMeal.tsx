@@ -14,10 +14,10 @@ import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
 import Colors from "@/src/constants/Colors"
 // Comment out Firebase imports for testing
-// import AsyncStorage from "@react-native-async-storage/async-storage"
-// import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
-// import { doc, updateDoc } from "firebase/firestore"
-// import { AutoId } from "@/src/lib/util"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
+import { doc, updateDoc } from "firebase/firestore"
+import { AutoId } from "@/src/lib/util"
 
 export default function CreateMealScreen() {
   const [mealName, setMealName] = useState("")
@@ -27,73 +27,87 @@ export default function CreateMealScreen() {
   //const db = SQLite.useSQLiteContext();
 
   const handleCreateMeal = async () => {
-    if (!mealName.trim()) {
-      alert("Please enter a meal name")
-      return
-    }
+ 
 
-    setLoading(true)
+    // Add your meal creation logic here
+ 
 
+    let householdID  
+ 
     try {
-      /*
-      const handleCreateMeal = async () => {
-        let householdID  
-        try {
-          householdID = await AsyncStorage.getItem("householdID")
-        } catch (error) {
-          console.error("Async Storage could not get householdID", error);
-        }
-    
-        const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
-        const mealID = AutoId()
-        await updateDoc(mealsDoc, {
-            [mealID]: {
-            "name": mealName,
-            "description": description,
-            "ingredients": [ingredients], // once we have input for multiple ingredients, break this into an array
-          }
-        })
+ 
 
+      householdID = await AsyncStorage.getItem("householdID")
+ 
 
-      console.log({ mealName, description, ingredients })
-      router.back()
-
-
-      const test = () =>{
-      
-      }
-      */
-
-      // Create dummy meal data for testing
-      const dummyMeal = {
-        id: Math.floor(Math.random() * 10000).toString(), // Random ID for testing
-        name: mealName,
-        description: description,
-        ingredients: ingredients
-          .split(",")
-          .map((item) => item.trim())
-          .filter((item) => item),
-        createdAt: new Date().toISOString(),
-      }
-
-      console.log("Dummy meal created:", dummyMeal)
-
-      // Simulate a short delay to mimic network request
-      setTimeout(() => {
-        setLoading(false)
-        // Navigate to confirm meal screen with the dummy data
-        router.push({
-          pathname: "/(user)/ConfirmMeal",
-          params: {
-            mealData: JSON.stringify(dummyMeal),
-          },
-        })
-      }, 1000)
     } catch (error) {
-      console.error("Error creating meal:", error)
-      alert("Failed to create meal. Please try again.")
-      setLoading(false)
+ 
+
+      console.error("Async Storage could not get householdID", error);
+ 
+
     }
+ 
+
+
+ 
+
+    const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
+ 
+
+    const mealID = AutoId()
+ 
+
+    await updateDoc(mealsDoc, {
+ 
+
+        [mealID]: {
+ 
+
+        "name": mealName,
+ 
+
+        "description": description,
+ 
+
+        "ingredients": [ingredients], // once we have input for multiple ingredients, break this into an array
+ 
+
+      }
+ 
+
+    })
+ 
+
+    // Add your meal creation logic here
+ 
+
+    /* try {
+ 
+      const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
+ 
+      console.log(result2.lastInsertRowId);
+ 
+    }
+
+@@ -35,196 +54,196 @@
+ 
+    let row: any
+ 
+    for (row of result){
+ 
+      console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
+ 
+
+    }
+ 
+
+    } */
+ 
+    console.log({ mealName, description, ingredients })
+ 
+    router.back()
+ 
   }
 
   const handleSelectImage = () => {

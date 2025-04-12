@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert, ActivityIndicator } from "react-native"
 import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
+import { router, useFocusEffect } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import { useSavedMeals } from "@/src/context/MealsContext"
 import { SavedMeal } from "@/src/types"
@@ -10,10 +10,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 export default function SavedMealsScreen() {  
   const { savedMeals, loading, error, fetchSavedMeals} = useSavedMeals() 
 
-  useEffect(() => {
-    fetchSavedMeals();        
-  }, []); 
-
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchSavedMeals();        
+    }, [])
+  );
 
   const handleRemove = (mealId: string) => {
     Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [

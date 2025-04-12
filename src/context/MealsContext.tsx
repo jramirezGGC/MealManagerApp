@@ -17,6 +17,7 @@ interface MealsContextType {
   deleteMeal: (mealId: string, storageUnit: string) => Promise<void>;
   refreshMeals: () => Promise<void>;
   fetchSavedMeals: () => Promise<void>;
+  fetchMeals: (storageUnit: string) => Promise<void>;
 }
 
 const MealsContext = createContext<MealsContextType | undefined>(undefined);
@@ -213,7 +214,7 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <MealsContext.Provider value={{ meals, savedMeals, loading, error, updateMeal, deleteMeal, refreshMeals, fetchSavedMeals }}>
+    <MealsContext.Provider value={{ meals, savedMeals, loading, error, updateMeal, deleteMeal, refreshMeals, fetchSavedMeals, fetchMeals }}>
       {children}
     </MealsContext.Provider>
   );
