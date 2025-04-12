@@ -8,17 +8,24 @@ import {
   Platform,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import Colors from "@/src/constants/Colors";
 import GalleryImages from "@/src/components/GalleryImages";
 import { useMeals } from "@/src/context/MealsContext";
 
 export default function MealGalleryScreen() {  
-  const { meals, loading } = useMeals();
-  
+  const { meals, loading, error, fetchMeals } = useMeals();
+
   if (loading) {
     return <Text>Loading...</Text>;
   }
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      // Call refreshMeals only if necessary
+      fetchMeals("fridge1");
+    }, []) 
+  );
 
   return (
     <SafeAreaView style={styles.container}>
