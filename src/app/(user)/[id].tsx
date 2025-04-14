@@ -1,13 +1,11 @@
-"use client"
-
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context"
-import { StyleSheet, Text, View, Pressable, Image, Platform, ScrollView } from "react-native"
+import { StyleSheet, Text, View, Pressable, Image, Platform, ScrollView, Animated } from "react-native"
 import Colors from "@/src/constants/Colors"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import { useMeals } from "@/src/context/MealsContext"
 import { Images } from "@/src/constants/Images"
-import { Ingredient } from "@/src/types"
+import type { Ingredient } from "@/src/types"
 
 export default function MealDetailsScreen() {
   const router = useRouter()
@@ -16,21 +14,36 @@ export default function MealDetailsScreen() {
   const [imageError, setImageError] = useState(false)
   const [expandedIngredient, setExpandedIngredient] = useState<Ingredient | null>(null)
 
+  // Animation value for arrow rotation
+  const arrowRotation = useRef(new Animated.Value(0)).current
+
   const mealId = Array.isArray(id) ? id[0] : id
   const meal = meals.find((m) => m.id === mealId)
 
   if (!meal) {
     return <Text>Meal not found</Text>
   }
-  
 
   const toggleIngredient = (ingredient: Ingredient) => {
+    // Animate the arrow rotation
+    Animated.timing(arrowRotation, {
+      toValue: expandedIngredient === ingredient ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start()
+
     if (expandedIngredient === ingredient) {
-      setExpandedIngredient(null); // Collapse if already expanded
+      setExpandedIngredient(null) // Collapse if already expanded
     } else {
-      setExpandedIngredient(ingredient); // Expand the selected ingredient
+      setExpandedIngredient(ingredient) // Expand the selected ingredient
     }
-  };
+  }
+
+  // Create interpolated rotation value for the arrow
+  const rotateArrow = arrowRotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "180deg"],
+  })
 
   return (
     <SafeAreaProvider>
@@ -44,7 +57,6 @@ export default function MealDetailsScreen() {
               </Pressable>
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Meal Details</Text>
-                
               </View>
             </View>
           </View>
@@ -108,21 +120,30 @@ export default function MealDetailsScreen() {
                           <View key={index} style={styles.ingredientBox}>
                             <Pressable
                               onPress={() => toggleIngredient(ingredient)}
-                              style={({ pressed }) => [
-                                styles.ingredientPressable,
-                                { opacity: pressed ? 0.7 : 1 },
-                              ]}
+                              style={({ pressed }) => [styles.ingredientPressable, { opacity: pressed ? 0.7 : 1 }]}
                             >
-                              <Text style={styles.ingredientText}>{ingredient.name}</Text>
+                              <View style={styles.ingredientHeader}>
+                                <Text style={styles.ingredientText}>{ingredient.name}</Text>
+                                <View style={styles.arrowCircle}>
+                                  <Animated.Text
+                                    style={[
+                                      styles.arrowIcon,
+                                      {
+                                        transform: [
+                                          { rotate: expandedIngredient === ingredient ? rotateArrow : "0deg" },
+                                        ],
+                                      },
+                                    ]}
+                                  >
+                                    ▼
+                                  </Animated.Text>
+                                </View>
+                              </View>
                             </Pressable>
                             {expandedIngredient === ingredient && (
                               <View style={styles.ingredientDetailsContainer}>
-                                <Text style={styles.ingredientDetails}>
-                                  Amount: {ingredient.amount || 'N/A'}
-                                </Text>
-                                <Text style={styles.ingredientDetails}>
-                                  Calories: {ingredient.calories || 'N/A'}
-                                </Text>
+                                <Text style={styles.ingredientDetails}>Amount: {ingredient.amount || "N/A"}</Text>
+                                <Text style={styles.ingredientDetails}>Calories: {ingredient.calories || "N/A"}</Text>
                               </View>
                             )}
                           </View>
@@ -136,12 +157,14 @@ export default function MealDetailsScreen() {
 
                 {/* Edit Button */}
                 <View style={styles.buttonContainer}>
-                  <Pressable 
-                    style={styles.editButton} 
-                    onPress={() => router.push({
-                      pathname: "/EditMeal",
-                      params: { id: mealId }
-                    })}
+                  <Pressable
+                    style={styles.editButton}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/EditMeal",
+                        params: { id: mealId },
+                      })
+                    }
                   >
                     <Text style={styles.editText}>Edit Meal</Text>
                   </Pressable>
@@ -358,31 +381,29 @@ const styles = StyleSheet.create({
   ingredientText: {
     fontSize: 18,
     color: Colors.textPrimary,
-    marginVertical: 2,
-    padding: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    flex: 1,
   },
   ingredientPressable: {
-    marginBottom: 8,
     borderRadius: 8,
   },
   ingredientDetailsContainer: {
-    marginTop: 5,
-    paddingLeft: 10,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: Colors.divider,
   },
   ingredientDetails: {
     fontSize: 16,
     color: Colors.textSecondary,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    marginBottom: 5,
   },
   ingredientsContainer: {
     marginTop: 8,
   },
   ingredientBox: {
     backgroundColor: Colors.background,
-    padding: 10,
+    padding: 15,
     borderRadius: 8,
     marginBottom: 8,
     shadowColor: "#000",
@@ -391,17 +412,35 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  ingredientHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  arrowCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: Colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  arrowIcon: {
+    color: Colors.white,
+    fontSize: 12,
+    textAlign: "center",
+  },
   descriptionText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.textPrimary,
-    textAlign: 'center',
+    textAlign: "center",
     marginVertical: 10,
   },
   noIngredientsText: {
     fontSize: 16,
     color: Colors.textSecondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginVertical: 10,
   },
 })
