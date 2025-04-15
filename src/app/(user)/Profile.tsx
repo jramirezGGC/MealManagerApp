@@ -9,14 +9,9 @@ export default function PersonalInfoScreen() {
     email: "email@email.com",
   }
 
-  // const handleEdit = () => {
-  //   router.push("/edit-profile")
-  // }
-
-  // const handleLogout = () => {
-  //   // Add your logout logic here
-  //   router.replace("/login")
-  // }
+  const handleEdit = () => {
+    router.push("/(user)/EditProfile")
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,7 +27,7 @@ export default function PersonalInfoScreen() {
             <Text style={styles.headerTitle}>Profile</Text>
             <Text style={styles.headerSubtitle}>View your profile information</Text>
           </View>
-          <TouchableOpacity style={styles.editButtonContainer} /*onPress={handleEdit}*/>
+          <TouchableOpacity style={styles.editButtonContainer} onPress={handleEdit}>
             <Text style={styles.editButton}>Edit</Text>
           </TouchableOpacity>
         </View>
@@ -78,13 +73,6 @@ export default function PersonalInfoScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Logout Button */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.logoutButton} /*onPress={handleLogout}*/>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   )
 }
@@ -249,31 +237,5 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.divider,
     marginVertical: 12,
-  },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 24,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-  },
-  logoutButton: {
-    backgroundColor: Colors.primary,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  logoutButtonText: {
-    color: Colors.white,
-    fontSize: 16,
-    fontWeight: "600",
   },
 })
