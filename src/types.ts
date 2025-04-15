@@ -4,7 +4,7 @@ export type Meal = {
   description: string;
   image: string | null;
   calories: number | 0;
-  date: string | null;
+  date: Date | null;
   ingredients: Ingredient[] | [];
   numInFridge: number;
   numInFreezer: number;

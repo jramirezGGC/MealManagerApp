@@ -4,6 +4,7 @@ import { RelativePathString } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, View, FlatList, TextInput, Button } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
+import UploadImageTest from "@/src/components/UploadImageTest";
 
 const buttonsData = [
   { key: "1", text: "Confirm Meal", href: "/(user)/ConfirmMeal" },
@@ -43,6 +44,9 @@ export default function Pages() {
 
   return (
     <View style={styles.container}>
+      <View>
+      <UploadImageTest />
+      </View>
       <FlatList
         data={buttonsData}
         renderItem={({ item }) => (
@@ -50,7 +54,7 @@ export default function Pages() {
         )}
         contentContainerStyle={styles.listContent}
       />
-
+      
       <View >
         <TextInput
           placeholder="text for db test"

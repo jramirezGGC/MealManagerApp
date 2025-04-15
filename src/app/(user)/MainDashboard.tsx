@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar as RNStatusBar } from "react-native"
 import { StatusBar } from "expo-status-bar"
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context"
 import Colors from "@/src/constants/Colors"
 import MealContainer from "@/src/components/MealContainer"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -9,6 +10,8 @@ import { useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 import type { Meal } from "@/src/types"
 import React from "react"
+import mainDashboardMeals from "@/assets/data/mainDashboardMeals"
+
 
 // const getHouseholdID = async () => {
 //   const userID = FIREBASE_AUTH.currentUser?.uid
@@ -31,107 +34,7 @@ import React from "react"
 //   }
 // }
 
-const meals: Meal[] = [
-  {
-    id: "1",
-    name: "Chicken Pasta",
-    description: "Lunch",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "2",
-    name: "Avocado Toast",
-    description: "Breakfast",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "3",
-    name: "Vegetable Stir Fry",
-    description: "Dinner",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "4",
-    name: "Greek Yogurt",
-    description: "Breakfast",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "5",
-    name: "Salmon with Rice",
-    description: "Dinner",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "6",
-    name: "Caesar Salad",
-    description: "Lunch",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "7",
-    name: "Fruit Smoothie",
-    description: "Breakfast",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "8",
-    name: "Beef Stew",
-    description: "Dinner",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-  {
-    id: "9",
-    name: "Quinoa Bowl",
-    description: "Lunch",
-    image: null,
-    calories: 0,
-    date: null,
-    ingredients: [],
-    numInFridge: 0,
-    numInFreezer: 0,
-  },
-]
+
 
 export default function MainDashboard() {
   // getHouseholdID()
@@ -210,26 +113,28 @@ export default function MainDashboard() {
   )
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
+        <StatusBar style="dark" />
 
-      {/* Header Section */}
-      <View style={styles.headerContainer}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Welcome Back</Text>
+        {/* Header Section */}
+        <View style={styles.headerContainer}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Welcome Back</Text>
+          </View>
+          <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
         </View>
-        <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
-      </View>
 
-      {/* Content Section - Using MealContainer with ListHeaderComponent */}
-      <View style={styles.contentWrapper}>
-        <MealContainer
-          meals={meals}
-          ListHeaderComponent={renderHeader()}
-          contentContainerStyle={styles.mealContainerContent}
-        />
-      </View>
-    </SafeAreaView>
+        {/* Content Section - Using MealContainer with ListHeaderComponent */}
+        <View style={styles.contentWrapper}>
+          <MealContainer
+            meals={mainDashboardMeals}
+            ListHeaderComponent={renderHeader()}
+            contentContainerStyle={styles.mealContainerContent}
+          />
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   )
 }
 
@@ -240,7 +145,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === "android" ? 16 : 0,
+    paddingTop: Platform.OS === "android" ? (RNStatusBar.currentHeight || 24) + 10 : 0,
     paddingBottom: 16,
   },
   header: {
