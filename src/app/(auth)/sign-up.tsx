@@ -15,8 +15,10 @@ import { router } from "expo-router"
 import Colors from '@/src/constants/Colors';
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { FIREBASE_AUTH } from "@/src/lib/firebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, setDoc } from "firebase/firestore";
+import { AutoId } from "@/src/lib/util";
 
 export default function SignUpScreen() {
   const [name, setName] = useState("")
@@ -44,6 +46,35 @@ export default function SignUpScreen() {
         const user = await createUserWithEmailAndPassword(auth, email, password);
         if (user) {
           // TODO: add user details to database: username, UID
+          const userDoc = doc(FIREBASE_DB, `users/${user.user.uid}`);
+          const householdID = AutoId()
+          const householdDoc = doc(FIREBASE_DB, `households/${householdID}`)
+          const docData = {
+            name: name,
+            householdID: householdID,
+          }
+          setDoc(householdDoc, {
+            admin: user.user.uid
+          })
+          setDoc(userDoc, docData);
+
+          const inventoryDoc = doc(FIREBASE_DB, `households/${householdID}/data/inventory`)
+          const savedMealsDoc = doc(FIREBASE_DB, `households/${householdID}/data/savedMeals`)
+          setDoc(inventoryDoc, {
+            meals: [],
+          });
+          // replace testMeal with empty map for actual users
+          setDoc(savedMealsDoc, {
+            testMealID: {
+              description: "test description",
+              ingredients: ["test ingredient"],
+              name: "test meal",
+            },
+          });
+
+          await AsyncStorage.setItem("householdID", householdID)
+
+          console.log(user.user.uid);
           router.replace(`/(user)/MainDashboard`);
         }
       } catch (error: any){
