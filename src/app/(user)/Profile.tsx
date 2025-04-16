@@ -1,23 +1,53 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, ScrollView } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
-import Colors from "@/src/constants/Colors"
+import { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, ScrollView } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import Colors from "@/src/constants/Colors";
+
+
+const auth = getAuth();
 
 export default function PersonalInfoScreen() {
-  const userInfo = {
-    username: "Username",
-    email: "email@email.com",
-  }
+  const [user, setUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string>("");
+  
+    useEffect(() => {
+      const fetchUserData = async () => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+          if (currentUser) {
+            setUser(currentUser);
+            try {
+              const db = getFirestore();
+              const userDocRef = doc(db, "users", currentUser.uid);
+              const userDocSnap = await getDoc(userDocRef);
+              if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                if (userData.name) {
+                  setUserName(userData.name);
+                }
+              }
+            } catch (error) {
+              console.error("Error fetching Firestore user name:", error);
+            }
+          }
+        });
+  
+        return unsubscribe;
+      };
+  
+      fetchUserData();
+    }, []);
 
   const handleEdit = () => {
-    router.push("/(user)/EditProfile")
-  }
+    router.push("/(user)/EditProfile");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-
-      {/* Header Section */}
+      {/* Header */}
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -38,15 +68,18 @@ export default function PersonalInfoScreen() {
           {/* Profile Section */}
           <View style={styles.profileSection}>
             <View style={styles.profileImageContainer}>
-              <Text style={styles.profileInitial}>{userInfo.username.charAt(0)}</Text>
+              <Text style={styles.profileInitial}>
+                {userName ? userName.charAt(0) : "U"}
+              </Text>
             </View>
-            <Text style={styles.username}>{userInfo.username}</Text>
+            <Text style={styles.username}>
+              {userName || "No name available"}
+            </Text>
           </View>
 
           {/* Info Cards */}
           <View style={styles.infoCardsContainer}>
             <Text style={styles.sectionTitle}>Personal Information</Text>
-
             <View style={styles.infoCard}>
               <View style={styles.infoItem}>
                 <View style={styles.infoIconContainer}>
@@ -54,19 +87,17 @@ export default function PersonalInfoScreen() {
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Full Name</Text>
-                  <Text style={styles.infoValue}>{userInfo.username}</Text>
+                  <Text style={styles.infoValue}>{userName || "No name available"}</Text>
                 </View>
               </View>
-
               <View style={styles.divider} />
-
               <View style={styles.infoItem}>
                 <View style={styles.infoIconContainer}>
                   <Text style={styles.infoIcon}>✉️</Text>
                 </View>
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>Email</Text>
-                  <Text style={styles.infoValue}>{userInfo.email}</Text>
+                  <Text style={styles.infoValue}>{user?.email || "No email available"}</Text>
                 </View>
               </View>
             </View>
@@ -74,7 +105,7 @@ export default function PersonalInfoScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

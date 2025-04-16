@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,22 +9,83 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
-import Colors from "@/src/constants/Colors"
+  Alert,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import { getAuth, updateEmail, updatePassword, updateProfile, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
+import Colors from "@/src/constants/Colors";
 
 export default function PersonalInfoScreen() {
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const db = getFirestore();
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(user);
+        setEmail(currentUser.email || "");
+
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            if (userData.name) {
+              setUsername(userData.name);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching Firestore name:", error);
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const handleSaveChanges = async () => {
+    const auth = getAuth();
+    const db = getFirestore();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) return;
+
+    try {
+      if (username) {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userDocRef, { name: username });
+      }
+
+      if (username && username !== currentUser.displayName) {
+        await updateProfile(currentUser, { displayName: username });
+      }
+      if (email && email !== currentUser.email) {
+        await updateEmail(currentUser, email);
+      }
+      if (password) {
+        await updatePassword(currentUser, password);
+      }
+
+      Alert.alert("Saved Changes", "Your profile has been updated successfully.");
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      Alert.alert("Error", error.message || "Something went wrong.");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header Section */}
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -37,35 +98,30 @@ export default function PersonalInfoScreen() {
         </View>
       </View>
 
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardView}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+      >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
+          style={styles.scrollView}
+          contentContainerStyle={{ paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Content Section */}
           <View style={styles.contentContainer}>
-            {/* Profile Image */}
             <View style={styles.imageContainer}>
               <View style={styles.imagePlaceholder}>
-                <Text style={styles.profileInitial}>J</Text>
-                <TouchableOpacity style={styles.editImageButton}>
-                  <View style={styles.editIconContainer}>
-                    <Text style={styles.editIcon}>✎</Text>
-                  </View>
-                </TouchableOpacity>
+                <Text style={styles.profileInitial}>{username.charAt(0) || "U"}</Text>
               </View>
               <Text style={styles.imageLabel}>Profile Picture</Text>
             </View>
 
-            {/* Form Fields */}
             <View style={styles.form}>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Username</Text>
+                <Text style={styles.label}>Full Name</Text>
                 <View style={styles.inputWrapper}>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your username"
+                    placeholder="Enter your name"
                     value={username}
                     onChangeText={setUsername}
                     placeholderTextColor={Colors.textTertiary}
@@ -93,7 +149,7 @@ export default function PersonalInfoScreen() {
                 <View style={styles.inputWrapper}>
                   <TextInput
                     style={[styles.input, styles.passwordInput]}
-                    placeholder="Enter your password"
+                    placeholder="Enter new password"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
@@ -102,7 +158,6 @@ export default function PersonalInfoScreen() {
                   <TouchableOpacity
                     style={styles.visibilityToggle}
                     onPress={() => setShowPassword(!showPassword)}
-                    activeOpacity={0.7}
                   >
                     <Text style={styles.visibilityIcon}>{showPassword ? "👁" : "👁‍🗨"}</Text>
                   </TouchableOpacity>
@@ -110,19 +165,21 @@ export default function PersonalInfoScreen() {
               </View>
             </View>
           </View>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.saveButton}
+              activeOpacity={0.8}
+              onPress={handleSaveChanges}
+            >
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* Save Button */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.saveButton} activeOpacity={0.8}>
-          <Text style={styles.saveButtonText}>Save Changes</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
-  )
+  );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -140,6 +197,9 @@ const styles = StyleSheet.create({
   headerTextContainer: {
     flex: 1,
     justifyContent: "center",
+  },
+  scrollView: {
+    flex: 1,
   },
   backButton: {
     width: 40,
@@ -178,7 +238,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
-    paddingBottom: 100,
+    paddingBottom: 150,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -275,7 +335,6 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   buttonContainer: {
-    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
