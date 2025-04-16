@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,111 +9,82 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
-import Colors from "@/src/constants/Colors"
+  Image,
+} from "react-native";
+// import { Image } from 'expo-image';
+import { StatusBar } from "expo-status-bar";
+import { router, useLocalSearchParams } from "expo-router";
+import Colors from "@/src/constants/Colors";
 // Comment out Firebase imports for testing
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
-import { doc, updateDoc } from "firebase/firestore"
-import { AutoId } from "@/src/lib/util"
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
+import { AutoId } from "@/src/lib/util";
 
 export default function CreateMealScreen() {
-  const [mealName, setMealName] = useState("")
-  const [description, setDescription] = useState("")
-  const [ingredients, setIngredients] = useState("")
-  const [loading, setLoading] = useState(false)
-  //const db = SQLite.useSQLiteContext();
+  const [mealName, setMealName] = useState("");
+  const [description, setDescription] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [mealImageUrl, setMealImageUrl] = useState<string | null>(null);
+
+  const params = useLocalSearchParams();
+
+  // Check for image URL from navigation params
+  useEffect(() => {
+    if (params.imageUrl) {
+      let imageUrl = params.imageUrl as string;
+      
+      // Direct fix for Firebase storage URLs - force correct encoding
+      if (imageUrl.includes('/o/meals/')) {
+        imageUrl = imageUrl.replace('/o/meals/', '/o/meals%2F');
+      }
+      
+      // Set the image URL directly without testing
+      setMealImageUrl(imageUrl);
+    }
+  }, [params]);  
+
 
   const handleCreateMeal = async () => {
- 
-
     // Add your meal creation logic here
- 
 
-    let householdID  
- 
+    let householdID;
+
     try {
- 
-
-      householdID = await AsyncStorage.getItem("householdID")
- 
-
+      householdID = await AsyncStorage.getItem("householdID");
     } catch (error) {
- 
-
       console.error("Async Storage could not get householdID", error);
- 
-
     }
- 
 
+    const mealsDoc = doc(
+      FIREBASE_DB,
+      `households/${householdID}/savedMeals/savedMeals`
+    );
 
- 
-
-    const mealsDoc = doc(FIREBASE_DB, `households/${householdID}/savedMeals/savedMeals`)
- 
-
-    const mealID = AutoId()
- 
+    const mealID = AutoId();
 
     await updateDoc(mealsDoc, {
- 
+      [mealID]: {
+        name: mealName,
 
-        [mealID]: {
- 
+        description: description,
 
-        "name": mealName,
- 
+        ingredients: [ingredients], // once we have input for multiple ingredients, break this into an array
 
-        "description": description,
- 
+        imageUrl: mealImageUrl,
+      },
+    });
 
-        "ingredients": [ingredients], // once we have input for multiple ingredients, break this into an array
- 
 
-      }
- 
+    console.log({ mealName, description, ingredients });
 
-    })
- 
-
-    // Add your meal creation logic here
- 
-
-    /* try {
- 
-      const result2 = await db.runAsync('INSERT INTO meals (name, description, ingredients, user_id) VALUES (?, ?, ?, ?)', [mealName, description, ingredients, 111]);
- 
-      console.log(result2.lastInsertRowId);
- 
-    }
-
-@@ -35,196 +54,196 @@
- 
-    let row: any
- 
-    for (row of result){
- 
-      console.log(row.id, row.name, row.description, row.ingredients, row.picture, row.user_id)
- 
-
-    }
- 
-
-    } */
- 
-    console.log({ mealName, description, ingredients })
- 
-    router.back()
- 
-  }
+    router.back();
+  };
 
   const handleSelectImage = () => {
-    // Add your image picker logic here
-    console.log("Select image")
-  }
+    router.push("/UploadImage");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,7 +95,9 @@ export default function CreateMealScreen() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Create Meal</Text>
         </View>
-        <Text style={styles.headerSubtitle}>Add a new meal to your collection</Text>
+        <Text style={styles.headerSubtitle}>
+          Add a new meal to your collection
+        </Text>
       </View>
 
       <KeyboardAvoidingView
@@ -141,12 +114,32 @@ export default function CreateMealScreen() {
           <View style={styles.contentContainer}>
             {/* Meal Image */}
             <View style={styles.imageContainer}>
-              <TouchableOpacity style={styles.imagePlaceholder} onPress={handleSelectImage}>
-                <Text style={styles.imagePlaceholderText}>📷</Text>
-                <View style={styles.editIconContainer}>
+              <TouchableOpacity
+                style={styles.imagePlaceholder}
+                onPress={handleSelectImage}
+              >
+                {mealImageUrl ? (
+                  <Image
+                    source={{ uri: mealImageUrl }}
+                    style={styles.mealImage}
+                  />
+                ) : (
+                  <Text style={styles.imagePlaceholderText}>📷</Text>
+                )}
+
+                {/* Always show edit icon */}
+                <View
+                  style={[
+                    styles.editIconContainer,
+                    mealImageUrl
+                      ? { position: "absolute", bottom: 0, right: 0 }
+                      : {},
+                  ]}
+                >
                   <Text style={styles.editIcon}>✎</Text>
                 </View>
               </TouchableOpacity>
+
               <Text style={styles.imageLabel}>Meal Picture</Text>
             </View>
 
@@ -198,22 +191,31 @@ export default function CreateMealScreen() {
 
             {/* Create Button */}
             <TouchableOpacity
-              style={[styles.createButton, loading && styles.createButtonDisabled]}
+              style={[
+                styles.createButton,
+                loading && styles.createButtonDisabled,
+              ]}
               onPress={handleCreateMeal}
               disabled={loading}
             >
-              <Text style={styles.createButtonText}>{loading ? "Creating..." : "Create Meal"}</Text>
+              <Text style={styles.createButtonText}>
+                {loading ? "Creating..." : "Create Meal"}
+              </Text>
             </TouchableOpacity>
 
             {/* Cancel Button */}
-            <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()} disabled={loading}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => router.back()}
+              disabled={loading}
+            >
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -384,4 +386,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-})
+  mealImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    resizeMode: "cover",
+    backgroundColor: "#f0f0f0", // Light background to show loading state
+  },
+});

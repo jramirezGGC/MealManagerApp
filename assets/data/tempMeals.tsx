@@ -2,7 +2,7 @@ import { Meal } from "@/src/types";
 
 const tempMeals: Meal[] = [
   {
-    id: 1,
+    id: "1",
     name: "Beef Burrito",
     description: "Homemade beef burrito with lettuce and corn",
     image: require("../../assets/images/dummyMealImages/beefburrito.jpg"),
@@ -18,7 +18,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 2,
   },
   {
-    id: 2,
+    id: "2",
     name: "Chicken and Broccoli",
     description: "Pan Sauteed Chicken and Broccoli",
     image: require("../../assets/images/dummyMealImages/chickenandbroccoli.jpg"),
@@ -34,7 +34,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 1,
   },
   {
-    id: 3,
+    id: "3",
     name: "Chicken and Rice",
     description: "Crock Pot Chicken and Rice",
     image: require("../../assets/images/dummyMealImages/chickenandrice.jpg"),
@@ -50,7 +50,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 3,
   },
   {
-    id: 4,
+    id: "4",
     name: "Chilli",
     description: "Crock Pot Chilli with Ground Beef and Kidney Beans",
     image: require("../../assets/images/dummyMealImages/chilli.jpg"),
@@ -66,7 +66,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 2,
   },
   {
-    id: 5,
+    id: "5",
     name: "Eggs, Bacon, and Toast",
     description: "Pan Fried 2 Eggs, 3 Pieces of bacon, and 2 slices of toast",
     image: require("../../assets/images/dummyMealImages/eggsbaconandtoast.jpg"),
@@ -81,7 +81,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 20,
   },
   {
-    id: 6,
+    id: "6",
     name: "Salmon with Sweet Potato and Broccoli",
     description: "Pan Fried Salmon and Broccoli with baked sweet potato",
     image: require("../../assets/images/dummyMealImages/salmonsweetpotatobroccoli.jpg"),
@@ -97,7 +97,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 1,
   },
   {
-    id: 7,
+    id: "7",
     name: "Spaghetti",
     description: "Basic Spaghetti with Meatballs",
     image: require("../../assets/images/dummyMealImages/spaghetti.jpg"),
@@ -113,7 +113,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 4,
   },
   {
-    id: 8,
+    id: "8",
     name: "Steak with Potato and Asparagus",
     description: "Grilled steak and asparagus with baked potato",
     image: require("../../assets/images/dummyMealImages/steakpotatoasparagus.jpg"),
@@ -129,7 +129,7 @@ const tempMeals: Meal[] = [
     numInFreezer: 1,
   },
   {
-    id: 9,
+    id: "9",
     name: "Vegetable Soup",
     description: "Homemade vegetable soup",
     image: require("../../assets/images/dummyMealImages/vegetablesoup.jpg"),

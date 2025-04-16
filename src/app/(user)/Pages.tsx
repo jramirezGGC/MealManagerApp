@@ -5,6 +5,7 @@ import { useState } from "react";
 import { StyleSheet, View, FlatList, TextInput, Button } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 
+
 const buttonsData = [
   { key: "1", text: "Confirm Meal", href: "/(user)/ConfirmMeal" },
   { key: "2", text: "Meal Details", href: "/(user)/MealDetails" },
@@ -43,6 +44,8 @@ export default function Pages() {
 
   return (
     <View style={styles.container}>
+      <View>      
+      </View>
       <FlatList
         data={buttonsData}
         renderItem={({ item }) => (
@@ -50,7 +53,7 @@ export default function Pages() {
         )}
         contentContainerStyle={styles.listContent}
       />
-
+      
       <View >
         <TextInput
           placeholder="text for db test"

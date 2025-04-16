@@ -13,6 +13,7 @@ import Colors from "@/src/constants/Colors";
 import GalleryImages from "@/src/components/GalleryImages";
 import { useMeals } from "@/src/context/MealsContext";
 
+
 export default function MealGalleryScreen() {  
   const { meals, loading, error, fetchMeals } = useMeals();
 
