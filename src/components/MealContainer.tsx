@@ -31,21 +31,21 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle }: Me
     console.log("Taking meal:", mealId)
   }
 
-  const getMealTypeColor = (type: string) => {
-    switch (type) {
-      case "Breakfast":
-        return { bg: "#FFE5D9", text: "#FF7622" }
-      case "Lunch":
-        return { bg: "#E0F7FA", text: "#0097A7" }
-      case "Dinner":
-        return { bg: "#E8F5E9", text: "#388E3C" }
-      default:
-        return { bg: "#F5F5F5", text: "#757575" }
-    }
-  }
+  // const getMealTypeColor = (type: string) => {
+  //   switch (type) {
+  //     case "Breakfast":
+  //       return { bg: "#FFE5D9", text: "#FF7622" }
+  //     case "Lunch":
+  //       return { bg: "#E0F7FA", text: "#0097A7" }
+  //     case "Dinner":
+  //       return { bg: "#E8F5E9", text: "#388E3C" }
+  //     default:
+  //       return { bg: "#F5F5F5", text: "#757575" }
+  //   }
+  // }
 
   const renderMealItem = ({ item }: { item: Meal }) => {
-    const typeColors = getMealTypeColor(item.description)
+    //const typeColors = getMealTypeColor(item.description)
 
     return (
       <View style={styles.mealItem}>
@@ -53,8 +53,8 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle }: Me
           <View style={styles.mealImage} />
           <View style={styles.mealInfo}>
             <Text style={styles.mealName}>{item.name}</Text>
-            <View style={[styles.mealTag, { backgroundColor: typeColors.bg }]}>
-              <Text style={[styles.mealTagText, { color: typeColors.text }]}>{item.description}</Text>
+            <View style={[styles.mealTag, { /* backgroundColor: typeColors.bg */ }]}>
+              <Text style={[styles.mealTagText, { /* color: typeColors.text */ }]}>{}</Text>
             </View>
           </View>
         </View>

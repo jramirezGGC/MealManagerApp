@@ -1,23 +1,53 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Image } from "react-native"
-import { StatusBar } from "expo-status-bar"
-import { router } from "expo-router"
-import Colors from "@/src/constants/Colors"
-import { getAuth } from "firebase/auth"
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  Image,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import Colors from "@/src/constants/Colors";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Default profile image
 // const defaultProfileImage = require("../../../assets/images/silly-youtube-emotes.png")
 const auth = getAuth();
 
 export default function SettingsScreen() {
-  // Mock user data - replace with actual user data from your auth system
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    profileImageUri:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/silly-youtube-emotes-fliZUQin7jZJL9FDHYS4xI0dzSIfs1.png", // Using the provided image URL
-    // You can add more user properties as needed
-  }
+  const [user, setUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        if (currentUser) {
+          setUser(currentUser);
+          try {
+            const db = getFirestore();
+            const userDocRef = doc(db, "users", currentUser.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              if (userData.name) {
+                setUserName(userData.name);
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching Firestore user name:", error);
+          }
+        }
+      });
+
+      return unsubscribe;
+    };
+
+    fetchUserData();
+  }, []);
 
   const navigationItems = [
     {
@@ -38,23 +68,17 @@ export default function SettingsScreen() {
       icon: "🖼️",
       onPress: () => router.push("/(user)/Gallery"),
     },
-  ]
+  ];
 
   const handleLogout = async () => {
     try {
-      // Sign out from AWS
       await auth.signOut();
-      console.log('User logged out');
-
-      // Clear all items from AsyncStorage
       await AsyncStorage.clear();
-
-      // Redirect to sign-in page
       router.replace(`/(auth)/sign-in`);
     } catch (error) {
-      console.error('Error logging out: ', error);
+      console.error("Error logging out: ", error);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -74,13 +98,12 @@ export default function SettingsScreen() {
       <View style={styles.profileSection}>
         <View style={styles.profileImageContainer}>
           <Image
-              source={{ uri: user.profileImageUri }}
-              style={styles.profileImage}
-              // No need for onError or defaultSource with a direct URL
-            />
+            // source={defaultProfileImage}
+            style={styles.profileImage}
+          />
         </View>
-        <Text style={styles.userName}>{user.name}</Text>
-        <Text style={styles.userEmail}>{user.email}</Text>
+        <Text style={styles.userName}>{userName || "No name available"}</Text>
+        <Text style={styles.userEmail}>{user?.email || "No email available"}</Text>
       </View>
 
       {/* Navigation Section */}
@@ -103,7 +126,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -239,4 +262,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-})
+});
