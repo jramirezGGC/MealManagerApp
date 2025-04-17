@@ -10,6 +10,9 @@ import {
   Platform,
   ScrollView,
   Image,
+  Modal,
+  FlatList,
+  Alert,
 } from "react-native";
 // import { Image } from 'expo-image';
 import { StatusBar } from "expo-status-bar";
@@ -20,13 +23,35 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
 import { doc, updateDoc } from "firebase/firestore";
 import { AutoId } from "@/src/lib/util";
+import { useMeals } from "@/src/context/MealsContext";
+import { Ingredient, Meal } from "@/src/types";
+
+// We don't need a separate form interface anymore since Ingredient has the id field
 
 export default function CreateMealScreen() {
   const [mealName, setMealName] = useState("");
   const [description, setDescription] = useState("");
-  const [ingredients, setIngredients] = useState("");
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(false);
   const [mealImageUrl, setMealImageUrl] = useState<string | null>(null);
+  
+  // Ingredient modal state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentIngredient, setCurrentIngredient] = useState<Ingredient>({
+    id: '',
+    name: '',
+    amount: '',
+    calories: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  
+  // Quantity selection modal state
+  const [quantityModalVisible, setQuantityModalVisible] = useState(false);
+  const [fridgeQuantity, setFridgeQuantity] = useState("0");
+  const [freezerQuantity, setFreezerQuantity] = useState("0");
+  const [createdMeal, setCreatedMeal] = useState<Meal | null>(null);
+  
+  const { saveMeal, syncWithDatabase, addMealToInventory } = useMeals();
 
   const params = useLocalSearchParams();
 
@@ -45,46 +70,160 @@ export default function CreateMealScreen() {
     }
   }, [params]);  
 
-
   const handleCreateMeal = async () => {
-    // Add your meal creation logic here
-
-    let householdID;
-
+    setLoading(true);
     try {
-      householdID = await AsyncStorage.getItem("householdID");
-    } catch (error) {
-      console.error("Async Storage could not get householdID", error);
-    }
-
-    const mealsDoc = doc(
-      FIREBASE_DB,
-      `households/${householdID}/savedMeals/savedMeals`
-    );
-
-    const mealID = AutoId();
-
-    await updateDoc(mealsDoc, {
-      [mealID]: {
+      // Calculate total calories
+      const totalCalories = ingredients.reduce((sum, ing) => {
+        const calNum = parseInt(ing.calories || '0') || 0;
+        return sum + calNum;
+      }, 0);
+      
+      // Create a new Meal object with explicitly set zero quantities
+      const newMeal: Meal = {
+        id: AutoId(),
         name: mealName,
-
         description: description,
+        ingredients: ingredients,
+        image: mealImageUrl || '',
+        calories: totalCalories,
+        date: new Date(),
+        numInFridge: 0,  // Explicitly zero for savedMeals
+        numInFreezer: 0  // Explicitly zero for savedMeals
+      };
+      
+      // Save to savedMeals collection (as a recipe only, with zero quantities)
+      await saveMeal(newMeal);
+      
+      // Store the created meal and show quantity selection modal
+      setCreatedMeal(newMeal);
+      setQuantityModalVisible(true);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error creating meal:", error);
+      Alert.alert(
+        "Error",
+        "Failed to create meal. Please try again."
+      );
+      setLoading(false);
+    }
+  };
+  
+  const handleQuantitySubmit = async () => {
+    if (!createdMeal) return;
+    
+    setLoading(true);
+    try {
+      // Get the user-specified quantities
+      const fridgeCount = parseInt(fridgeQuantity) || 0;
+      const freezerCount = parseInt(freezerQuantity) || 0;
+      
+      // If we have quantities > 0, add to inventory as well
+      if (fridgeCount > 0 || freezerCount > 0) {
+        // Use the dedicated function to add to inventory directly
+        await addMealToInventory(createdMeal, fridgeCount, freezerCount);
+      }
+      
+      setQuantityModalVisible(false);
+      
+      // Clear form and navigate back
+      clearForm();
+      router.replace("/(user)/MainDashboard");
+      setLoading(false);
+    } catch (error) {
+      console.error("Error updating meal quantities:", error);
+      Alert.alert(
+        "Error",
+        "Failed to update meal quantities. Your meal is still saved."
+      );
+      setLoading(false);
+    }
+  };
 
-        ingredients: [ingredients], // once we have input for multiple ingredients, break this into an array
-
-        imageUrl: mealImageUrl,
-      },
-    });
-
-
-    console.log({ mealName, description, ingredients });
-
-    router.back();
+  // Function to clear all form data
+  const clearForm = () => {
+    setMealName("");
+    setDescription("");
+    setIngredients([]);
+    setMealImageUrl(null);
+    setFridgeQuantity("0");
+    setFreezerQuantity("0");
+    setCreatedMeal(null);
   };
 
   const handleSelectImage = () => {
     router.push("/UploadImage");
   };
+  
+  // Open the modal to add a new ingredient
+  const handleAddIngredient = () => {
+    setCurrentIngredient({
+      id: AutoId(),
+      name: '',
+      amount: '',
+      calories: ''
+    });
+    setIsEditing(false);
+    setModalVisible(true);
+  };
+  
+  // Open the modal to edit an existing ingredient
+  const handleEditIngredient = (ingredient: Ingredient) => {
+    setCurrentIngredient(ingredient);
+    setIsEditing(true);
+    setModalVisible(true);
+  };
+  
+  // Delete an ingredient from the list
+  const handleDeleteIngredient = (id: string) => {
+    setIngredients(ingredients.filter(ing => ing.id !== id));
+  };
+  
+  // Save the current ingredient (add new or update existing)
+  const handleSaveIngredient = () => {
+    if (!currentIngredient.name.trim()) {
+      // Don't save if name is empty
+      return;
+    }
+    
+    if (isEditing) {
+      // Update existing ingredient
+      setIngredients(ingredients.map(ing => 
+        ing.id === currentIngredient.id ? currentIngredient : ing
+      ));
+    } else {
+      // Add new ingredient
+      setIngredients([...ingredients, currentIngredient]);
+    }
+    
+    setModalVisible(false);
+  };
+  
+  // Render an ingredient item in the list
+  const renderIngredientItem = ({ item }: { item: Ingredient }) => (
+    <View style={styles.ingredientItem}>
+      <View style={styles.ingredientInfo}>
+        <Text style={styles.ingredientName}>{item.name}</Text>
+        <Text style={styles.ingredientDetails}>
+          {item.amount} • {item.calories} cal
+        </Text>
+      </View>
+      <View style={styles.ingredientActions}>
+        <TouchableOpacity
+          style={styles.editIngredientButton}
+          onPress={() => handleEditIngredient(item)}
+        >
+          <Text style={styles.editIngredientButtonText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteIngredientButton}
+          onPress={() => handleDeleteIngredient(item.id)}
+        >
+          <Text style={styles.deleteIngredientButtonText}>✕</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,19 +312,34 @@ export default function CreateMealScreen() {
                 </View>
               </View>
 
+              {/* Ingredients Section */}
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Ingredients</Text>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    placeholder="List ingredients, separated by commas"
-                    value={ingredients}
-                    onChangeText={setIngredients}
-                    multiline
-                    numberOfLines={Platform.OS === "ios" ? undefined : 4}
-                    placeholderTextColor={Colors.textTertiary}
-                  />
+                <View style={styles.ingredientHeader}>
+                  <Text style={styles.label}>Ingredients</Text>
+                  <TouchableOpacity
+                    style={styles.addIngredientButton}
+                    onPress={handleAddIngredient}
+                  >
+                    <Text style={styles.addIngredientButtonText}>+ Add Ingredient</Text>
+                  </TouchableOpacity>
                 </View>
+                
+                {ingredients.length === 0 ? (
+                  <View style={styles.emptyIngredientsContainer}>
+                    <Text style={styles.emptyIngredientsText}>
+                      No ingredients added yet. Tap "Add Ingredient" to get started.
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.ingredientsList}>
+                    <FlatList
+                      data={ingredients}
+                      renderItem={renderIngredientItem}
+                      keyExtractor={(item) => item.id}
+                      scrollEnabled={false}
+                    />
+                  </View>
+                )}
               </View>
             </View>
 
@@ -193,10 +347,10 @@ export default function CreateMealScreen() {
             <TouchableOpacity
               style={[
                 styles.createButton,
-                loading && styles.createButtonDisabled,
+                (loading || !mealName.trim()) && styles.createButtonDisabled,
               ]}
               onPress={handleCreateMeal}
-              disabled={loading}
+              disabled={loading || !mealName.trim()}
             >
               <Text style={styles.createButtonText}>
                 {loading ? "Creating..." : "Create Meal"}
@@ -206,7 +360,10 @@ export default function CreateMealScreen() {
             {/* Cancel Button */}
             <TouchableOpacity
               style={styles.cancelButton}
-              onPress={() => router.back()}
+              onPress={() => {
+                clearForm();
+                router.replace("/(user)/MainDashboard");
+              }}
               disabled={loading}
             >
               <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -214,6 +371,153 @@ export default function CreateMealScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Ingredient Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {isEditing ? "Edit Ingredient" : "Add Ingredient"}
+            </Text>
+            
+            <View style={styles.modalForm}>
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalLabel}>Name</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="e.g., Chicken Breast"
+                  value={currentIngredient.name}
+                  onChangeText={(text) => 
+                    setCurrentIngredient({...currentIngredient, name: text})
+                  }
+                />
+              </View>
+              
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalLabel}>Amount</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="e.g., 2 cups"
+                  value={currentIngredient.amount || ''}
+                  onChangeText={(text) => 
+                    setCurrentIngredient({...currentIngredient, amount: text})
+                  }
+                />
+              </View>
+              
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalLabel}>Calories</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="e.g., 200"
+                  value={currentIngredient.calories || ''}
+                  onChangeText={(text) => 
+                    setCurrentIngredient({...currentIngredient, calories: text})
+                  }
+                  keyboardType="numeric"
+                />
+              </View>
+            </View>
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.modalSaveButton, !currentIngredient.name.trim() && styles.modalSaveButtonDisabled]}
+                onPress={handleSaveIngredient}
+                disabled={!currentIngredient.name.trim()}
+              >
+                <Text style={styles.modalSaveButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      
+      {/* Quantity Selection Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={quantityModalVisible}
+        onRequestClose={() => setQuantityModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Add Servings
+            </Text>
+            <Text style={styles.modalSubtitle}>
+              How many servings would you like to add to your fridge and freezer?
+            </Text>
+            
+            <View style={styles.modalForm}>
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalLabel}>Fridge Servings</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="0"
+                  value={fridgeQuantity}
+                  onChangeText={setFridgeQuantity}
+                  keyboardType="numeric"
+                />
+              </View>
+              
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalLabel}>Freezer Servings</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="0"
+                  value={freezerQuantity}
+                  onChangeText={setFreezerQuantity}
+                  keyboardType="numeric"
+                />
+              </View>
+            </View>
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => {
+                  setQuantityModalVisible(false);
+                  setLoading(true);
+                  
+                  if (createdMeal) {
+                    // No need to sync now - the meal was already saved to savedMeals
+                    // when it was created, and we're not adding it to inventory
+                    clearForm();
+                    router.replace("/(user)/MainDashboard");
+                    setLoading(false);
+                  } else {
+                    // If no meal was created, just return to dashboard
+                    clearForm();
+                    router.replace("/(user)/MainDashboard");
+                    setLoading(false);
+                  }
+                }}
+              >
+                <Text style={styles.modalCancelButtonText}>Skip</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.modalSaveButton}
+                onPress={handleQuantitySubmit}
+              >
+                <Text style={styles.modalSaveButtonText}>Add Servings</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -392,5 +696,173 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     resizeMode: "cover",
     backgroundColor: "#f0f0f0", // Light background to show loading state
+  },
+  ingredientHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  addIngredientButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    backgroundColor: Colors.primary,
+  },
+  addIngredientButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  emptyIngredientsContainer: {
+    padding: 16,
+    backgroundColor: '#f9faf7',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    alignItems: 'center',
+  },
+  emptyIngredientsText: {
+    color: Colors.textTertiary,
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  ingredientsList: {
+    marginTop: 8,
+  },
+  ingredientItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: Colors.background,
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  ingredientInfo: {
+    flex: 1,
+  },
+  ingredientName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  ingredientDetails: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  ingredientActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  editIngredientButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    marginRight: 8,
+  },
+  editIngredientButtonText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  deleteIngredientButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#FF3B30", // Standard iOS error color
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteIngredientButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalForm: {
+    marginBottom: 20,
+  },
+  modalInputGroup: {
+    marginBottom: 16,
+  },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+    marginBottom: 8,
+  },
+  modalInput: {
+    backgroundColor: '#f9faf7',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    padding: 12,
+    fontSize: 16,
+    color: Colors.textPrimary,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalCancelButton: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  modalCancelButtonText: {
+    color: Colors.textSecondary,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  modalSaveButton: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+  },
+  modalSaveButtonDisabled: {
+    opacity: 0.7,
+  },
+  modalSaveButtonText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginBottom: 16,
+    textAlign: 'center',
   },
 });

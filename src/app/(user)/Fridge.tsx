@@ -1,85 +1,56 @@
 import { useEffect, useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Image } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router, useLocalSearchParams } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import type { Meal } from "@/src/types"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
-import { doc, getDoc } from "firebase/firestore"
+import { useMeals } from "@/src/context/MealsContext"
+import React from "react"
 
-let mealsArr: Meal[] = []
-let meals: Meal[] = []
-
-async function loadStuff(storageUnit: string) {
-  let householdID
-  try {
-    householdID = await AsyncStorage.getItem("householdID")
-  } catch (error) {
-    console.error("Async Storage could not get householdID", error)
-  }
-  const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`)
-  const snapshot = await getDoc(userDoc)
-  if (snapshot.exists()) {
-    const docData = snapshot.data()
-    const dict = { ...docData.meals }
-    for (const key in dict) {
-      if (dict.hasOwnProperty(key)) {
-        if (!mealsArr.find((obj) => obj.id == key)) {
-          mealsArr.push({
-            id: key,
-            name: dict[key].name,
-            description: dict[key].description,
-            image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
-            ingredients: dict[key].ingredients,
-            ...(storageUnit == "fridge1" ? { numInFridge: dict[key].servings } : { numInFreezer: dict[key].servings }),
-          } as Meal)
-        } else {
-          const meal: any = mealsArr.find((obj) => obj.id == key)
-          storageUnit == "fridge1" ? (meal.numInFridge = dict[key].servings) : (meal.numInFreezer = dict[key].servings)
-        }
-      }
-    }
-
-    console.log(`Data: ${JSON.stringify(mealsArr)}`)
-  } else {
-    console.error("Gallery Meals loading unsuccessful")
-  }
-}
+// Match the tab bar height from _layout.tsx
+const TAB_BAR_HEIGHT = 65;
 
 export default function RefrigeratorScreen() {
   const params = useLocalSearchParams()
   const [activeTab, setActiveTab] = useState("fridge")
-  const [loading, setLoading] = useState(true)
   const [recentMealId, setRecentMealId] = useState<string | null>(null)
   const [showRecentHighlight, setShowRecentHighlight] = useState(false)
   const [displayMeals, setDisplayMeals] = useState<Meal[]>([])
+  
+  // Get meals from context
+  const { meals, loading } = useMeals()
 
-  function switchTab(tab: string) {
-    meals = []
-    for (const key in mealsArr) {
-      if (tab == "fridge") {
-        if (!(typeof mealsArr[key].numInFridge === undefined)) {
-          if (mealsArr[key].numInFridge != undefined) {
-            meals.push(mealsArr[key])
-          }
-        }
-      } else if (tab == "freezer") {
-        if (!(typeof mealsArr[key].numInFreezer === undefined)) {
-          if (mealsArr[key].numInFreezer != undefined) {
-            meals.push(mealsArr[key])
-          }
-        }
-      }
+  // Calculate total servings for a location
+  const calculateTotalServings = (tab: string) => {
+    if (tab === "fridge") {
+      return meals.reduce((total, meal) => total + (meal.numInFridge || 0), 0);
+    } else {
+      return meals.reduce((total, meal) => total + (meal.numInFreezer || 0), 0);
     }
-    setDisplayMeals(meals)
+  }
+
+  // Filter meals based on active tab
+  const filterMeals = (tab: string) => {
+    if (tab === "fridge") {
+      return meals.filter(meal => meal.numInFridge > 0);
+    } else {
+      return meals.filter(meal => meal.numInFreezer > 0);
+    }
+  }
+
+  const switchTab = (tab: string) => {
     setActiveTab(tab)
+    setDisplayMeals(filterMeals(tab))
   }
 
   const renderMealItem = ({ item }: { item: Meal }) => (
     <View style={[styles.mealItem, showRecentHighlight && item.id === recentMealId && styles.recentMealItem]}>
       <View style={styles.mealContent}>
-        <View style={styles.mealImage} />
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={styles.mealImage} />
+        ) : (
+          <View style={styles.mealImage} />
+        )}
         <View style={styles.mealInfo}>
           <Text style={styles.mealName}>{item.name}</Text>
           <View style={styles.mealDetails}>
@@ -110,46 +81,27 @@ export default function RefrigeratorScreen() {
   )
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        mealsArr = [] // Reset the array before loading
-        await loadStuff("fridge1")
-        await loadStuff("freezer1")
+    // Apply filters based on initial tab
+    setDisplayMeals(filterMeals(activeTab))
+    
+    // Check if we have a recent meal to highlight
+    if (params.recentMealId && params.showRecent === "true") {
+      setRecentMealId(params.recentMealId as string)
+      setShowRecentHighlight(true)
 
-        // Check if we have a recent meal to highlight
-        if (params.recentMealId && params.showRecent === "true") {
-          setRecentMealId(params.recentMealId as string)
-          setShowRecentHighlight(true)
-
-          // Switch to the tab where the meal was added
-          if (params.storageLocation) {
-            const tabToShow = params.storageLocation as string
-            setActiveTab(tabToShow)
-            switchTab(tabToShow)
-          } else {
-            // Default to fridge
-            setActiveTab("fridge")
-            switchTab("fridge")
-          }
-
-          // Clear the highlight after 3 seconds
-          setTimeout(() => {
-            setShowRecentHighlight(false)
-          }, 3000)
-        } else {
-          // Default to fridge tab
-          setActiveTab("fridge")
-          switchTab("fridge")
-        }
-      } catch (error) {
-        console.error("Error loading data:", error)
-      } finally {
-        setLoading(false)
+      // Switch to the tab where the meal was added
+      if (params.storageLocation) {
+        const tabToShow = params.storageLocation as string
+        setActiveTab(tabToShow)
+        setDisplayMeals(filterMeals(tabToShow))
       }
-    }
 
-    fetchData()
-  }, [params.recentMealId, params.showRecent, params.storageLocation])
+      // Clear the highlight after 3 seconds
+      setTimeout(() => {
+        setShowRecentHighlight(false)
+      }, 3000)
+    }
+  }, [params.recentMealId, params.showRecent, params.storageLocation, meals])
 
   if (loading) {
     return (
@@ -195,8 +147,8 @@ export default function RefrigeratorScreen() {
 
           {/* Total Meals Count */}
           <View style={styles.totalMealsContainer}>
-            <Text style={styles.totalMealsValue}>{displayMeals.length}</Text>
-            <Text style={styles.totalMealsLabel}>Total Meals in {activeTab === "fridge" ? "Fridge" : "Freezer"}</Text>
+            <Text style={styles.totalMealsValue}>{calculateTotalServings(activeTab)}</Text>
+            <Text style={styles.totalMealsLabel}>Total Servings in {activeTab === "fridge" ? "Fridge" : "Freezer"}</Text>
           </View>
         </View>
 
@@ -204,7 +156,7 @@ export default function RefrigeratorScreen() {
         <FlatList
           data={displayMeals}
           renderItem={renderMealItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.mealListContent}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
@@ -257,7 +209,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
-    paddingBottom: 80, // Add padding for bottom nav
+    paddingBottom: TAB_BAR_HEIGHT, // Match the tab bar height
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -316,7 +268,7 @@ const styles = StyleSheet.create({
   },
   mealListContent: {
     paddingHorizontal: 24,
-    paddingBottom: 100, // Add padding to account for bottom nav
+    paddingBottom: 20, // Reduced padding
   },
   mealItem: {
     marginBottom: 16,
@@ -345,6 +297,7 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: Colors.imagePlaceholder,
     borderRadius: 8,
+    overflow: "hidden"
   },
   mealInfo: {
     flex: 1,

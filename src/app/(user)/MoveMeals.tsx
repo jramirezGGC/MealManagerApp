@@ -49,6 +49,15 @@ export default function MoveMealsScreen() {
   const [selectedMeals, setSelectedMeals] = useState<string[]>([])
   const [displayMeals, setDisplayMeals] = useState<Meal[]>([])
 
+  // Calculate total servings for the current tab
+  const calculateTotalServings = () => {
+    if (activeTab === "fridge") {
+      return displayMeals.reduce((total, meal) => total + (meal.numInFridge || 0), 0);
+    } else {
+      return displayMeals.reduce((total, meal) => total + (meal.numInFreezer || 0), 0);
+    }
+  }
+
   function switchTab(tab: string) {
     meals = []
     for (const key in mealsArr) {
@@ -250,8 +259,8 @@ export default function MoveMealsScreen() {
 
           {/* Total Meals and Selection Count */}
           <View style={styles.totalMealsContainer}>
-            <Text style={styles.totalMealsValue}>{displayMeals.length}</Text>
-            <Text style={styles.totalMealsLabel}>Total Meals in {activeTab === "fridge" ? "Fridge" : "Freezer"}</Text>
+            <Text style={styles.totalMealsValue}>{calculateTotalServings()}</Text>
+            <Text style={styles.totalMealsLabel}>Total Servings in {activeTab === "fridge" ? "Fridge" : "Freezer"}</Text>
             {selectedMeals.length > 0 && (
               <Text style={styles.selectionText}>{selectedMeals.length} meals selected</Text>
             )}

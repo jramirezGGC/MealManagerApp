@@ -9,7 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image
+  Image,
+  Alert
 } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router, useLocalSearchParams } from "expo-router"
@@ -19,8 +20,9 @@ import { useMeals } from "@/src/context/MealsContext"
 
 export default function EditMealScreen() {
   const { id } = useLocalSearchParams();
-  const { meals } = useMeals();
+  const { meals, updateMeal, syncWithDatabase } = useMeals();
   const [imageError, setImageError] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   const meal = meals.find((m) => m.id === id);
   
@@ -30,7 +32,58 @@ export default function EditMealScreen() {
 
   const [mealName, setMealName] = useState(meal.name);
   const [description, setDescription] = useState(meal.description || "");
-  const [numberOfMeals, setNumberOfMeals] = useState(String(meal.numInFridge || 0));
+  const [fridgeServings, setFridgeServings] = useState(String(meal.numInFridge || 0));
+  const [freezerServings, setFreezerServings] = useState(String(meal.numInFreezer || 0));
+
+  const handleSave = async () => {
+    // Validate inputs
+    if (!mealName.trim()) {
+      Alert.alert("Error", "Please enter a meal name");
+      return;
+    }
+    
+    // Convert servings to numbers
+    const numFridgeServings = parseInt(fridgeServings) || 0;
+    const numFreezerServings = parseInt(freezerServings) || 0;
+    
+    // Show confirmation dialog
+    Alert.alert(
+      "Confirm Changes",
+      "Are you sure you want to save these changes?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Save",
+          onPress: async () => {
+            setLoading(true);
+            try {
+              // Update the meal in inventory
+              await updateMeal(meal.id, {
+                name: mealName,
+                description: description,
+                numInFridge: numFridgeServings,
+                numInFreezer: numFreezerServings
+              });
+              
+              // Immediately sync with database to update both inventory and savedMeals
+              await syncWithDatabase();
+              
+              Alert.alert("Success", "Your changes have been saved successfully.");
+              router.back();
+            } catch (error) {
+              console.error("Error saving meal:", error);
+              Alert.alert("Error", "Failed to save changes. Please try again.");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -59,14 +112,17 @@ export default function EditMealScreen() {
           <View style={styles.contentContainer}>
             {/* Meal Image */}
             <View style={styles.imageContainer}>
-              <View style={styles.imagePlaceholder}>
-                <Text style={styles.imagePlaceholderText}>🍲</Text>
-                <TouchableOpacity style={styles.editImageButton}>
-                  <View style={styles.editIconContainer}>
-                    <Text style={styles.editIcon}>✎</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+              {meal.image && !imageError ? (
+                <Image
+                  source={{ uri: meal.image }}
+                  style={styles.imagePlaceholder}
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.imagePlaceholderText}>🍲</Text>
+                </View>
+              )}
               <Text style={styles.imageLabel}>Meal Picture</Text>
             </View>
 
@@ -101,29 +157,48 @@ export default function EditMealScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Number of Servings</Text>
+                <Text style={styles.label}>Servings in Fridge</Text>
                 <View style={styles.inputWrapper}>
                   <TextInput
                     style={styles.input}
                     placeholder="Enter number of servings"
-                    value={numberOfMeals}
-                    onChangeText={setNumberOfMeals}
+                    value={fridgeServings}
+                    onChangeText={setFridgeServings}
+                    keyboardType="number-pad"
+                    placeholderTextColor={Colors.textTertiary}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Servings in Freezer</Text>
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter number of servings"
+                    value={freezerServings}
+                    onChangeText={setFreezerServings}
                     keyboardType="number-pad"
                     placeholderTextColor={Colors.textTertiary}
                   />
                 </View>
               </View>
             </View>
+
+            {/* Save Button - Moved inside ScrollView */}
+            <View style={styles.buttonWrapper}>
+              <TouchableOpacity 
+                style={[styles.saveButton, loading && styles.saveButtonDisabled]} 
+                activeOpacity={0.8}
+                onPress={handleSave}
+                disabled={loading}
+              >
+                <Text style={styles.saveButtonText}>{loading ? "Saving..." : "Save Changes"}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* Save Button */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.saveButton} activeOpacity={0.8}>
-          <Text style={styles.saveButtonText}>Save Changes</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -183,7 +258,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
-    paddingBottom: 100,
+    paddingBottom: 120, // Increased padding to allow for bottom navigation
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -272,15 +347,9 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+  buttonWrapper: {
     padding: 24,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    paddingBottom: 40,
   },
   saveButton: {
     backgroundColor: Colors.primary,
@@ -292,6 +361,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  saveButtonDisabled: {
+    opacity: 0.7,
   },
   saveButtonText: {
     color: Colors.white,
