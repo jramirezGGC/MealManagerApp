@@ -58,18 +58,10 @@ export default function SignUpScreen() {
           })
           setDoc(userDoc, docData);
 
-          const inventoryDoc = doc(FIREBASE_DB, `households/${householdID}/data/inventory`)
-          const savedMealsDoc = doc(FIREBASE_DB, `households/${householdID}/data/savedMeals`)
-          setDoc(inventoryDoc, {
-            meals: [],
-          });
-          // replace testMeal with empty map for actual users
-          setDoc(savedMealsDoc, {
-            testMealID: {
-              description: "test description",
-              ingredients: ["test ingredient"],
-              name: "test meal",
-            },
+          const dataDoc = doc(FIREBASE_DB, `households/${householdID}/data/data`)
+          setDoc(dataDoc, {
+            savedMeals: [],
+            inventory: [],
           });
 
           await AsyncStorage.setItem("householdID", householdID)
