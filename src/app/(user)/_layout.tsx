@@ -1,7 +1,7 @@
 import type React from "react"
 import FontAwesome from "@expo/vector-icons/FontAwesome"
-import { Tabs } from "expo-router"
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native"
+import { Tabs, Stack } from "expo-router"
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView } from "react-native"
 import { usePathname, router } from "expo-router"
 import { useEffect, useState } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -11,6 +11,18 @@ import { useColorScheme } from "@/src/components/useColorScheme"
 import { useClientOnlyValue } from "@/src/components/useClientOnlyValue"
 import { MealsProvider } from "@/src/context/MealsContext"
 
+// Define the height of the tab bar for spacing
+const TAB_BAR_HEIGHT = 65;
+
+// Screen wrapper component to add bottom padding
+function TabScreenWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <View style={{ flex: 1, paddingBottom: TAB_BAR_HEIGHT }}>
+      {children}
+    </View>
+  );
+}
+
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"]
@@ -19,76 +31,107 @@ function TabBarIcon(props: {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />
 }
 
-// Custom Tab Bar Component
-function CustomTabBar() {
+// Custom Tab Bar Component for Expo Router Tabs
+function CustomTabBar({ state, descriptors, navigation }: {
+  state: any;
+  descriptors: any;
+  navigation: any;
+}) {
   const pathname = usePathname()
-  const isMainDashboard = pathname.includes("MainDashboard")
-  const isFridge = pathname.includes("Fridge")
-
-  // Main Dashboard navigation
-  if (isMainDashboard) {
-    return (
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Fridge")}>
-          <Text style={styles.navIcon}>🗄️</Text>
-          <Text style={styles.navText}>Fridge</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(user)/CreateMeal")}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Settings")}>
-          <Text style={styles.navIcon}>⚙️</Text>
-          <Text style={styles.navText}>Settings</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Pages")}>
-          <Text style={styles.navIcon}>⚙️</Text>
-          <Text style={styles.navText}>Pages</Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
-  // Fridge screen navigation
-  if (isFridge) {
-    return (
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/MainDashboard")}>
-          <Text style={styles.navIcon}>🏠</Text>
-          <Text style={styles.navText}>Dashboard</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(user)/CreateMeal")}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/MoveMeals")}>
-          <Text style={styles.navIcon}>🔄</Text>
-          <Text style={styles.navText}>Move Meals</Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
-
-  // Default navigation for all other screens
+  
   return (
-    <View style={styles.bottomNav}>
-      <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/MainDashboard")}>
-        <Text style={styles.navIcon}>🏠</Text>
-        <Text style={styles.navText}>Dashboard</Text>
-      </TouchableOpacity>
+    <SafeAreaView style={styles.tabBarContainer}>
+      <View style={styles.bottomNav}>
+        {/* Dashboard/Home Button - Only visible when NOT on Dashboard */}
+        {!pathname.includes("MainDashboard") && (
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={() => router.push("/(user)/MainDashboard")}
+            accessibilityRole="button"
+            accessibilityState={{ selected: pathname.includes("MainDashboard") }}
+          >
+            <Text style={styles.navIcon}>🏠</Text>
+            <Text style={[
+              styles.navText, 
+              pathname.includes("MainDashboard") && styles.activeNavText
+            ]}>Dashboard</Text>
+          </TouchableOpacity>
+        )}
 
-      <TouchableOpacity style={styles.addButton} onPress={() => router.push("/(user)/CreateMeal")}>
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+        {/* Only show Fridge button if not on Fridge screen */}
+        {!pathname.includes("Fridge") && (
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={() => router.push("/(user)/Fridge")}
+            accessibilityRole="button"
+            accessibilityState={{ selected: pathname.includes("Fridge") }}
+          >
+            <Text style={styles.navIcon}>🗄️</Text>
+            <Text style={[
+              styles.navText, 
+              pathname.includes("Fridge") && styles.activeNavText
+            ]}>Fridge</Text>
+          </TouchableOpacity>
+        )}
 
-      <TouchableOpacity style={styles.navButton} onPress={() => router.push("/(user)/Settings")}>
-        <Text style={styles.navIcon}>⚙️</Text>
-        <Text style={styles.navText}>Settings</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Add Button - Always visible */}
+        <TouchableOpacity 
+          style={styles.addButton} 
+          onPress={() => router.push("/(user)/CreateMeal")}
+          accessibilityRole="button"
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+
+        {/* Show Move Meals button only on Fridge screen */}
+        {pathname.includes("Fridge") && (
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={() => router.push("/(user)/MoveMeals")}
+            accessibilityRole="button"
+            accessibilityState={{ selected: pathname.includes("MoveMeals") }}
+          >
+            <Text style={styles.navIcon}>🔄</Text>
+            <Text style={[
+              styles.navText, 
+              pathname.includes("MoveMeals") && styles.activeNavText
+            ]}>Move Meals</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Settings Button - Show except on Fridge */}
+        {!pathname.includes("Fridge") && (
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={() => router.push("/(user)/Settings")}
+            accessibilityRole="button"
+            accessibilityState={{ selected: pathname.includes("Settings") }}
+          >
+            <Text style={styles.navIcon}>⚙️</Text>
+            <Text style={[
+              styles.navText, 
+              pathname.includes("Settings") && styles.activeNavText
+            ]}>Settings</Text>
+          </TouchableOpacity>
+        )}
+        
+        {/* Pages Button - Show only on MainDashboard */}
+        {pathname.includes("MainDashboard") && (
+          <TouchableOpacity 
+            style={styles.navButton} 
+            onPress={() => router.push("/(user)/Pages")}
+            accessibilityRole="button"
+            accessibilityState={{ selected: pathname.includes("Pages") }}
+          >
+            <Text style={styles.navIcon}>📑</Text>
+            <Text style={[
+              styles.navText, 
+              pathname.includes("Pages") && styles.activeNavText
+            ]}>Pages</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </SafeAreaView>
   )
 }
 
@@ -118,6 +161,11 @@ export default function UserLayout() {
 
   return (
     <MealsProvider>
+      <Stack.Screen 
+        options={{
+          headerShown: false,
+        }}
+      />
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
@@ -125,7 +173,7 @@ export default function UserLayout() {
           tabBarStyle: { display: "none" }, // Hide the default tab bar
         }}
         backBehavior="history"
-        tabBar={() => <CustomTabBar />} // Use our custom tab bar
+        tabBar={(props) => <CustomTabBar {...props} />} // Pass props to CustomTabBar
       >
         <Tabs.Screen
           name="index"
@@ -140,7 +188,7 @@ export default function UserLayout() {
           name="MainDashboard"
           options={{
             title: "Main Dashboard",
-            tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           }}
         />
 
@@ -148,7 +196,7 @@ export default function UserLayout() {
           name="RecoverPassword"
           options={{
             title: "Recover Password",
-            tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon name="lock" color={color} />,
             href: null,
           }}
         />
@@ -301,39 +349,56 @@ export default function UserLayout() {
 }
 
 const styles = StyleSheet.create({
-  // Bottom Navigation Styles
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: Colors.background,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
-    position: "absolute",
+  // Tab Bar Container to handle safe area
+  tabBarContainer: {
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    backgroundColor: Colors.background,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    height: TAB_BAR_HEIGHT,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  // Bottom Navigation Styles
+  bottomNav: {
+    flexDirection: "row",
+    backgroundColor: 'transparent',
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingHorizontal: 24,
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   navButton: {
     alignItems: "center",
-    width: 80,
+    width: 70,
   },
   navIcon: {
-    fontSize: 24,
+    fontSize: 22,
     color: Colors.primary,
-    marginBottom: 4,
+    marginBottom: 3,
   },
   navText: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.textSecondary,
   },
+  activeNavText: {
+    color: Colors.primary,
+    fontWeight: "bold",
+  },
   addButton: {
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     backgroundColor: Colors.primary,
-    borderRadius: 28,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: Colors.primary,
@@ -341,10 +406,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   addButtonText: {
-    fontSize: 32,
+    fontSize: 28,
     color: Colors.white,
     fontWeight: "300",
   },

@@ -10,18 +10,19 @@ export type Meal = {
   numInFreezer: number;
 };
 
-export type SavedMeal = {
-  id: string;
-  name: string;
-  description: string;
-  ingredients: Ingredient[] | [];
-  image: string | null;
-}
+// export type SavedMeal = {
+//   id: string;
+//   name: string;
+//   description: string;
+//   ingredients: Ingredient[] | [];
+//   image: string | null;
+// }
 
 export type Ingredient = {
+  id: string;
   name: string;
   amount: string | null;
-  calories: number | null;
+  calories: string | null;
 };
 
 export type User = {

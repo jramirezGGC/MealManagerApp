@@ -1,14 +1,14 @@
 import React, { useEffect } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert, ActivityIndicator } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert, ActivityIndicator, Image } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router, useFocusEffect } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import { useSavedMeals } from "@/src/context/MealsContext"
-import { SavedMeal } from "@/src/types"
+import { Meal } from "@/src/types"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
 export default function SavedMealsScreen() {  
-  const { savedMeals, loading, error, fetchSavedMeals} = useSavedMeals() 
+  const { savedMeals, loading, error, fetchSavedMeals, deleteMeal } = useSavedMeals() 
 
   useFocusEffect(
     React.useCallback(() => {
@@ -17,17 +17,50 @@ export default function SavedMealsScreen() {
   );
 
   const handleRemove = (mealId: string) => {
-    Alert.alert("Remove Meal", "Are you sure you want to remove this meal from favorites?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => console.log("Delete: " + mealId) },
-    ])
+    Alert.alert(
+      "Remove Meal", 
+      "Are you sure you want to remove this meal from favorites?", 
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Remove", 
+          style: "destructive", 
+          onPress: async () => {
+            try {
+              await deleteMeal(mealId);
+              fetchSavedMeals();
+              Alert.alert("Success", "Meal has been removed from favorites");
+            } catch (error) {
+              console.error("Error removing meal:", error);
+              Alert.alert("Error", "Failed to remove meal. Please try again.");
+            }
+          } 
+        },
+      ]
+    )
   }
 
-  const renderMealItem = ({ item }: { item: SavedMeal }) => (
+  
+  const handleCreateMeal = (savedMeal: Meal) => {
+    // Navigate to create meal with the saved meal data
+    router.push({
+      pathname: "/(user)/CreateMeal",
+      params: {
+        savedMealId: savedMeal.id,
+        imageUrl: savedMeal.image || "",
+      },
+    });
+  }
+
+  const renderMealItem = ({ item }: { item: Meal }) => (
     <View style={styles.mealItem}>
       <View style={styles.mealContent}>
         <View style={styles.mealImageContainer}>
-          <Text style={styles.mealImagePlaceholder}>🍲</Text>
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.mealImage} />
+          ) : (
+            <Text style={styles.mealImagePlaceholder}>🍲</Text>
+          )}
         </View>
         <View style={styles.mealInfo}>
           <Text style={styles.mealName}>{item.name}</Text>
@@ -36,16 +69,23 @@ export default function SavedMealsScreen() {
           </Text>
           <Text style={styles.ingredientsCount}>
             {item.ingredients ? `${item.ingredients.length} ingredients` : "No ingredients"}
+            {item.calories ? ` • ${item.calories} calories` : ""}
           </Text>
         </View>
       </View>
 
       <View style={styles.mealActions}>
-        <TouchableOpacity style={styles.createButton} /*onPress={() => handleCreateMeal(item.id)}*/>
+        <TouchableOpacity 
+          style={styles.createButton} 
+          onPress={() => handleCreateMeal(item)}
+        >
           <Text style={styles.createButtonText}>Create Meal</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.removeButton} onPress={() => handleRemove(item.id)}>
+        <TouchableOpacity 
+          style={styles.removeButton} 
+          onPress={() => handleRemove(item.id)}
+        >
           <Text style={styles.removeButtonText}>Remove</Text>
         </TouchableOpacity>
       </View>
@@ -55,13 +95,23 @@ export default function SavedMealsScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     )
   }
 
   if (error) {
-    return <Text style={styles.errorText}>Error: {error}</Text>
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+        <TouchableOpacity 
+          style={styles.retryButton}
+          onPress={() => fetchSavedMeals()}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    )
   }
 
   return (
@@ -86,23 +136,26 @@ export default function SavedMealsScreen() {
         {savedMeals.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>You don't have any saved meals yet.</Text>
-            <Text style={styles.emptySubtext}>Save a meal to see it here!</Text>
+            <Text style={styles.emptySubtext}>Create a meal to see it here!</Text>
           </View>
         ) : (
           <FlatList
             data={savedMeals}
             renderItem={renderMealItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
         )}
       </View>
 
-      {/* Save New Meal Button */}
+      {/* Create New Meal Button */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.saveButton} /*onPress={handleSaveNewMeal}*/>
-          <Text style={styles.saveButtonText}>Save New Meal</Text>
+        <TouchableOpacity 
+          style={styles.saveButton} 
+          onPress={() => router.push("/(user)/CreateMeal")}
+        >
+          <Text style={styles.saveButtonText}>Create New Meal</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -171,10 +224,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
   errorText: {
     fontSize: 16,
     color: Colors.textSecondary,
     textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: Colors.primary,
+    padding: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontWeight: "600",
   },
   emptyContainer: {
     flex: 1,
@@ -221,6 +290,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
+    overflow: "hidden",
+  },
+  mealImage: {
+    width: 80,
+    height: 80,
+    resizeMode: "cover",
   },
   mealImagePlaceholder: {
     fontSize: 32,

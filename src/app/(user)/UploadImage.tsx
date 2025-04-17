@@ -1,8 +1,8 @@
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import UploadImageComponent from "../../components/UploadImageComponent";
+import UploadImageComponent, { UploadImageComponentRef } from "../../components/UploadImageComponent";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Colors from "@/src/constants/Colors";
 
 // Helper function to fix Firebase Storage URLs - same as in UploadImageComponent
@@ -38,45 +38,72 @@ function fixFirebaseStorageUrl(url: string): string {
 export default function UploadImage() {
     const router = useRouter();
     const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+    const uploadComponentRef = useRef<UploadImageComponentRef>(null);
     
     const handleImageUploaded = (url: string) => {
-        // Make sure the URL has properly encoded slashes
-        const fixedUrl = fixFirebaseStorageUrl(url);
-        
-        // Force the URL pattern to be correct - this is a guaranteed approach
-        // Assume structure: https://firebasestorage.googleapis.com/v0/b/bucket/o/path?alt=media&token=xyz
-        const forcedUrl = url.indexOf('/o/meals/') > 0 
-            ? url.replace('/o/meals/', '/o/meals%2F') 
-            : fixedUrl;
-        
-        setUploadedImageUrl(forcedUrl);
-        
-        // Use replace instead of navigate to avoid adding to the navigation history
-        router.replace({
-            pathname: "/CreateMeal",
-            params: { imageUrl: forcedUrl }
-        });
+        try {
+            console.log("Image uploaded successfully, processing URL...");
+            
+            // Make sure the URL has properly encoded slashes
+            const fixedUrl = fixFirebaseStorageUrl(url);
+            console.log(`Fixed URL: ${fixedUrl}`);
+            
+            // Force the URL pattern to be correct - this is a guaranteed approach
+            // Assume structure: https://firebasestorage.googleapis.com/v0/b/bucket/o/path?alt=media&token=xyz
+            const forcedUrl = url.indexOf('/o/meals/') > 0 
+                ? url.replace('/o/meals/', '/o/meals%2F') 
+                : fixedUrl;
+            
+            console.log(`Final URL to pass to CreateMeal: ${forcedUrl}`);
+            setUploadedImageUrl(forcedUrl);
+            
+            // Use replace instead of navigate to avoid adding to the navigation history
+            router.replace({
+                pathname: "/CreateMeal",
+                params: { imageUrl: forcedUrl }
+            });
+        } catch (error) {
+            console.error("Error handling uploaded image:", error);
+            Alert.alert(
+                "Upload Error",
+                "There was a problem processing the uploaded image. Please try again."
+            );
+            
+            // Reset component state
+            if (uploadComponentRef.current) {
+                uploadComponentRef.current.resetComponent();
+            }
+        }
     };
 
     const handleCancel = () => {
+        // Clear the image URL state before navigating back
+        setUploadedImageUrl(null);
+        // Reset the component if ref is available
+        if (uploadComponentRef.current) {
+            uploadComponentRef.current.resetComponent();
+        }
         router.back();
     };
 
     return (
         <SafeAreaView style={styles.container}>
-            <UploadImageComponent 
-                onImageUploaded={handleImageUploaded}
-                storagePath="meals"
-            />
-            
-            <View style={styles.bottomContainer}>
-                <TouchableOpacity 
-                    style={styles.cancelButton} 
-                    onPress={handleCancel}
-                >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-            </View>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <UploadImageComponent 
+                    ref={uploadComponentRef}
+                    onImageUploaded={handleImageUploaded}
+                    storagePath="meals"
+                />
+                
+                <View style={styles.bottomContainer}>
+                    <TouchableOpacity 
+                        style={styles.cancelButton} 
+                        onPress={handleCancel}
+                    >
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -86,9 +113,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f8f9fa',
     },
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: 20,
+    },
     bottomContainer: {
         paddingHorizontal: 24,
-        paddingBottom: 30,
+        paddingVertical: 20,
     },
     cancelButton: {
         padding: 16,

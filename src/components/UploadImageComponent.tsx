@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useImperativeHandle, forwardRef } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator } from "react-native";
 import { FIREBASE_STORAGE } from "../lib/firebaseConfig";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
@@ -11,6 +11,10 @@ import Colors from "../constants/Colors";
 interface UploadImageComponentProps {
     onImageUploaded?: (url: string) => void;
     storagePath?: string;
+}
+
+export interface UploadImageComponentRef {
+    resetComponent: () => void;
 }
 
 // Helper function to fix Firebase Storage URLs
@@ -44,13 +48,28 @@ function fixFirebaseStorageUrl(url: string): string {
     return fixedUrl;
 }
 
-export default function UploadImageComponent({ 
+const UploadImageComponent = forwardRef<UploadImageComponentRef, UploadImageComponentProps>(({ 
     onImageUploaded, 
     storagePath = "uploads"
-}: UploadImageComponentProps) {
+}, ref) => {
     const [previewUri, setPreviewUri] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
+
+    // Expose methods to parent component
+    useImperativeHandle(ref, () => ({
+        resetComponent: () => {
+            setPreviewUri(null);
+            setShowConfirmation(false);
+            setIsUploading(false);
+        }
+    }));
+
+    const resetComponent = () => {
+        setPreviewUri(null);
+        setShowConfirmation(false);
+        setIsUploading(false);
+    };
 
     const pickImage = async () => {
         try {
@@ -114,17 +133,26 @@ export default function UploadImageComponent({
             // Verify the image is accessible after the delay
             const isAccessible = await verifyImageUrl(downloadURL);
             if (!isAccessible) {
+                console.error("Image URL is not accessible after upload");
                 setIsUploading(false);
                 return;
             }
             
             if (downloadURL && onImageUploaded) {
+                // Call the parent component's callback
                 onImageUploaded(downloadURL);
+                // Clear image state after successful upload
+                resetComponent();
+            } else {
+                console.error("Image upload completed but no valid URL or callback");
+                setIsUploading(false);
             }
         } catch (error) {
+            console.error("Error uploading image:", error);
             setIsUploading(false);
-        } finally {
-            setIsUploading(false);
+            // Reset to selection state
+            setPreviewUri(null);
+            setShowConfirmation(false);
         }
     };
 
@@ -139,14 +167,20 @@ export default function UploadImageComponent({
     };
 
     const cancelConfirmation = () => {
-        setPreviewUri(null);
-        setShowConfirmation(false);
+        resetComponent();
     };
 
     const uploadImageToFirebase = async (uri: string) => {
         try {
+            console.log("Starting image upload process...");
+            
             const response = await fetch(uri);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image from URI: ${response.status}`);
+            }
+            
             const blob = await response.blob();
+            console.log(`Image blob created: ${blob.size} bytes`);
             
             // Generate a unique filename with timestamp to avoid conflicts
             const timestamp = new Date().getTime();
@@ -155,8 +189,9 @@ export default function UploadImageComponent({
             
             // Create storage path and properly format it for Firebase
             const fullStoragePath = `${storagePath}/${filename}`;
+            console.log(`Storage path: ${fullStoragePath}`);
             
-            const storageRef = ref(FIREBASE_STORAGE, fullStoragePath);
+            const firebaseStorageRef = storageRef(FIREBASE_STORAGE, fullStoragePath);
 
             // Set metadata to make the file publicly accessible
             const metadata = {
@@ -164,21 +199,31 @@ export default function UploadImageComponent({
                 cacheControl: 'public, max-age=31536000',
             };
 
-            await uploadBytes(storageRef, blob, metadata);
+            console.log("Uploading to Firebase Storage...");
+            await uploadBytes(firebaseStorageRef, blob, metadata);
+            console.log("Upload successful, getting download URL...");
             
             // Get the download URL with a long-lived token
-            let downloadURL = await getDownloadURL(storageRef);
+            let downloadURL = await getDownloadURL(firebaseStorageRef);
+            console.log(`Raw download URL: ${downloadURL}`);
             
             // DIRECT APPROACH: If the URL contains '/o/meals/' pattern, fix it immediately
             if (downloadURL.includes('/o/meals/')) {
                 downloadURL = downloadURL.replace('/o/meals/', '/o/meals%2F');
+                console.log(`Fixed URL pattern: ${downloadURL}`);
             } else {
                 // Apply the general fix function
+                const previousUrl = downloadURL;
                 downloadURL = fixFirebaseStorageUrl(downloadURL);
+                if (previousUrl !== downloadURL) {
+                    console.log(`URL encoding fixed: ${downloadURL}`);
+                }
             }
             
             return downloadURL;
-        } catch (error: unknown) {
+        } catch (error: any) {
+            console.error("Error in uploadImageToFirebase:", error?.message || error);
+            // Re-throw for the calling function to handle
             throw error;
         }
     };
@@ -246,7 +291,9 @@ export default function UploadImageComponent({
             )}
         </View>
     );
-}
+});
+
+export default UploadImageComponent;
 
 const styles = StyleSheet.create({
     content: {
