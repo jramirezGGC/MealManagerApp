@@ -60,8 +60,8 @@ export default function SignUpScreen() {
 
           const dataDoc = doc(FIREBASE_DB, `households/${householdID}/data/data`)
           setDoc(dataDoc, {
-            savedMeals: [],
-            inventory: [],
+            savedMeals: {},
+            inventory: {},
           });
 
           await AsyncStorage.setItem("householdID", householdID)
