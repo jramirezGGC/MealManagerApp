@@ -265,7 +265,7 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
 
   const updateMeal = async (mealId: string, updatedMeal: Partial<Meal>) => {
     try {
-      // Update local state
+      // Update local state for inventory meals
       setMealsState(prevMeals => {
         const updatedMeals = [...prevMeals];
         const mealIndex = updatedMeals.findIndex(meal => meal.id === mealId);
@@ -280,8 +280,33 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
         return updatedMeals;
       });
 
-      // Add to pending changes
+      // Update local state for savedMeals if the meal exists there too
+      let savedMealExists = false;
+      let updatedSavedMeal: Meal | null = null;
+      
+      setSavedMeals(prevSavedMeals => {
+        const updatedSavedMeals = [...prevSavedMeals];
+        const mealIndex = updatedSavedMeals.findIndex(meal => meal.id === mealId);
+        
+        if (mealIndex !== -1) {
+          savedMealExists = true;
+          // For savedMeals, preserve zero quantities but update other properties
+          updatedSavedMeals[mealIndex] = {
+            ...updatedSavedMeals[mealIndex],
+            ...updatedMeal,
+            // Ensure quantities stay at zero for savedMeals
+            numInFridge: 0,
+            numInFreezer: 0
+          };
+          updatedSavedMeal = updatedSavedMeals[mealIndex];
+        }
+        
+        return updatedSavedMeals;
+      });
+
+      // Add to pending changes for inventory
       setPendingChanges(prev => {
+        // Update inventory pending changes
         const updated = [...prev.meals.updated];
         const existingIndex = updated.findIndex(meal => meal.id === mealId);
         
@@ -300,14 +325,103 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
           }
         }
         
+        // Update savedMeals pending changes if it exists there
+        const savedMealUpdated = [...prev.savedMeals.updated];
+        const savedMealExistingIndex = savedMealUpdated.findIndex(meal => meal.id === mealId);
+        
+        if (savedMealExists) {
+          // Update or add to the pending changes for savedMeals
+          if (savedMealExistingIndex !== -1) {
+            savedMealUpdated[savedMealExistingIndex] = {
+              ...savedMealUpdated[savedMealExistingIndex],
+              ...updatedMeal,
+              // Preserve zero quantities for savedMeals
+              numInFridge: 0, 
+              numInFreezer: 0
+            };
+          } else {
+            const savedMeal = savedMeals.find(m => m.id === mealId);
+            if (savedMeal) {
+              savedMealUpdated.push({
+                ...savedMeal,
+                ...updatedMeal,
+                // Preserve zero quantities for savedMeals
+                numInFridge: 0,
+                numInFreezer: 0
+              });
+            }
+          }
+        }
+        
+        // Also update inventory object directly for immediate sync
+        const inventory = prev.inventory || {};
+        const mealToUpdate = meals.find(m => m.id === mealId);
+        if (mealToUpdate) {
+          inventory[mealId] = {
+            ...mealToUpdate,
+            ...updatedMeal
+          };
+        }
+        
         return {
           ...prev,
           meals: {
             ...prev.meals,
             updated
-          }
+          },
+          savedMeals: {
+            ...prev.savedMeals,
+            updated: savedMealUpdated
+          },
+          inventory
         };
       });
+      
+      // DIRECT DATABASE UPDATE: Update both inventory and savedMeals in Firestore
+      try {
+        const householdID = await AsyncStorage.getItem("householdID");
+        if (!householdID) {
+          throw new Error("No household ID found");
+        }
+        
+        // Get the data document reference
+        const dataDocRef = doc(FIREBASE_DB, `households/${householdID}/data/data`);
+        const snapshot = await getDoc(dataDocRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const updates: any = {};
+          
+          // Update in inventory if it exists there
+          if (data.inventory && data.inventory[mealId]) {
+            const updatedInventoryMeal = {
+              ...data.inventory[mealId],
+              ...updatedMeal
+            };
+            updates[`inventory.${mealId}`] = updatedInventoryMeal;
+          }
+          
+          // Update in savedMeals if it exists there
+          if (data.savedMeals && data.savedMeals[mealId]) {
+            // For savedMeals, preserve zero quantities
+            const updatedRecipeMeal = {
+              ...data.savedMeals[mealId],
+              ...updatedMeal,
+              numInFridge: 0,
+              numInFreezer: 0
+            };
+            updates[`savedMeals.${mealId}`] = updatedRecipeMeal;
+          }
+          
+          // Apply updates if there are any
+          if (Object.keys(updates).length > 0) {
+            await updateDoc(dataDocRef, updates);
+          }
+        }
+      } catch (error) {
+        console.error("Error directly updating meal in Firestore:", error);
+        // Continue even if direct update fails - it will be synced later
+      }
     } catch (error) {
       console.error("Error updating meal locally:", error);
       throw error;
