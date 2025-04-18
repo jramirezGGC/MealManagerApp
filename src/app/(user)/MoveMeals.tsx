@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { act, useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router } from "expo-router"
@@ -7,47 +7,13 @@ import type { Meal } from "@/src/types"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
-
-let mealsArr: Meal[] = []
-let meals: Meal[] = []
-
-async function loadStuff(storageUnit: string) {
-  let householdID
-  try {
-    householdID = await AsyncStorage.getItem("householdID")
-  } catch (error) {
-    console.error("Async Storage could not get householdID", error)
-  }
-  const userDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${storageUnit}`)
-  const snapshot = await getDoc(userDoc)
-  if (snapshot.exists()) {
-    const docData = snapshot.data()
-    const dict = { ...docData.meals }
-    for (const key in dict) {
-      if (dict.hasOwnProperty(key)) {
-        if (!mealsArr.find((obj) => obj.id == key)) {
-          mealsArr.push({
-            id: key,
-            name: dict[key].name,
-            description: dict[key].description,
-            image: require("../../../assets/images/dummyMealImages/chickenandrice.jpg"),
-            ingredients: dict[key].ingredients,
-            ...(storageUnit == "fridge1" ? { numInFridge: dict[key].servings } : { numInFreezer: dict[key].servings }),
-          } as Meal)
-        } else {
-          const meal: any = mealsArr.find((obj) => obj.id == key)
-          storageUnit == "fridge1" ? (meal.numInFridge = dict[key].servings) : (meal.numInFreezer = dict[key].servings)
-        }
-      }
-    }
-  }
-}
+import { useMeals } from "@/src/context/MealsContext"
 
 export default function MoveMealsScreen() {
   const [activeTab, setActiveTab] = useState("fridge")
-  const [loading, setLoading] = useState(true)
   const [selectedMeals, setSelectedMeals] = useState<string[]>([])
   const [displayMeals, setDisplayMeals] = useState<Meal[]>([])
+  const { meals, loading, updateMeal, syncWithDatabase } = useMeals();
 
   // Calculate total servings for the current tab
   const calculateTotalServings = () => {
@@ -59,25 +25,18 @@ export default function MoveMealsScreen() {
   }
 
   function switchTab(tab: string) {
-    meals = []
-    for (const key in mealsArr) {
-      if (tab == "fridge") {
-        if (!(typeof mealsArr[key].numInFridge === undefined)) {
-          if (mealsArr[key].numInFridge != undefined) {
-            meals.push(mealsArr[key])
-          }
-        }
-      } else if (tab == "freezer") {
-        if (!(typeof mealsArr[key].numInFreezer === undefined)) {
-          if (mealsArr[key].numInFreezer != undefined) {
-            meals.push(mealsArr[key])
-          }
-        }
-      }
-    }
-    setDisplayMeals(meals)
+    setDisplayMeals(filterMeals(tab))
     setActiveTab(tab)
     setSelectedMeals([])
+  }
+
+  // Filter meals based on active tab
+  const filterMeals = (tab: string) => {
+    if (tab === "fridge") {
+      return meals.filter(meal => meal.numInFridge > 0);
+    } else {
+      return meals.filter(meal => meal.numInFreezer > 0);
+    }
   }
 
   const toggleMealSelection = (mealId: string) => {
@@ -91,72 +50,32 @@ export default function MoveMealsScreen() {
       Alert.alert("No Meals Selected", "Please select at least one meal to move")
       return
     }
-
     try {
-      const householdID = await AsyncStorage.getItem("householdID")
-
-      // Get the source and destination storage units
-      const sourceUnit = activeTab === "fridge" ? "fridge1" : "freezer1"
-      const destUnit = activeTab === "fridge" ? "freezer1" : "fridge1"
-
-      // Get references to both documents
-      const sourceDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${sourceUnit}`)
-      const destDoc = doc(FIREBASE_DB, `households/${householdID}/inventory/${destUnit}`)
-
-      // Get current data
-      const sourceSnapshot = await getDoc(sourceDoc)
-      const destSnapshot = await getDoc(destDoc)
-
-      if (sourceSnapshot.exists() && destSnapshot.exists()) {
-        const sourceData = sourceSnapshot.data()
-        const destData = destSnapshot.data()
-
-        // Create copies of the meals objects
-        const sourceMeals = { ...sourceData.meals }
-        const destMeals = { ...destData.meals }
-
-        // Process each selected meal
-        for (const mealId of selectedMeals) {
-          if (sourceMeals[mealId]) {
-            // Add or update the meal in the destination
-            if (destMeals[mealId]) {
-              // If meal already exists in destination, add the servings
-              destMeals[mealId] = {
-                ...destMeals[mealId],
-                servings: (destMeals[mealId].servings || 0) + (sourceMeals[mealId].servings || 0),
-              }
-            } else {
-              // If meal doesn't exist in destination, copy it
-              destMeals[mealId] = { ...sourceMeals[mealId] }
-            }
-
-            // Remove the meal from the source
-            delete sourceMeals[mealId]
+      selectedMeals.forEach(async (mealId) => {
+        const meal = meals.find((m) => m.id === mealId);
+        if (activeTab === "fridge" && meal) {
+          let newNumInFridge = meal.numInFridge - 1;
+          let newNumInFreezer = meal.numInFreezer + 1;
+          await updateMeal(mealId, {
+            numInFridge: newNumInFridge,
+            numInFreezer: newNumInFreezer,
+          })
+          console.log(newNumInFridge)
+        }
+        else {
+          if (meal) {
+            let newNumInFridge = meal.numInFridge + 1;
+            let newNumInFreezer = meal.numInFreezer - 1;
+            await updateMeal(mealId, {
+              numInFridge: newNumInFridge,
+              numInFreezer: newNumInFreezer,
+            })
+            console.log(meal.numInFreezer)
           }
         }
+        await syncWithDatabase()
+      });
 
-        // Update both documents
-        await updateDoc(sourceDoc, { meals: sourceMeals })
-        await updateDoc(destDoc, { meals: destMeals })
-
-        // Show success message
-        Alert.alert(
-          "Meals Moved",
-          `Successfully moved ${selectedMeals.length} meals from ${activeTab} to ${activeTab === "fridge" ? "freezer" : "fridge"}.`,
-          [
-            {
-              text: "OK",
-              onPress: async () => {
-                // Reset and reload data
-                mealsArr = []
-                await loadStuff("fridge1")
-                await loadStuff("freezer1")
-                switchTab(activeTab)
-              },
-            },
-          ],
-        )
-      }
     } catch (error) {
       console.error("Error moving meals:", error)
       Alert.alert("Error", "Failed to move meals. Please try again.")
@@ -164,12 +83,12 @@ export default function MoveMealsScreen() {
   }
 
   const renderMealItem = ({ item }: { item: Meal }) => {
-    const isSelected = selectedMeals.includes(item.id.toString())
+    const isSelected = selectedMeals.includes(item.id)
 
     return (
       <TouchableOpacity
         style={[styles.mealItem, isSelected && styles.selectedMealItem]}
-        onPress={() => toggleMealSelection(item.id.toString())}
+        onPress={() => toggleMealSelection(item.id)}
       >
         <View style={styles.mealContent}>
           <View style={styles.mealImage} />
@@ -193,22 +112,27 @@ export default function MoveMealsScreen() {
     )
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        mealsArr = [] // Reset the array before loading
-        await loadStuff("fridge1")
-        await loadStuff("freezer1")
-        switchTab("fridge") // Default to fridge tab
-      } catch (error) {
-        console.error("Error loading data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+    useEffect(() => {
+      // Apply filters based on initial tab
+      setDisplayMeals(filterMeals(activeTab))
+    }, [meals])
 
-    fetchData()
-  }, [])
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       mealsArr = [] // Reset the array before loading
+  //       await loadStuff("fridge1")
+  //       await loadStuff("freezer1")
+  //       switchTab("fridge") // Default to fridge tab
+  //     } catch (error) {
+  //       console.error("Error loading data:", error)
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
+
+  //   fetchData()
+  // }, [])
 
   if (loading) {
     return (
@@ -271,7 +195,7 @@ export default function MoveMealsScreen() {
         <FlatList
           data={displayMeals}
           renderItem={renderMealItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.mealListContent}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>

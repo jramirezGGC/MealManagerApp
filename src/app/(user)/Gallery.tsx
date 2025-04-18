@@ -24,7 +24,7 @@ export default function MealGalleryScreen() {
   useFocusEffect(
     React.useCallback(() => {
       // Call refreshMeals only if necessary
-      fetchMeals("fridge1");
+      fetchMeals();
     }, []) 
   );
 
