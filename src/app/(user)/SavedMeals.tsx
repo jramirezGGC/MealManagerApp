@@ -1,55 +1,52 @@
 import React, { useEffect } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Platform, Alert, ActivityIndicator, Image } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, ActivityIndicator, Image, ScrollView, Alert, FlatList } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { router, useFocusEffect } from "expo-router"
 import Colors from "@/src/constants/Colors"
 import { useSavedMeals } from "@/src/context/MealsContext"
 import { Meal } from "@/src/types"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 
-export default function SavedMealsScreen() {  
-  const { savedMeals, loading, error, fetchSavedMeals, deleteMeal } = useSavedMeals() 
+export default function SavedMealsScreen() {
+  const { savedMeals, loading, error, fetchSavedMeals, deleteMeal } = useSavedMeals()
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchSavedMeals();        
+      fetchSavedMeals()
     }, [])
-  );
+  )
 
   const handleRemove = (mealId: string) => {
     Alert.alert(
-      "Remove Meal", 
-      "Are you sure you want to remove this meal from favorites?", 
+      "Remove Meal",
+      "Are you sure you want to remove this meal from favorites?",
       [
         { text: "Cancel", style: "cancel" },
-        { 
-          text: "Remove", 
-          style: "destructive", 
+        {
+          text: "Remove",
+          style: "destructive",
           onPress: async () => {
             try {
-              await deleteMeal(mealId);
-              fetchSavedMeals();
-              Alert.alert("Success", "Meal has been removed from favorites");
+              await deleteMeal(mealId)
+              fetchSavedMeals()
+              Alert.alert("Success", "Meal has been removed from favorites")
             } catch (error) {
-              console.error("Error removing meal:", error);
-              Alert.alert("Error", "Failed to remove meal. Please try again.");
+              console.error("Error removing meal:", error)
+              Alert.alert("Error", "Failed to remove meal. Please try again.")
             }
-          } 
+          },
         },
       ]
     )
   }
 
-  
   const handleCreateMeal = (savedMeal: Meal) => {
-    // Navigate to create meal with the saved meal data
     router.push({
       pathname: "/(user)/CreateMeal",
       params: {
         savedMealId: savedMeal.id,
         imageUrl: savedMeal.image || "",
       },
-    });
+    })
   }
 
   const renderMealItem = ({ item }: { item: Meal }) => (
@@ -212,6 +209,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     paddingTop: 24,
     paddingBottom: 100, // Extra space for the button
+    borderBottomLeftRadius: 30, // 👈 Added
+    borderBottomRightRadius: 30, // 👈 Added
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -355,8 +354,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   buttonContainer: {
-    position: "absolute",
-    bottom: 0,
+    bottom: 50,
     left: 0,
     right: 0,
     padding: 24,
