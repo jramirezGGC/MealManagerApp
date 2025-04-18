@@ -167,7 +167,7 @@ export default function MoveMealsScreen() {
         <FlatList
           data={displayMeals}
           renderItem={renderMealItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           ListHeaderComponent={
               <View style={styles.tabsOuterContainer}>
                 {/* Tabs and Total Count */}
