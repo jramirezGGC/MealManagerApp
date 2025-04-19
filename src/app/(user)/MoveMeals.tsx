@@ -894,7 +894,7 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   cancelMoveModalButton: {
-    backgroundColor: '#34C759', // Green color
+    backgroundColor: Colors.primary,
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',

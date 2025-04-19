@@ -3,25 +3,54 @@ import { StatusBar } from "expo-status-bar"
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context"
 import Colors from "@/src/constants/Colors"
 import MealContainer from "@/src/components/MealContainer"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig"
-import { doc, getDoc } from "firebase/firestore"
 import { useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 import type { Meal } from "@/src/types"
-import React from "react"
-import mainDashboardMeals from "@/assets/data/mainDashboardMeals"
-
-
+import React, { useEffect, useState } from "react"
+import { useMeals } from "@/src/context/MealsContext"
 
 export default function MainDashboard() {
-  // getHouseholdID()
-
-  // Mock data - replace with actual data from your state management
-  const mealCounts = {
-    fridge: 8,
-    freezer: 14,
-  }
+  const { meals, loading } = useMeals();
+  const [fridgeMeals, setFridgeMeals] = useState<Meal[]>([]);
+  const [mealCounts, setMealCounts] = useState({
+    fridge: 0,
+    freezer: 0,
+  });
+  
+  const [totalServings, setTotalServings] = useState({
+    fridge: 0,
+    freezer: 0,
+  });
+  
+  useEffect(() => {
+    if (meals.length > 0) {
+      // Filter meals that have inventory in fridge
+      const mealsInFridge = meals.filter(meal => (meal.numInFridge || 0) > 0);
+      setFridgeMeals(mealsInFridge);
+      
+      // Calculate meal counts
+      const fridgeCount = meals.reduce((count, meal) => 
+        count + (meal.numInFridge > 0 ? 1 : 0), 0);
+      const freezerCount = meals.reduce((count, meal) => 
+        count + (meal.numInFreezer > 0 ? 1 : 0), 0);
+      
+      setMealCounts({
+        fridge: fridgeCount,
+        freezer: freezerCount,
+      });
+      
+      // Calculate total servings
+      const fridgeServings = meals.reduce((total, meal) => 
+        total + (meal.numInFridge || 0), 0);
+      const freezerServings = meals.reduce((total, meal) => 
+        total + (meal.numInFreezer || 0), 0);
+      
+      setTotalServings({
+        fridge: fridgeServings,
+        freezer: freezerServings,
+      });
+    }
+  }, [meals]);
 
   const router = useRouter()
   // Navigation options
@@ -55,16 +84,22 @@ export default function MainDashboard() {
   // Render the header content (stats and navigation cards)
   const renderHeader = () => (
     <>
-      {/* Stats Container - Updated to show Fridge and Freezer counts */}
+      {/* Stats Container - Using real data for Fridge and Freezer counts */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{mealCounts.fridge}</Text>
           <Text style={styles.statLabel}>Fridge Meals</Text>
+          <Text style={styles.statServings}>
+            {totalServings.fridge} total servings
+          </Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{mealCounts.freezer}</Text>
           <Text style={styles.statLabel}>Freezer Meals</Text>
+          <Text style={styles.statServings}>
+            {totalServings.freezer} total servings
+          </Text>
         </View>
       </View>
 
@@ -103,12 +138,13 @@ export default function MainDashboard() {
           <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
         </View>
 
-        {/* Content Section - Using MealContainer with ListHeaderComponent */}
+        {/* Content Section - Using MealContainer with real meals data */}
         <View style={styles.contentWrapper}>
           <MealContainer
-            meals={mainDashboardMeals}
+            meals={fridgeMeals}
             ListHeaderComponent={renderHeader()}
             contentContainerStyle={styles.mealContainerContent}
+            router={router}
           />
         </View>
       </SafeAreaView>
@@ -182,6 +218,11 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: Colors.textSecondary,
+  },
+  statServings: {
+    fontSize: 12,
+    color: Colors.textTertiary,
+    marginTop: 2,
   },
   statDivider: {
     width: 1,
