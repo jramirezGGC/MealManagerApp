@@ -4,6 +4,9 @@ import Colors from "@/src/constants/Colors"
 import type { Meal } from "../types"
 import { useMeals } from "@/src/context/MealsContext"
 import type { Router } from "expo-router"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { doc, getDoc, updateDoc, deleteField } from "firebase/firestore"
+import { FIREBASE_DB } from "@/src/lib/firebaseConfig"
 
 interface MealContainerProp {
   meals: Meal[]
@@ -11,8 +14,6 @@ interface MealContainerProp {
   contentContainerStyle?: ViewStyle
   router?: Router
 }
-
-
 
 function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, router }: MealContainerProp) {
   const { updateMeal, syncWithDatabase, deleteMeal } = useMeals();
@@ -110,6 +111,11 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, rout
       
       // Check if the meal will be completely consumed
       if (newNumInFridge === 0 && (meal.numInFreezer || 0) === 0) {
+        // First update the meal to set numInFridge to 0
+        await updateMeal(meal.id, {
+          numInFridge: 0
+        });
+        
         Alert.alert(
           "Meal Consumed",
           `All ${meal.name} has been consumed. It will be removed from your inventory but remain in your saved meals.`,
@@ -117,9 +123,36 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, rout
             {
               text: "OK",
               onPress: async () => {
-                // Delete from inventory when both fridge and freezer are empty
-                await deleteMeal(meal.id);
-                await syncWithDatabase();
+                try {
+                  // Delete from inventory when both fridge and freezer are empty
+                  await deleteMeal(meal.id);
+                  
+                  // Force a sync to ensure Firebase is updated
+                  await syncWithDatabase();
+                  
+                  // Additional check: after sync attempt, verify the meal was deleted
+                  const householdID = await AsyncStorage.getItem("householdID");
+                  if (householdID) {
+                    // Get a reference to the Firebase data document
+                    const dataDocRef = doc(FIREBASE_DB, `households/${householdID}/data/data`);
+                    const snapshot = await getDoc(dataDocRef);
+                    
+                    if (snapshot.exists()) {
+                      const data = snapshot.data();
+                      
+                      // If the meal still exists in inventory, force remove it
+                      if (data.inventory && data.inventory[meal.id]) {
+                        await updateDoc(dataDocRef, {
+                          [`inventory.${meal.id}`]: deleteField()
+                        });
+                        console.log(`Meal ${meal.id} forcibly removed from Firebase`);
+                      }
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error removing consumed meal:", error);
+                  Alert.alert("Error", "There was an issue removing the meal. Please try again.");
+                }
               }
             }
           ]
