@@ -3,47 +3,89 @@ import { StatusBar } from "expo-status-bar"
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context"
 import Colors from "@/src/constants/Colors"
 import MealContainer from "@/src/components/MealContainer"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { FIREBASE_AUTH, FIREBASE_DB } from "@/src/lib/firebaseConfig"
-import { doc, getDoc } from "firebase/firestore"
 import { useRouter } from "expo-router"
 import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 import type { Meal } from "@/src/types"
-import React from "react"
-import mainDashboardMeals from "@/assets/data/mainDashboardMeals"
-
-
-// const getHouseholdID = async () => {
-//   const userID = FIREBASE_AUTH.currentUser?.uid
-//   const userDoc = doc(FIREBASE_DB, `users/${userID}`)
-//   const snapshot = await getDoc(userDoc)
-//   let householdID
-
-//   if (snapshot.exists()) {
-//     const docData = snapshot.data()
-//     console.log(`Data: ${JSON.stringify(docData)}`)
-//     householdID = docData.householdID
-//   } else {
-//     console.log("IT Broke")
-//   }
-
-//   try {
-//     await AsyncStorage.setItem("householdID", householdID)
-//   } catch (error) {
-//     console.error("Async Storage could not set householdID", error)
-//   }
-// }
-
-
+import React, { useEffect, useState } from "react"
+import { useMeals } from "@/src/context/MealsContext"
 
 export default function MainDashboard() {
-  // getHouseholdID()
+  const { meals, loading, deleteMeal, syncWithDatabase, refreshMeals } = useMeals();
+  const [fridgeMeals, setFridgeMeals] = useState<Meal[]>([]);
+  const [mealCounts, setMealCounts] = useState({
+    fridge: 0,
+    freezer: 0,
+  });
+  
+  const [totalServings, setTotalServings] = useState({
+    fridge: 0,
+    freezer: 0,
+  });
+  
+  // Function to clean up any meals with 0 quantities in both fridge and freezer
+  const cleanupEmptyMeals = async () => {
+    if (meals.length > 0) {
+      let hasEmptyMeals = false;
+      
+      // Find meals with 0 in both fridge and freezer
+      const emptyMeals = meals.filter(meal => 
+        (meal.numInFridge || 0) === 0 && (meal.numInFreezer || 0) === 0
+      );
+      
+      // Delete each empty meal
+      if (emptyMeals.length > 0) {
+        hasEmptyMeals = true;
+        console.log(`Found ${emptyMeals.length} empty meals to clean up`);
+        
+        for (const meal of emptyMeals) {
+          await deleteMeal(meal.id);
+        }
+        
+        // Sync with database if any meals were deleted
+        if (hasEmptyMeals) {
+          await syncWithDatabase();
+        }
+      }
+    }
+  };
+  
+  useEffect(() => {
+    // Clean up empty meals when component loads
+    cleanupEmptyMeals();
+  }, []); // Empty dependency array means this runs once on mount
 
-  // Mock data - replace with actual data from your state management
-  const mealCounts = {
-    fridge: 8,
-    freezer: 14,
-  }
+  useEffect(() => {
+    if (meals.length > 0) {
+      // Also clean up empty meals whenever meal data changes
+      cleanupEmptyMeals();
+      
+      // Filter meals that have inventory in fridge
+      const mealsInFridge = meals.filter(meal => (meal.numInFridge || 0) > 0);
+      setFridgeMeals(mealsInFridge);
+      
+      // Calculate meal counts
+      const fridgeCount = meals.reduce((count, meal) => 
+        count + (meal.numInFridge > 0 ? 1 : 0), 0);
+      const freezerCount = meals.reduce((count, meal) => 
+        count + (meal.numInFreezer > 0 ? 1 : 0), 0);
+      
+      setMealCounts({
+        fridge: fridgeCount,
+        freezer: freezerCount,
+      });
+      
+      // Calculate total servings
+      const fridgeServings = meals.reduce((total, meal) => 
+        total + (meal.numInFridge || 0), 0);
+      const freezerServings = meals.reduce((total, meal) => 
+        total + (meal.numInFreezer || 0), 0);
+      
+      setTotalServings({
+        fridge: fridgeServings,
+        freezer: freezerServings,
+      });
+    }
+  }, [meals]);
 
   const router = useRouter()
   // Navigation options
@@ -59,7 +101,7 @@ export default function MainDashboard() {
     {
       id: "mealManager",
       title: "Manage Refrigerator",
-      description: "Edit meals",
+      description: "Edit and move meals",
       icon: <MaterialIcons name="restaurant-menu" size={32} color={Colors.white} />,
       route: "/(user)/Fridge",
       color: "#4CAF50", // Green color
@@ -77,16 +119,22 @@ export default function MainDashboard() {
   // Render the header content (stats and navigation cards)
   const renderHeader = () => (
     <>
-      {/* Stats Container - Updated to show Fridge and Freezer counts */}
+      {/* Stats Container - Using real data for Fridge and Freezer counts */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{mealCounts.fridge}</Text>
           <Text style={styles.statLabel}>Fridge Meals</Text>
+          <Text style={styles.statServings}>
+            {totalServings.fridge} total servings
+          </Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{mealCounts.freezer}</Text>
           <Text style={styles.statLabel}>Freezer Meals</Text>
+          <Text style={styles.statServings}>
+            {totalServings.freezer} total servings
+          </Text>
         </View>
       </View>
 
@@ -125,12 +173,13 @@ export default function MainDashboard() {
           <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
         </View>
 
-        {/* Content Section - Using MealContainer with ListHeaderComponent */}
+        {/* Content Section - Using MealContainer with real meals data */}
         <View style={styles.contentWrapper}>
           <MealContainer
-            meals={mainDashboardMeals}
+            meals={fridgeMeals}
             ListHeaderComponent={renderHeader()}
             contentContainerStyle={styles.mealContainerContent}
+            router={router}
           />
         </View>
       </SafeAreaView>
@@ -204,6 +253,11 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: Colors.textSecondary,
+  },
+  statServings: {
+    fontSize: 12,
+    color: Colors.textTertiary,
+    marginTop: 2,
   },
   statDivider: {
     width: 1,

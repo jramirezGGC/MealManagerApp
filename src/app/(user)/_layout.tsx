@@ -116,7 +116,7 @@ function CustomTabBar({ state, descriptors, navigation }: {
         )}
         
         {/* Pages Button - Show only on MainDashboard */}
-        {pathname.includes("MainDashboard") && (
+        {/* {pathname.includes("MainDashboard") && (
           <TouchableOpacity 
             style={styles.navButton} 
             onPress={() => router.push("/(user)/Pages")}
@@ -129,7 +129,7 @@ function CustomTabBar({ state, descriptors, navigation }: {
               pathname.includes("Pages") && styles.activeNavText
             ]}>Pages</Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
     </SafeAreaView>
   )

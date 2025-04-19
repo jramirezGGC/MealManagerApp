@@ -18,7 +18,7 @@ export default function SavedMealsScreen() {
   const handleRemove = (mealId: string) => {
     Alert.alert(
       "Remove Meal",
-      "Are you sure you want to remove this meal from favorites?",
+      "Are you sure you want to remove this meal from saved meals?",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -28,7 +28,7 @@ export default function SavedMealsScreen() {
             try {
               await deleteMeal(mealId)
               fetchSavedMeals()
-              Alert.alert("Success", "Meal has been removed from favorites")
+              Alert.alert("Success", "Meal has been removed from saved meals")
             } catch (error) {
               console.error("Error removing meal:", error)
               Alert.alert("Error", "Failed to remove meal. Please try again.")
@@ -44,7 +44,6 @@ export default function SavedMealsScreen() {
       pathname: "/(user)/CreateMeal",
       params: {
         savedMealId: savedMeal.id,
-        imageUrl: savedMeal.image || "",
       },
     })
   }
@@ -134,6 +133,12 @@ export default function SavedMealsScreen() {
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>You don't have any saved meals yet.</Text>
             <Text style={styles.emptySubtext}>Create a meal to see it here!</Text>
+            <TouchableOpacity 
+              style={styles.createNewButton} 
+              onPress={() => router.push("/(user)/CreateMeal")}
+            >
+              <Text style={styles.createNewButtonText}>Create New Meal</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <FlatList
@@ -144,16 +149,6 @@ export default function SavedMealsScreen() {
             showsVerticalScrollIndicator={false}
           />
         )}
-      </View>
-
-      {/* Create New Meal Button */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.saveButton} 
-          onPress={() => router.push("/(user)/CreateMeal")}
-        >
-          <Text style={styles.saveButtonText}>Create New Meal</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )
@@ -208,9 +203,9 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
-    paddingBottom: 100, // Extra space for the button
-    borderBottomLeftRadius: 30, // 👈 Added
-    borderBottomRightRadius: 30, // 👈 Added
+    paddingBottom: 20, // Reduced from 100
+    borderBottomLeftRadius: 0, // Removed
+    borderBottomRightRadius: 0, // Removed
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -261,6 +256,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.textSecondary,
     textAlign: "center",
+    marginBottom: 24,
+  },
+  createNewButton: {
+    backgroundColor: Colors.primary,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    width: "80%",
+    marginTop: 8,
+  },
+  createNewButtonText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: "600",
   },
   listContent: {
     paddingHorizontal: 24,
