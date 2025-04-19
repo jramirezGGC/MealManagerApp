@@ -12,21 +12,10 @@ interface MealContainerProp {
   router?: Router
 }
 
-// Sample meal data
-/* const meals2: Meal[] = [
-  { id: 1, name: "Chicken Pasta", type: "Lunch" },
-  { id: 2, name: "Avocado Toast", type: "Breakfast" },
-  { id: 3, name: "Vegetable Stir Fry", type: "Dinner" },
-  { id: 4, name: "Greek Yogurt", type: "Breakfast" },
-  { id: 5, name: "Salmon with Rice", type: "Dinner" },
-  { id: 6, name: "Caesar Salad", type: "Lunch" },
-  { id: 7, name: "Fruit Smoothie", type: "Breakfast" },
-  { id: 8, name: "Beef Stew", type: "Dinner" },
-  { id: 9, name: "Quinoa Bowl", type: "Lunch" },
-]; */
+
 
 function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, router }: MealContainerProp) {
-  const { updateMeal, syncWithDatabase } = useMeals();
+  const { updateMeal, syncWithDatabase, deleteMeal } = useMeals();
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [quantityModalVisible, setQuantityModalVisible] = useState(false);
   const [takeQuantity, setTakeQuantity] = useState("1");
@@ -119,19 +108,30 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, rout
       
       let newNumInFridge = (meal.numInFridge || 0) - takeCount;
       
-      await updateMeal(meal.id, {
-        numInFridge: newNumInFridge
-      });
-      
-      // If both fridge and freezer counts are 0, remove from inventory
+      // Check if the meal will be completely consumed
       if (newNumInFridge === 0 && (meal.numInFreezer || 0) === 0) {
         Alert.alert(
           "Meal Consumed",
-          `All ${meal.name} has been consumed. It will be removed from your inventory but remain in your saved meals.`
+          `All ${meal.name} has been consumed. It will be removed from your inventory but remain in your saved meals.`,
+          [
+            {
+              text: "OK",
+              onPress: async () => {
+                // Delete from inventory when both fridge and freezer are empty
+                await deleteMeal(meal.id);
+                await syncWithDatabase();
+              }
+            }
+          ]
         );
+      } else {
+        // Just update the meal if it's not completely consumed
+        await updateMeal(meal.id, {
+          numInFridge: newNumInFridge
+        });
+        
+        await syncWithDatabase();
       }
-      
-      await syncWithDatabase();
     } catch (error) {
       console.error("Error taking meal:", error);
       Alert.alert("Error", "Failed to take meal. Please try again.");

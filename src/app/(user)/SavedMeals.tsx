@@ -44,7 +44,6 @@ export default function SavedMealsScreen() {
       pathname: "/(user)/CreateMeal",
       params: {
         savedMealId: savedMeal.id,
-        imageUrl: savedMeal.image || "",
       },
     })
   }

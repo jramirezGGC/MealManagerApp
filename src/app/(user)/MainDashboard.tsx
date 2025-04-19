@@ -10,7 +10,7 @@ import React, { useEffect, useState } from "react"
 import { useMeals } from "@/src/context/MealsContext"
 
 export default function MainDashboard() {
-  const { meals, loading } = useMeals();
+  const { meals, loading, deleteMeal, syncWithDatabase, refreshMeals } = useMeals();
   const [fridgeMeals, setFridgeMeals] = useState<Meal[]>([]);
   const [mealCounts, setMealCounts] = useState({
     fridge: 0,
@@ -22,8 +22,43 @@ export default function MainDashboard() {
     freezer: 0,
   });
   
+  // Function to clean up any meals with 0 quantities in both fridge and freezer
+  const cleanupEmptyMeals = async () => {
+    if (meals.length > 0) {
+      let hasEmptyMeals = false;
+      
+      // Find meals with 0 in both fridge and freezer
+      const emptyMeals = meals.filter(meal => 
+        (meal.numInFridge || 0) === 0 && (meal.numInFreezer || 0) === 0
+      );
+      
+      // Delete each empty meal
+      if (emptyMeals.length > 0) {
+        hasEmptyMeals = true;
+        console.log(`Found ${emptyMeals.length} empty meals to clean up`);
+        
+        for (const meal of emptyMeals) {
+          await deleteMeal(meal.id);
+        }
+        
+        // Sync with database if any meals were deleted
+        if (hasEmptyMeals) {
+          await syncWithDatabase();
+        }
+      }
+    }
+  };
+  
+  useEffect(() => {
+    // Clean up empty meals when component loads
+    cleanupEmptyMeals();
+  }, []); // Empty dependency array means this runs once on mount
+
   useEffect(() => {
     if (meals.length > 0) {
+      // Also clean up empty meals whenever meal data changes
+      cleanupEmptyMeals();
+      
       // Filter meals that have inventory in fridge
       const mealsInFridge = meals.filter(meal => (meal.numInFridge || 0) > 0);
       setFridgeMeals(mealsInFridge);

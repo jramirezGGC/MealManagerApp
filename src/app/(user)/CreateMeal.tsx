@@ -21,7 +21,7 @@ import Colors from "@/src/constants/Colors";
 // Comment out Firebase imports for testing
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FIREBASE_DB } from "@/src/lib/firebaseConfig";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { AutoId } from "@/src/lib/util";
 import { useMeals } from "@/src/context/MealsContext";
 import { Ingredient, Meal } from "@/src/types";
@@ -51,13 +51,46 @@ export default function CreateMealScreen() {
   const [freezerQuantity, setFreezerQuantity] = useState("0");
   const [createdMeal, setCreatedMeal] = useState<Meal | null>(null);
   
-  const { saveMeal, syncWithDatabase, addMealToInventory } = useMeals();
+  const { saveMeal, syncWithDatabase, addMealToInventory, savedMeals } = useMeals();
 
   const params = useLocalSearchParams();
 
-  // Check for image URL from navigation params
+  // Load saved meal data when creating from a template
   useEffect(() => {
-    if (params.imageUrl) {
+    const loadSavedMealData = async () => {
+      if (params.savedMealId) {
+        const savedMealId = params.savedMealId as string;
+        
+        // Find the meal in savedMeals
+        const savedMeal = savedMeals.find(meal => meal.id === savedMealId);
+        
+        if (savedMeal) {
+          // Set all the form fields with data from the saved meal
+          setMealName(savedMeal.name || "");
+          setDescription(savedMeal.description || "");
+          setIngredients(savedMeal.ingredients || []);
+          
+          if (savedMeal.image) {
+            // Clean up the image URL
+            let imageUrl = savedMeal.image;
+            // Direct fix for Firebase storage URLs - force correct encoding
+            if (imageUrl.includes('/o/meals/')) {
+              imageUrl = imageUrl.replace('/o/meals/', '/o/meals%2F');
+            }
+            setMealImageUrl(imageUrl);
+          }
+        } else {
+          console.warn(`Saved meal with ID ${savedMealId} not found`);
+        }
+      }
+    };
+    
+    loadSavedMealData();
+  }, [params.savedMealId, savedMeals]);
+
+  // Check for image URL from navigation params - keep this for backward compatibility
+  useEffect(() => {
+    if (params.imageUrl && !mealImageUrl) {
       let imageUrl = params.imageUrl as string;
       
       // Direct fix for Firebase storage URLs - force correct encoding
@@ -68,7 +101,7 @@ export default function CreateMealScreen() {
       // Set the image URL directly without testing
       setMealImageUrl(imageUrl);
     }
-  }, [params]);  
+  }, [params.imageUrl, mealImageUrl]);
 
   const handleCreateMeal = async () => {
     setLoading(true);
@@ -79,9 +112,12 @@ export default function CreateMealScreen() {
         return sum + calNum;
       }, 0);
       
-      // Create a new Meal object with explicitly set zero quantities
+      // Check if we're creating from an existing saved meal template
+      const isFromTemplate = params.savedMealId ? true : false;
+      
+      // Create a Meal object - use existing ID if from template
       const newMeal: Meal = {
-        id: AutoId(),
+        id: isFromTemplate ? (params.savedMealId as string) : AutoId(),
         name: mealName,
         description: description,
         ingredients: ingredients,
@@ -92,8 +128,10 @@ export default function CreateMealScreen() {
         numInFreezer: 0  // Explicitly zero for savedMeals
       };
       
-      // Save to savedMeals collection (as a recipe only, with zero quantities)
-      await saveMeal(newMeal);
+      // Only save to savedMeals if this is NOT from a template
+      if (!isFromTemplate) {
+        await saveMeal(newMeal);
+      }
       
       // Store the created meal and show quantity selection modal
       setCreatedMeal(newMeal);
@@ -122,6 +160,12 @@ export default function CreateMealScreen() {
       if (fridgeCount > 0 || freezerCount > 0) {
         // Use the dedicated function to add to inventory directly
         await addMealToInventory(createdMeal, fridgeCount, freezerCount);
+      } else {
+        // If both quantities are 0, just show a message that meal was saved
+        Alert.alert(
+          "Meal Saved",
+          "The meal has been added to your saved meals collection."
+        );
       }
       
       setQuantityModalVisible(false);
@@ -460,6 +504,10 @@ export default function CreateMealScreen() {
               How many servings would you like to add to your fridge and freezer?
             </Text>
             
+            <Text style={styles.modalNote}>
+              Leave both servings at 0 if you would like to only add this to saved meals.
+            </Text>
+            
             <View style={styles.modalForm}>
               <View style={styles.modalInputGroup}>
                 <Text style={styles.modalLabel}>Fridge Servings</Text>
@@ -469,6 +517,11 @@ export default function CreateMealScreen() {
                   value={fridgeQuantity}
                   onChangeText={setFridgeQuantity}
                   keyboardType="numeric"
+                  onFocus={() => {
+                    if (fridgeQuantity === "0") {
+                      setFridgeQuantity("");
+                    }
+                  }}
                 />
               </View>
               
@@ -480,6 +533,11 @@ export default function CreateMealScreen() {
                   value={freezerQuantity}
                   onChangeText={setFreezerQuantity}
                   keyboardType="numeric"
+                  onFocus={() => {
+                    if (freezerQuantity === "0") {
+                      setFreezerQuantity("");
+                    }
+                  }}
                 />
               </View>
             </View>
@@ -488,24 +546,13 @@ export default function CreateMealScreen() {
               <TouchableOpacity
                 style={styles.modalCancelButton}
                 onPress={() => {
+                  // Reset quantities and close modal without navigating
+                  setFridgeQuantity("0");
+                  setFreezerQuantity("0");
                   setQuantityModalVisible(false);
-                  setLoading(true);
-                  
-                  if (createdMeal) {
-                    // No need to sync now - the meal was already saved to savedMeals
-                    // when it was created, and we're not adding it to inventory
-                    clearForm();
-                    router.replace("/(user)/MainDashboard");
-                    setLoading(false);
-                  } else {
-                    // If no meal was created, just return to dashboard
-                    clearForm();
-                    router.replace("/(user)/MainDashboard");
-                    setLoading(false);
-                  }
                 }}
               >
-                <Text style={styles.modalCancelButtonText}>Skip</Text>
+                <Text style={styles.modalCancelButtonText}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -838,6 +885,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginRight: 10,
+    borderWidth: 1,
+    borderColor: Colors.divider,
   },
   modalCancelButtonText: {
     color: Colors.textSecondary,
@@ -862,7 +911,14 @@ const styles = StyleSheet.create({
   modalSubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalNote: {
+    fontSize: 14,
+    color: Colors.primary,
     marginBottom: 16,
     textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
