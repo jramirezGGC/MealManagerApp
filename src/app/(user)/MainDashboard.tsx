@@ -13,28 +13,6 @@ import React from "react"
 import mainDashboardMeals from "@/assets/data/mainDashboardMeals"
 
 
-// const getHouseholdID = async () => {
-//   const userID = FIREBASE_AUTH.currentUser?.uid
-//   const userDoc = doc(FIREBASE_DB, `users/${userID}`)
-//   const snapshot = await getDoc(userDoc)
-//   let householdID
-
-//   if (snapshot.exists()) {
-//     const docData = snapshot.data()
-//     console.log(`Data: ${JSON.stringify(docData)}`)
-//     householdID = docData.householdID
-//   } else {
-//     console.log("IT Broke")
-//   }
-
-//   try {
-//     await AsyncStorage.setItem("householdID", householdID)
-//   } catch (error) {
-//     console.error("Async Storage could not set householdID", error)
-//   }
-// }
-
-
 
 export default function MainDashboard() {
   // getHouseholdID()
@@ -59,7 +37,7 @@ export default function MainDashboard() {
     {
       id: "mealManager",
       title: "Manage Refrigerator",
-      description: "Edit meals",
+      description: "Edit and move meals",
       icon: <MaterialIcons name="restaurant-menu" size={32} color={Colors.white} />,
       route: "/(user)/Fridge",
       color: "#4CAF50", // Green color

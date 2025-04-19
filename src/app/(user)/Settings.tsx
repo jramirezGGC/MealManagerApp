@@ -61,13 +61,7 @@ export default function SettingsScreen() {
       title: "Manage Household",
       icon: "🏠",
       onPress: () => router.push("/(user)/ManageHousehold"),
-    },
-    {
-      id: 3,
-      title: "Gallery",
-      icon: "🖼️",
-      onPress: () => router.push("/(user)/Gallery"),
-    },
+    }
   ];
 
   const handleLogout = async () => {

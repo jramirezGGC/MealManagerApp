@@ -74,7 +74,7 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle }: Me
   const combinedHeader = () => (
     <>
       {ListHeaderComponent}
-      <Text style={styles.sectionTitle}>Fridge Meals For Today</Text>
+      <Text style={styles.sectionTitle}>Meals in Fridge</Text>
     </>
   )
 
