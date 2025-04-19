@@ -40,6 +40,7 @@ interface MealsContextType {
   hasPendingChanges: () => Promise<boolean>;
   setMeals: React.Dispatch<React.SetStateAction<Meal[]>>;
   addMealToInventory: (meal: Meal, fridgeQuantity: number, freezerQuantity: number) => Promise<string>;
+  deleteSavedMeal: (mealId: string) => Promise<void>;
 }
 
 const MealsContext = createContext<MealsContextType | undefined>(undefined);
@@ -759,6 +760,65 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deleteSavedMeal = async (mealId: string) => {
+    try {
+      // Update local state, only removing from savedMeals
+      setSavedMeals(prevMeals => prevMeals.filter(meal => meal.id !== mealId));
+
+      // Add to pending changes for savedMeals
+      setPendingChanges(prev => {
+        // Remove from added or updated if it was there
+        const added = prev.savedMeals.added.filter(meal => meal.id !== mealId);
+        const updated = prev.savedMeals.updated.filter(meal => meal.id !== mealId);
+        const deleted = [...prev.savedMeals.deleted];
+        
+        // Only add to deleted if it wasn't just added locally
+        if (!prev.savedMeals.added.some(meal => meal.id === mealId)) {
+          deleted.push(mealId);
+        }
+        
+        return {
+          ...prev,
+          savedMeals: {
+            added,
+            updated,
+            deleted
+          }
+        };
+      });
+
+      // Directly update Firestore to remove the meal from savedMeals
+      try {
+        const householdID = await AsyncStorage.getItem("householdID");
+        if (!householdID) {
+          throw new Error("No household ID found");
+        }
+        
+        // Get the data document reference
+        const dataDocRef = doc(FIREBASE_DB, `households/${householdID}/data/data`);
+        const snapshot = await getDoc(dataDocRef);
+        
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          
+          // If the savedMeals field exists and contains this meal
+          if (data.savedMeals && data.savedMeals[mealId]) {
+            // Remove the meal using deleteField()
+            await updateDoc(dataDocRef, {
+              [`savedMeals.${mealId}`]: deleteField()
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error directly removing meal from savedMeals in Firestore:", error);
+        // Continue even if direct update fails - it will be synced later
+      }
+    } catch (error) {
+      console.error("Error deleting saved meal locally:", error);
+      throw error;
+    }
+  };
+
   return (
     <MealsContext.Provider value={{ 
       meals, 
@@ -774,7 +834,8 @@ export function MealsProvider({ children }: { children: React.ReactNode }) {
       syncWithDatabase,
       hasPendingChanges,
       setMeals,
-      addMealToInventory
+      addMealToInventory,
+      deleteSavedMeal
     }}>
       {children}
     </MealsContext.Provider>
@@ -800,6 +861,6 @@ export function useSavedMeals() {
     error: context.error, 
     fetchSavedMeals: context.fetchSavedMeals,
     saveMeal: context.saveMeal,
-    deleteMeal: context.deleteMeal
+    deleteMeal: context.deleteSavedMeal
   };
 } 
