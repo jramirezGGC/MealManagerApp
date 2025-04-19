@@ -70,13 +70,13 @@ export default function ManageHouseholdScreen() {
             </View>
           </View>
         </View>
-      </ScrollView>
-          {/* Add Member Button */}
-          <View style={styles.buttonContainer}>
+        {/* Add Member Button */}
+        <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.addButton} /*onPress={handleAddMember}*/>
             <Text style={styles.addButtonText}>Add New Member</Text>
           </TouchableOpacity>
-          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   )
 }
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
-    paddingBottom: 363,
+    paddingBottom: 100,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -262,8 +262,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   buttonContainer: {
-    position: "absolute",
-    bottom: 0,
+    bottom: 20,
     left: 0,
     right: 0,
     padding: 24,

@@ -157,12 +157,16 @@ export default function RefrigeratorScreen() {
           data={displayMeals}
           renderItem={renderMealItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.mealListContent}
+          contentContainerStyle={{
+            ...styles.mealListContent,
+            paddingBottom: TAB_BAR_HEIGHT + 20, // more room for scrolling
+          }}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No meals found in {activeTab}</Text>
             </View>
           )}
+          showsVerticalScrollIndicator={false}
         />
       </View>
     </SafeAreaView>
@@ -268,7 +272,7 @@ const styles = StyleSheet.create({
   },
   mealListContent: {
     paddingHorizontal: 24,
-    paddingBottom: 20, // Reduced padding
+    paddingBottom: TAB_BAR_HEIGHT + 20, // Ensures scroll past button
   },
   mealItem: {
     marginBottom: 16,

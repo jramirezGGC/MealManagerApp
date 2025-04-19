@@ -162,55 +162,55 @@ export default function MoveMealsScreen() {
         </Text>
       </View>
 
-      {/* Content Section */}
+      {/* FlatList handles all scrolling! */}
       <View style={styles.contentContainer}>
-        {/* Improved Tab Container */}
-        <View style={styles.tabsOuterContainer}>
-          <View style={styles.tabsContainer}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "fridge" && styles.activeTab]}
-              onPress={() => switchTab("fridge")}
-            >
-              <Text style={[styles.tabText, activeTab === "fridge" && styles.activeTabText]}>Fridge</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "freezer" && styles.activeTab]}
-              onPress={() => switchTab("freezer")}
-            >
-              <Text style={[styles.tabText, activeTab === "freezer" && styles.activeTabText]}>Freezer</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Total Meals and Selection Count */}
-          <View style={styles.totalMealsContainer}>
-            <Text style={styles.totalMealsValue}>{calculateTotalServings()}</Text>
-            <Text style={styles.totalMealsLabel}>Total Servings in {activeTab === "fridge" ? "Fridge" : "Freezer"}</Text>
-            {selectedMeals.length > 0 && (
-              <Text style={styles.selectionText}>{selectedMeals.length} meals selected</Text>
-            )}
-          </View>
-        </View>
-
-        {/* Meal List */}
         <FlatList
           data={displayMeals}
           renderItem={renderMealItem}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={
+              <View style={styles.tabsOuterContainer}>
+                {/* Tabs and Total Count */}
+                <View style={styles.tabsContainer}>
+                  <TouchableOpacity
+                    style={[styles.tab, activeTab === "fridge" && styles.activeTab]}
+                    onPress={() => switchTab("fridge")}
+                  >
+                    <Text style={[styles.tabText, activeTab === "fridge" && styles.activeTabText]}>Fridge</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.tab, activeTab === "freezer" && styles.activeTab]}
+                    onPress={() => switchTab("freezer")}
+                  >
+                    <Text style={[styles.tabText, activeTab === "freezer" && styles.activeTabText]}>Freezer</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.totalMealsContainer}>
+                  <Text style={styles.totalMealsValue}>{calculateTotalServings()}</Text>
+                  <Text style={styles.totalMealsLabel}>
+                    Total Servings in {activeTab === "fridge" ? "Fridge" : "Freezer"}
+                  </Text>
+                  {selectedMeals.length > 0 && (
+                    <Text style={styles.selectionText}>{selectedMeals.length} meals selected</Text>
+                  )}
+                </View>
+              </View>
+          }
           contentContainerStyle={styles.mealListContent}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No meals found in {activeTab}</Text>
             </View>
           )}
+          showsVerticalScrollIndicator={false}
         />
-
-        {/* Move Button */}
-        {selectedMeals.length > 0 && (
-          <TouchableOpacity style={styles.moveButton} onPress={handleMoveMeals}>
-            <Text style={styles.moveButtonText}>Move to {activeTab === "fridge" ? "Freezer" : "Fridge"}</Text>
-          </TouchableOpacity>
-        )}
       </View>
+      {/* Fixed bottom button */}
+      {selectedMeals.length > 0 && (
+        <TouchableOpacity style={styles.moveButton} onPress={handleMoveMeals}>
+          <Text style={styles.moveButtonText}>Move to {activeTab === "fridge" ? "Freezer" : "Fridge"}</Text>
+        </TouchableOpacity>
+      )} 
     </SafeAreaView>
   )
 }
