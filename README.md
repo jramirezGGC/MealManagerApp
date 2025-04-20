@@ -38,27 +38,20 @@ To run the application, the user must run it on the IDE terminal with an andriod
  * At this time, the Out-of-Box installation is the same as the Developer installation.  Please refer to the Developer Installation section for instructions.
 
 # Developer Installation /* You can remove the examples after youre done and this comment too. */
-**1. Clone the master branch of this repository.**
+**1. Clone the development branch of this repository.**
    ```
-   git clone https://github.com/PaulBerger56/Steampowered/
+   git clone https://github.com/Mindful-Meal-Manager/MealManagerApp
    ```  
 <br>
 
-**2. Install Maven on the machine (This step is optional because there is a Maven Wrapper inside the Project itself)**
-   * https://maven.apache.org/install.html 
+**2. Make sure node is installed on your machine **
+   * https://nodejs.org/en/download
 
 <br>
  
-**3. Run Maven in a terminal inside the root folder of the project.  It is recommended to open the project in your preferred IDE and starting a new terminal there. This will install and update all dependencies, but the project will not be fully functional yet.**
+**3. Run yarn install in your terminal in the root folder of the project**
    
-   * If you have maven installed on the machine, run this command:
-     ```
-     mvn clean spring-boot:run
-     ```
-   * If you do not have Maven installed on the machine, run this command:
-     ```
-     ./mvnw clean spring-boot:run
-     ```
+   * We used yarn instead of npm.  This command will install all of the necessary dependencies from the yarn.lock and package.json files
 <br>
 
 **4. Create your own firebase database and attach it to the program.**
@@ -66,22 +59,60 @@ To run the application, the user must run it on the IDE terminal with an andriod
   * Create a Firebase account and click Add Project on the console page. Fill in your credentials and click create project.
      * https://firebase.google.com
        
-  * Once in the new project, click on the firestore tab. On the next page, click create database, then select your server location and press next.  On the next page, select Start in test mode and press create.
-  
-  * After the database has been made, click the cog wheel in the side bar and then click on Project settings.
-     * Once on the project settings page, click on the Service accounts tab.
-     * In the Admin SDK configuration snippet box, click the Java radio button.  Once the code is updated to java, press the generate new private key button at the bottom.  This will download a JSON file to your machine.
-     * Rename this JSON file serviceAccountKey.json and add it to the root folder of Steampowered.  This file needs to be renamed precisely so that the code recognizes it and it is properly added to the gitignore to keep your information from being uploaded to github.
+  * Once in the new project, click on the Build tab and select Firestore Database. On the next page click Create Database. Fill in the details and make sure to select start in test mode, then click create.
+    
+  * Create an Authentication by clicking on the Build tab and selecting Authentication. Click get started, and on the next page select Email/Password.  Make sure to only select the Enable switch to on and click save.
+
+  * Create a storage for the images by clicking the Build tab and selecting Storage.  Click upgrade project and make sure to set any thresholds so that you will not go over them and get charged any money.
+
+  * Once all three are set up, return to the dashboard homepage for this project. Click on Web in the Add an App section.  Create a name and click register app.
+
+  * Registering the web app will give you a firebaseConfig.ts file.  Add these imports to the file:
+
+  ```
+  import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+  import { getFirestore } from "firebase/firestore";
+  import { getStorage } from 'firebase/storage';
+  ```
+
+ * Next add this code at the end of the file, replacing the default const app = initializApp(firebaseConfig):
+
+   ```
+    // Initialize Firebase
+    export const FIREBASE_APP = initializeApp(firebaseConfig);
+    export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
+        persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+    });
+    export const FIREBASE_DB = getFirestore(FIREBASE_APP);
+    export const FIREBASE_STORAGE = getStorage(FIREBASE_APP);
+   ```
+
 
 <br>
 
 
-**5. Run the code**
+**5. Set up an android or iOS emulator**
 
- * Repeat step 3 with whichever Maven command you used then.
- * If you get any errors here, check the dependencies in the pom.xml.  Depending on how long from the time we built this project, they could have been updated.
- * Once you see the project loaded in the terminal, open a web browser and go to localhost:8080
- * At this point the website should work as intended.  There will be a very long delay between when you log in with the Steam openId and being redirected to the wheel page.  This is due to the fact that your database is empty and the code is having to make a call for each game in your library.  Once several people log in, the database will start to fill and this login time will be reduced significantly.
+ *  You can set up an android emulator on any device using Android Studio: https://developer.android.com/studio/run/managing-avds
+ *  You can only emulate an iOS product if you have an Apple computer and access to xcode: https://developer.apple.com/documentation/safari-developer-tools/installing-xcode-and-simulators
+
+<br>
+
+**6. Set up Expo on your Device **
+* Expo Go is an app that allows you to run your emulated app on your device without having to install it first.
+* It can be downloaded from the Google Play store or Apple Store.
+* Create an account and log in on your preferred mobile device.
+
+<br>
+
+**7. Run the code **
+* Type the command yarn start in your terminal.
+* This may take some time on your first startup.
+* After the program is done loading, you will see a QR code and a gui in the terminal.
+* If you would like to run the app on your mobile device, you must be on the same network as your computer running the code.  Open the Expo go app and scan the QR code in the terminal.
+* If you want to run the app on the emulator, follow the instructions in the terminal for your preferred device.
+
+<br>
 
 # License
 
