@@ -34,6 +34,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import Colors from "@/src/constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AutoId } from "@/src/lib/util";
 import { useMeals } from "@/src/context/MealsContext";
 import { Ingredient, Meal } from "@/src/types";
