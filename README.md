@@ -37,14 +37,14 @@ To run the application, the user must run it on the IDE terminal with an andriod
 # Out-of-Box Installation
  * At this time, the Out-of-Box installation is the same as the Developer installation.  Please refer to the Developer Installation section for instructions.
 
-# Developer Installation /* You can remove the examples after youre done and this comment too. */
+# Developer Installation 
 **1. Clone the development branch of this repository.**
    ```
    git clone https://github.com/Mindful-Meal-Manager/MealManagerApp
    ```  
 <br>
 
-**2. Make sure node is installed on your machine **
+**2. Make sure node is installed on your machine**
    * https://nodejs.org/en/download
 
 <br>
@@ -69,11 +69,11 @@ To run the application, the user must run it on the IDE terminal with an andriod
 
   * Registering the web app will give you a firebaseConfig.ts file.  Add these imports to the file:
 
-  ```
-  import { initializeAuth, getReactNativePersistence } from "firebase/auth";
-  import { getFirestore } from "firebase/firestore";
-  import { getStorage } from 'firebase/storage';
-  ```
+    ```
+    import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+    import { getFirestore } from "firebase/firestore";
+    import { getStorage } from 'firebase/storage';
+    ```
 
  * Next add this code at the end of the file, replacing the default const app = initializApp(firebaseConfig):
 
@@ -98,14 +98,14 @@ To run the application, the user must run it on the IDE terminal with an andriod
 
 <br>
 
-**6. Set up Expo on your Device **
+**6. Set up Expo on your Device**
 * Expo Go is an app that allows you to run your emulated app on your device without having to install it first.
 * It can be downloaded from the Google Play store or Apple Store.
 * Create an account and log in on your preferred mobile device.
 
 <br>
 
-**7. Run the code **
+**7. Run the code**
 * Type the command yarn start in your terminal.
 * This may take some time on your first startup.
 * After the program is done loading, you will see a QR code and a gui in the terminal.
