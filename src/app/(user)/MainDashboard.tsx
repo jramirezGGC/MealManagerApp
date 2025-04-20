@@ -1,3 +1,20 @@
+/*
+ * This file is part of Meal Manager.
+ *
+ * Meal Manager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Meal Manager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Meal Manager. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar as RNStatusBar } from "react-native"
 import { StatusBar } from "expo-status-bar"
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context"
@@ -168,9 +185,11 @@ export default function MainDashboard() {
         {/* Header Section */}
         <View style={styles.headerContainer}>
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Welcome Back</Text>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>Welcome Back</Text>
+              <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
+            </View>
           </View>
-          <Text style={styles.headerSubtitle}>Your meal dashboard</Text>
         </View>
 
         {/* Content Section - Using MealContainer with real meals data */}
@@ -193,15 +212,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   headerContainer: {
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === "android" ? (RNStatusBar.currentHeight || 24) + 10 : 0,
+    paddingHorizontal: 36,
+    paddingTop: Platform.OS === "android" ? 30 : 10,
     paddingBottom: 16,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
   },
   headerTitle: {
     fontSize: 28,
@@ -211,6 +228,11 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     color: Colors.textSecondary,
+  },
+  headerTextContainer: {
+    flex: 1,
+    justifyContent: "center",
+    paddingTop: Platform.OS === "ios" ? 40 : 20,
   },
   contentWrapper: {
     flex: 1,
