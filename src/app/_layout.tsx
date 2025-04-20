@@ -1,9 +1,21 @@
+/*
+ * This file is part of Meal Manager.
+ *
+ * Meal Manager is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Meal Manager is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Meal Manager. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Slot, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,10 +23,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/src/components/useColorScheme";
-import { MealsProvider } from "@/src/context/MealsContext";
 import { FIREBASE_APP } from "@/src/lib/firebaseConfig";
-
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export {
   // Catch any errors thrown by the Layout component.
