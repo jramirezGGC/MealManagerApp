@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, forwardRef } from 'react';
+import React, { useImperativeHandle, forwardRef, useEffect } from 'react';
 import { View, Image, StyleSheet, TouchableOpacity, Text, Platform, ActivityIndicator } from "react-native";
 import { FIREBASE_STORAGE } from "../lib/firebaseConfig";
 import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
@@ -7,10 +7,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "../constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface UploadImageComponentProps {
     onImageUploaded?: (url: string) => void;
     storagePath?: string;
+    startWithStoredImage?: boolean;
 }
 
 export interface UploadImageComponentRef {
@@ -50,11 +52,32 @@ function fixFirebaseStorageUrl(url: string): string {
 
 const UploadImageComponent = forwardRef<UploadImageComponentRef, UploadImageComponentProps>(({ 
     onImageUploaded, 
-    storagePath = "uploads"
+    storagePath = "uploads",
+    startWithStoredImage = false
 }, ref) => {
     const [previewUri, setPreviewUri] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
+
+    // Only check for previously saved image if startWithStoredImage is true
+    useEffect(() => {
+        const checkSavedImage = async () => {
+            try {
+                if (startWithStoredImage) {
+                    const savedImageUrl = await AsyncStorage.getItem('tempMealImage');
+                    if (savedImageUrl) {
+                        // If there's a saved image, set it as the preview and show confirmation
+                        setPreviewUri(savedImageUrl);
+                        setShowConfirmation(true);
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking for saved image:", error);
+            }
+        };
+        
+        checkSavedImage();
+    }, [startWithStoredImage]);
 
     // Expose methods to parent component
     useImperativeHandle(ref, () => ({

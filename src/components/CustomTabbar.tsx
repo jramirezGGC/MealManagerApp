@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import { router, usePathname } from 'expo-router';
 import Colors from '@/src/constants/Colors';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CustomTabbar(props: BottomTabBarProps) {
   const pathname = usePathname();
@@ -15,6 +16,21 @@ export default function CustomTabbar(props: BottomTabBarProps) {
   if (!shouldShowNav) {
     return null
   }
+  
+  // Handle creating a new meal - ensure we clear any stored image first
+  const handleCreateMeal = async () => {
+    try {
+      // Clear any stored image to ensure a fresh start
+      await AsyncStorage.removeItem('tempMealImage');
+      console.log("Cleared stored image before starting new meal creation");
+      // Then navigate to the create meal screen
+      router.push("/(user)/CreateMeal");
+    } catch (error) {
+      console.error("Error clearing stored image:", error);
+      // Still navigate even if there was an error
+      router.push("/(user)/CreateMeal");
+    }
+  };
   
   return (
     <View style={styles.bottomNav}>
@@ -34,7 +50,7 @@ export default function CustomTabbar(props: BottomTabBarProps) {
 
       <TouchableOpacity 
         style={styles.addButton} 
-        onPress={() => router.push("/(user)/CreateMeal")}
+        onPress={handleCreateMeal}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>

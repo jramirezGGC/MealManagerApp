@@ -1,0 +1,86 @@
+*** PLEASE LEAVE A FEW SECONDS AT THE BEGINNNG AND END OF YOUR RECORDED SECTION ****
+ - Introduce yourself as you start the section, if you are not doing more than one section back to back
+ - Do a test video ~5-10 seconds to make sure your audio is decent.
+
+Slides Needed
+	- Opening slide with "Mindful Meal Manager", Group Members, and Dr. B's spec
+	- Team Achievements
+	- Demo (Just a title card that says App Demo to use in the video)
+	- Jira (Just a title card)
+	- Challenges (Just a title card)
+
+Opening slide (Julian)
+	- Dr. B spec "This project or part of this project was developed as part of the SD Capstone course at GGC under Dr. B."
+	- Briefly explain that this is an app for managing meal inventory for people doing meal prep.
+
+Team Achievements (Julian)
+	- Completing the basic working version of the app
+	- Getting the app connected to firestore and passing the data back and forth properly
+	- Getting Firebase Authentication connected and working properly, including persistence.
+	- Saving images in Firestore database
+	- 99% consitency on showing up to meetings, constant communication via discord, detailed logging, and quickly
+	  solving problems as a group.
+	- Avoiding any major codebase errors by making sure another group member had to review the pr before merging
+
+Full Demo (Bao show opening slide)
+
+	Authentication (Bao)
+		- Show login/logout
+		- show when closing app, and opening again, login is persistent
+		- time filler (we used firebase Authentication)
+		- AS the user creates a new account with authentication, the ID made from that is used to 
+		  create a new household in the database where meal data is stored.
+		
+
+	Going over main dashboard (Julian)
+		- Three buttons on main dashboard 
+		- Meal Notfication
+		- Manage Refrigerator
+		- Saved Meals
+		- little 3 dots next to the meal to show meal details
+
+	Settings (Julian)
+		- Forgot password, must have a real email address to get update email
+		-  Account settings tab
+		- logout
+
+	Create Meal (Paul)
+		- Press the button at the bottom to go to create meal
+		- Add a picture (take one, or add one from gallery)
+		- Add name and description
+		- add ingredients button/adding individual
+		- confirmation popup after hitting create
+		- show that meal was added on Main Dashboard and Saved Meals
+
+	Take meal/multiple (Paul)
+		- Show take meal takes 1
+		- Take multiple, the user can enter an amount
+		- If it hits 0, it disappears from the page
+
+	Move Meal (Bao)
+		- Touch on Manage Refrigerator while moving to move meals
+		- Move meals from fridge to freezer/vice versa
+		- Explain the canceling Move
+		- Show the details i.e. number being moved
+	
+	Saved Meal (Bao)
+		- Show that when user creates a meal, a copy is put into saved meals
+		- Completely use up all of a meal from fridge/freezer in main dashboard and show that
+		  it remains in saved meals
+		- Show that a user can click create meal under saved meals to instantly fill in details
+		- remove saved meal (this fully removes it from the database as well)
+	
+
+JIRA (Paul)
+	- Completed User Stories
+	- Burndown chart
+
+Challenges (Bao)
+	- Originally wanting to use AWS, but could not get it connected
+	- Switching to firebase and getting everything set up properly
+	- Resolving Merge conflicts.  As much as we communicated and tried to work together, merge
+	  conflicts always happen.
+	- Getting on the same page on certain ideas/ effectively communicating our ideas so that everyone
+	  in the group understood our vision.
+
+
