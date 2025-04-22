@@ -32,12 +32,13 @@ import {
   ScrollView,
   Image,
   Modal,
-  FlatList,
+  FlatList, 
   Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { router, useLocalSearchParams } from "expo-router";
 import Colors from "@/src/constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AutoId } from "@/src/lib/util";
 import { useMeals } from "@/src/context/MealsContext";
 import { Ingredient, Meal } from "@/src/types";
@@ -100,6 +101,34 @@ export default function CreateMealScreen() {
 
   const params = useLocalSearchParams();
 
+  // Add a cleanup effect that runs when the component mounts
+  useEffect(() => {
+    const resetImageState = async () => {
+      // If we're not coming from UploadImage or template, clear everything
+      if (!params.imageUrl && !params.savedMealId) {
+        console.log("Clearing image state on CreateMeal mount");
+        // Clear the image URL state
+        setMealImageUrl(null);
+        // Clear from AsyncStorage
+        try {
+          await AsyncStorage.removeItem('tempMealImage');
+        } catch (error) {
+          console.error("Error clearing image from storage:", error);
+        }
+      }
+    };
+    
+    resetImageState();
+    
+    // Also clear when component unmounts to prevent persistence
+    return () => {
+      if (!params.imageUrl && !params.savedMealId) {
+        AsyncStorage.removeItem('tempMealImage')
+          .catch(error => console.error("Error clearing image on unmount:", error));
+      }
+    };
+  }, []);
+
   // Load saved meal data when creating from a template
   useEffect(() => {
     const loadSavedMealData = async () => {
@@ -147,6 +176,15 @@ export default function CreateMealScreen() {
       setMealImageUrl(imageUrl);
     }
   }, [params.imageUrl, mealImageUrl]);
+
+  // Add function to clear the image from storage
+  const clearImageFromStorage = async () => {
+    try {
+      await AsyncStorage.removeItem('tempMealImage');
+    } catch (error) {
+      console.error("Error clearing image from storage:", error);
+    }
+  };
 
   const handleCreateMeal = async () => {
     setLoading(true);
@@ -217,6 +255,8 @@ export default function CreateMealScreen() {
       
       // Clear form and navigate back
       clearForm();
+      // Clear the image from storage
+      await clearImageFromStorage();
       router.replace("/(user)/MainDashboard");
       setLoading(false);
     } catch (error) {
@@ -241,7 +281,10 @@ export default function CreateMealScreen() {
   };
 
   const handleSelectImage = () => {
-    router.push("/UploadImage");
+    router.push({
+      pathname: "/UploadImage",
+      params: { fromCreate: "true" }
+    });
   };
   
   // Open the modal to add a new ingredient

@@ -126,9 +126,9 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, rout
       
       let newNumInFridge = (meal.numInFridge || 0) - takeCount;
       
-      // Check if the meal will be completely consumed
+      // First update the meal to set numInFridge to 0
       if (newNumInFridge === 0 && (meal.numInFreezer || 0) === 0) {
-        // First update the meal to set numInFridge to 0
+        // Update meal with zero quantity first
         await updateMeal(meal.id, {
           numInFridge: 0
         });
@@ -141,33 +141,40 @@ function MealContainer({ meals, ListHeaderComponent, contentContainerStyle, rout
               text: "OK",
               onPress: async () => {
                 try {
-                  // Delete from inventory when both fridge and freezer are empty
-                  await deleteMeal(meal.id);
-                  
-                  // Force a sync to ensure Firebase is updated
-                  await syncWithDatabase();
-                  
-                  // Additional check: after sync attempt, verify the meal was deleted
-                  const householdID = await AsyncStorage.getItem("householdID");
-                  if (householdID) {
-                    // Get a reference to the Firebase data document
-                    const dataDocRef = doc(FIREBASE_DB, `households/${householdID}/data/data`);
-                    const snapshot = await getDoc(dataDocRef);
-                    
-                    if (snapshot.exists()) {
-                      const data = snapshot.data();
+                  // Use setTimeout to ensure React rendering cycle completes before deletion
+                  setTimeout(async () => {
+                    try {
+                      // Delete from inventory when both fridge and freezer are empty
+                      await deleteMeal(meal.id);
                       
-                      // If the meal still exists in inventory, force remove it
-                      if (data.inventory && data.inventory[meal.id]) {
-                        await updateDoc(dataDocRef, {
-                          [`inventory.${meal.id}`]: deleteField()
-                        });
-                        console.log(`Meal ${meal.id} forcibly removed from Firebase`);
+                      // Force a sync to ensure Firebase is updated
+                      await syncWithDatabase();
+                      
+                      // Additional check: after sync attempt, verify the meal was deleted
+                      const householdID = await AsyncStorage.getItem("householdID");
+                      if (householdID) {
+                        // Get a reference to the Firebase data document
+                        const dataDocRef = doc(FIREBASE_DB, `households/${householdID}/data/data`);
+                        const snapshot = await getDoc(dataDocRef);
+                        
+                        if (snapshot.exists()) {
+                          const data = snapshot.data();
+                          
+                          // If the meal still exists in inventory, force remove it
+                          if (data.inventory && data.inventory[meal.id]) {
+                            await updateDoc(dataDocRef, {
+                              [`inventory.${meal.id}`]: deleteField()
+                            });
+                            console.log(`Meal ${meal.id} forcibly removed from Firebase`);
+                          }
+                        }
                       }
+                    } catch (error) {
+                      console.error("Error removing consumed meal:", error);
                     }
-                  }
+                  }, 300); // Short delay to ensure React has completed its rendering cycle
                 } catch (error) {
-                  console.error("Error removing consumed meal:", error);
+                  console.error("Error initiating meal deletion:", error);
                   Alert.alert("Error", "There was an issue removing the meal. Please try again.");
                 }
               }
