@@ -18,9 +18,10 @@
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import UploadImageComponent, { UploadImageComponentRef } from "../../components/UploadImageComponent";
-import { useRouter } from "expo-router";
-import { useState, useRef } from "react";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { useState, useRef, useEffect } from "react";
 import Colors from "@/src/constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Helper function to fix Firebase Storage URLs - same as in UploadImageComponent
 function fixFirebaseStorageUrl(url: string): string {
@@ -54,10 +55,51 @@ function fixFirebaseStorageUrl(url: string): string {
 
 export default function UploadImage() {
     const router = useRouter();
+    const params = useLocalSearchParams();
     const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
     const uploadComponentRef = useRef<UploadImageComponentRef>(null);
     
-    const handleImageUploaded = (url: string) => {
+    // Check for existing image URL in AsyncStorage when component mounts
+    useEffect(() => {
+        const checkExistingImage = async () => {
+            try {
+                // Only check for saved image if we're coming from CreateMeal (indicated by a fromCreate param)
+                // This prevents showing the previous image when starting a new meal creation flow
+                if (params.fromCreate) {
+                    const savedImageUrl = await AsyncStorage.getItem('tempMealImage');
+                    if (savedImageUrl) {
+                        console.log("Found saved image URL:", savedImageUrl);
+                        setUploadedImageUrl(savedImageUrl);
+                        
+                        // Forward to CreateMeal with the saved image
+                        router.replace({
+                            pathname: "/CreateMeal",
+                            params: { imageUrl: savedImageUrl }
+                        });
+                    }
+                } else {
+                    // If coming from dashboard or elsewhere, clear any stored image
+                    console.log("Clearing image storage on UploadImage mount (not from Create)");
+                    await AsyncStorage.removeItem('tempMealImage');
+                }
+            } catch (error) {
+                console.error("Error checking for saved image:", error);
+            }
+        };
+        
+        checkExistingImage();
+        
+        // Clean up when component unmounts
+        return () => {
+            // If we're not going to CreateMeal (navigation was cancelled), clear the image
+            if (!uploadedImageUrl) {
+                AsyncStorage.removeItem('tempMealImage')
+                    .catch(error => console.error("Error clearing image on unmount:", error));
+            }
+        };
+    }, [params.fromCreate]);
+    
+    const handleImageUploaded = async (url: string) => {
         try {
             console.log("Image uploaded successfully, processing URL...");
             
@@ -73,6 +115,9 @@ export default function UploadImage() {
             
             console.log(`Final URL to pass to CreateMeal: ${forcedUrl}`);
             setUploadedImageUrl(forcedUrl);
+            
+            // Save the image URL to AsyncStorage
+            await AsyncStorage.setItem('tempMealImage', forcedUrl);
             
             // Use replace instead of navigate to avoid adding to the navigation history
             router.replace({
@@ -93,13 +138,15 @@ export default function UploadImage() {
         }
     };
 
-    const handleCancel = () => {
+    const handleCancel = async () => {
         // Clear the image URL state before navigating back
         setUploadedImageUrl(null);
         // Reset the component if ref is available
         if (uploadComponentRef.current) {
             uploadComponentRef.current.resetComponent();
         }
+        // Don't clear AsyncStorage here - we want to keep the image if the user
+        // just went back accidentally
         router.back();
     };
 
@@ -110,6 +157,7 @@ export default function UploadImage() {
                     ref={uploadComponentRef}
                     onImageUploaded={handleImageUploaded}
                     storagePath="meals"
+                    startWithStoredImage={Boolean(params.fromCreate)}
                 />
                 
                 <View style={styles.bottomContainer}>

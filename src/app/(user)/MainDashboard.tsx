@@ -25,6 +25,7 @@ import { Feather, MaterialIcons, Ionicons } from "@expo/vector-icons"
 import type { Meal } from "@/src/types"
 import React, { useEffect, useState } from "react"
 import { useMeals } from "@/src/context/MealsContext"
+import { useFocusEffect } from "expo-router"
 
 export default function MainDashboard() {
   const { meals, loading, deleteMeal, syncWithDatabase, refreshMeals } = useMeals();
@@ -38,6 +39,17 @@ export default function MainDashboard() {
     fridge: 0,
     freezer: 0,
   });
+  
+  // Refresh meals when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      // This will run when the screen is focused
+      refreshMeals();
+      return () => {
+        // This will run when the screen is unfocused
+      };
+    }, [refreshMeals])
+  );
   
   // Function to clean up any meals with 0 quantities in both fridge and freezer
   const cleanupEmptyMeals = async () => {

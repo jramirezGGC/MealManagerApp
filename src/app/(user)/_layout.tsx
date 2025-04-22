@@ -94,7 +94,16 @@ function CustomTabBar({ state, descriptors, navigation }: {
         {/* Add Button - Always visible */}
         <TouchableOpacity 
           style={styles.addButton} 
-          onPress={() => router.push("/(user)/CreateMeal")}
+          onPress={async () => {
+            // Clear image state before navigating 
+            try {
+              await AsyncStorage.removeItem('tempMealImage');
+              console.log("Layout: Cleared image before CreateMeal");
+            } catch (error) {
+              console.error("Error clearing image:", error);
+            }
+            router.push("/(user)/CreateMeal");
+          }}
           accessibilityRole="button"
         >
           <Text style={styles.addButtonText}>+</Text>
