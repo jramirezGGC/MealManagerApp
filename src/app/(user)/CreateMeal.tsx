@@ -15,7 +15,7 @@
  * along with Meal Manager. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,10 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  Keyboard,
+  Easing,
+  TouchableWithoutFeedback,
   ScrollView,
   Image,
   Modal,
@@ -41,6 +45,35 @@ import { Ingredient, Meal } from "@/src/types";
 // We don't need a separate form interface anymore since Ingredient has the id field
 
 export default function CreateMealScreen() {
+
+  //const [textInputHeight, setTextInputHeight] = useState(60);
+  const translateYRef = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener("keyboardWillShow", (event) => {
+      Animated.timing(translateYRef, {
+        toValue: -event.endCoordinates.height / 0,
+        duration: event.duration,
+        easing: Easing.bezier(0.33, 0.66, 0.66, 1),
+        useNativeDriver: false,
+      }).start();
+    });
+
+    const keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", (event) => {
+      Animated.timing(translateYRef, {
+        toValue: 0,
+        duration: event.duration,
+        easing: Easing.bezier(0.33, 0.66, 0.66, 1),
+        useNativeDriver: false,
+      }).start();
+    });
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
+
   const [mealName, setMealName] = useState("");
   const [description, setDescription] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -282,6 +315,7 @@ export default function CreateMealScreen() {
   );
 
   return (
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
@@ -295,289 +329,303 @@ export default function CreateMealScreen() {
         </Text>
       </View>
 
+    <Animated.View style={{ flex: 1, transform: [{ translateY: Platform.OS === "ios" ? translateYRef : 0 }] }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardView}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
-          {/* Content Section */}
-          <View style={styles.contentContainer}>
-            {/* Meal Image */}
-            <View style={styles.imageContainer}>
-              <TouchableOpacity
-                style={styles.imagePlaceholder}
-                onPress={handleSelectImage}
-              >
-                {mealImageUrl ? (
-                  <Image
-                    source={{ uri: mealImageUrl }}
-                    style={styles.mealImage}
-                  />
-                ) : (
-                  <Text style={styles.imagePlaceholderText}>📷</Text>
-                )}
-
-                {/* Always show edit icon */}
-                <View
-                  style={[
-                    styles.editIconContainer,
-                    mealImageUrl
-                      ? { position: "absolute", bottom: 0, right: 0 }
-                      : {},
-                  ]}
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Content Section */}
+            <View style={styles.contentContainer}>
+              {/* Meal Image */}
+              <View style={styles.imageContainer}>
+                <TouchableOpacity
+                  style={styles.imagePlaceholder}
+                  onPress={handleSelectImage}
                 >
-                  <Text style={styles.editIcon}>✎</Text>
-                </View>
-              </TouchableOpacity>
+                  {mealImageUrl ? (
+                    <Image
+                      source={{ uri: mealImageUrl }}
+                      style={styles.mealImage}
+                    />
+                  ) : (
+                    <Text style={styles.imagePlaceholderText}>📷</Text>
+                  )}
 
-              <Text style={styles.imageLabel}>Meal Picture</Text>
-            </View>
-
-            {/* Form */}
-            <View style={styles.form}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Meal Name</Text>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter meal name"
-                    value={mealName}
-                    onChangeText={setMealName}
-                    placeholderTextColor={Colors.textTertiary}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Description</Text>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    placeholder="Describe your meal"
-                    value={description}
-                    onChangeText={setDescription}
-                    multiline
-                    numberOfLines={Platform.OS === "ios" ? undefined : 4}
-                    placeholderTextColor={Colors.textTertiary}
-                  />
-                </View>
-              </View>
-
-              {/* Ingredients Section */}
-              <View style={styles.inputGroup}>
-                <View style={styles.ingredientHeader}>
-                  <Text style={styles.label}>Ingredients</Text>
-                  <TouchableOpacity
-                    style={styles.addIngredientButton}
-                    onPress={handleAddIngredient}
+                  {/* Always show edit icon */}
+                  <View
+                    style={[
+                      styles.editIconContainer,
+                      mealImageUrl
+                        ? { position: "absolute", bottom: 0, right: 0 }
+                        : {},
+                    ]}
                   >
-                    <Text style={styles.addIngredientButtonText}>+ Add Ingredient</Text>
-                  </TouchableOpacity>
-                </View>
-                
-                {ingredients.length === 0 ? (
-                  <View style={styles.emptyIngredientsContainer}>
-                    <Text style={styles.emptyIngredientsText}>
-                      No ingredients added yet. Tap "Add Ingredient" to get started.
-                    </Text>
+                    <Text style={styles.editIcon}>✎</Text>
                   </View>
-                ) : (
-                  <View style={styles.ingredientsList}>
-                    <FlatList
-                      data={ingredients}
-                      renderItem={renderIngredientItem}
-                      keyExtractor={(item) => item.id}
-                      scrollEnabled={false}
+                </TouchableOpacity>
+
+                <Text style={styles.imageLabel}>Meal Picture</Text>
+              </View>
+
+              {/* Form */}
+              <View style={styles.form}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Meal Name</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter meal name"
+                      value={mealName}
+                      onChangeText={setMealName}
+                      placeholderTextColor={Colors.textTertiary}
                     />
                   </View>
-                )}
-              </View>
-            </View>
+                </View>
 
-            {/* Create Button */}
-            <TouchableOpacity
-              style={[
-                styles.createButton,
-                (loading || !mealName.trim()) && styles.createButtonDisabled,
-              ]}
-              onPress={handleCreateMeal}
-              disabled={loading || !mealName.trim()}
-            >
-              <Text style={styles.createButtonText}>
-                {loading ? "Creating..." : "Create Meal"}
-              </Text>
-            </TouchableOpacity>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Description</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={[styles.input, styles.textArea]}
+                      placeholder="Describe your meal"
+                      value={description}
+                      onChangeText={setDescription}
+                      multiline
+                      numberOfLines={Platform.OS === "ios" ? undefined : 4}
+                      placeholderTextColor={Colors.textTertiary}
+                    />
+                  </View>
+                </View>
 
-            {/* Cancel Button */}
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => {
-                clearForm();
-                router.replace("/(user)/MainDashboard");
-              }}
-              disabled={loading}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      
-      {/* Ingredient Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {isEditing ? "Edit Ingredient" : "Add Ingredient"}
-            </Text>
-            
-            <View style={styles.modalForm}>
-              <View style={styles.modalInputGroup}>
-                <Text style={styles.modalLabel}>Name</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  placeholder="e.g., Chicken Breast"
-                  value={currentIngredient.name}
-                  onChangeText={(text) => 
-                    setCurrentIngredient({...currentIngredient, name: text})
-                  }
-                />
+                {/* Ingredients Section */}
+                <View style={styles.inputGroup}>
+                  <View style={styles.ingredientHeader}>
+                    <Text style={styles.label}>Ingredients</Text>
+                    <TouchableOpacity
+                      style={styles.addIngredientButton}
+                      onPress={handleAddIngredient}
+                    >
+                      <Text style={styles.addIngredientButtonText}>+ Add Ingredient</Text>
+                    </TouchableOpacity>
+                  </View>
+                  
+                  {ingredients.length === 0 ? (
+                    <View style={styles.emptyIngredientsContainer}>
+                      <Text style={styles.emptyIngredientsText}>
+                        No ingredients added yet. Tap "Add Ingredient" to get started.
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={styles.ingredientsList}>
+                      <FlatList
+                        data={ingredients}
+                        renderItem={renderIngredientItem}
+                        keyExtractor={(item) => item.id}
+                        scrollEnabled={false}
+                      />
+                    </View>
+                  )}
+                </View>
               </View>
-              
-              <View style={styles.modalInputGroup}>
-                <Text style={styles.modalLabel}>Amount</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  placeholder="e.g., 2 cups"
-                  value={currentIngredient.amount || ''}
-                  onChangeText={(text) => 
-                    setCurrentIngredient({...currentIngredient, amount: text})
-                  }
-                />
-              </View>
-              
-              <View style={styles.modalInputGroup}>
-                <Text style={styles.modalLabel}>Calories</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  placeholder="e.g., 200"
-                  value={currentIngredient.calories || ''}
-                  onChangeText={(text) => 
-                    setCurrentIngredient({...currentIngredient, calories: text})
-                  }
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-            
-            <View style={styles.modalActions}>
+
+              {/* Create Button */}
               <TouchableOpacity
-                style={styles.modalCancelButton}
-                onPress={() => setModalVisible(false)}
+                style={[
+                  styles.createButton,
+                  (loading || !mealName.trim()) && styles.createButtonDisabled,
+                ]}
+                onPress={handleCreateMeal}
+                disabled={loading || !mealName.trim()}
               >
-                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                <Text style={styles.createButtonText}>
+                  {loading ? "Creating..." : "Create Meal"}
+                </Text>
               </TouchableOpacity>
-              
+
+              {/* Cancel Button */}
               <TouchableOpacity
-                style={[styles.modalSaveButton, !currentIngredient.name.trim() && styles.modalSaveButtonDisabled]}
-                onPress={handleSaveIngredient}
-                disabled={!currentIngredient.name.trim()}
-              >
-                <Text style={styles.modalSaveButtonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      
-      {/* Quantity Selection Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={quantityModalVisible}
-        onRequestClose={() => setQuantityModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              Add Servings
-            </Text>
-            <Text style={styles.modalSubtitle}>
-              How many servings would you like to add to your fridge and freezer?
-            </Text>
-            
-            <Text style={styles.modalNote}>
-              Leave both servings at 0 if you would like to only add this to saved meals.
-            </Text>
-            
-            <View style={styles.modalForm}>
-              <View style={styles.modalInputGroup}>
-                <Text style={styles.modalLabel}>Fridge Servings</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  placeholder="0"
-                  value={fridgeQuantity}
-                  onChangeText={setFridgeQuantity}
-                  keyboardType="numeric"
-                  onFocus={() => {
-                    if (fridgeQuantity === "0") {
-                      setFridgeQuantity("");
-                    }
-                  }}
-                />
-              </View>
-              
-              <View style={styles.modalInputGroup}>
-                <Text style={styles.modalLabel}>Freezer Servings</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  placeholder="0"
-                  value={freezerQuantity}
-                  onChangeText={setFreezerQuantity}
-                  keyboardType="numeric"
-                  onFocus={() => {
-                    if (freezerQuantity === "0") {
-                      setFreezerQuantity("");
-                    }
-                  }}
-                />
-              </View>
-            </View>
-            
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.modalCancelButton}
+                style={styles.cancelButton}
                 onPress={() => {
-                  // Reset quantities and close modal without navigating
-                  setFridgeQuantity("0");
-                  setFreezerQuantity("0");
-                  setQuantityModalVisible(false);
+                  clearForm();
+                  router.replace("/(user)/MainDashboard");
                 }}
+                disabled={loading}
               >
-                <Text style={styles.modalCancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={styles.modalSaveButton}
-                onPress={handleQuantitySubmit}
-              >
-                <Text style={styles.modalSaveButtonText}>Add Servings</Text>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
-      </Modal>
+          </ScrollView>
+
+
+            {/* Ingredient Modal */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={() => setModalVisible(false)}
+            >
+              <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>
+                      {isEditing ? "Edit Ingredient" : "Add Ingredient"}
+                    </Text>
+
+                    <View style={styles.modalForm}>
+                      <View style={styles.modalInputGroup}>
+                        <Text style={styles.modalLabel}>Name</Text>
+                        <TextInput
+                          style={styles.modalInput}
+                          placeholder="e.g., Chicken Breast"
+                          value={currentIngredient.name}
+                          onChangeText={(text) => 
+                            setCurrentIngredient({...currentIngredient, name: text})
+                          }
+                        />
+                      </View>
+                      
+                      <View style={styles.modalInputGroup}>
+                        <Text style={styles.modalLabel}>Amount</Text>
+                        <TextInput
+                          style={styles.modalInput}
+                          placeholder="e.g., 2 cups"
+                          value={currentIngredient.amount || ''}
+                          onChangeText={(text) => 
+                            setCurrentIngredient({...currentIngredient, amount: text})
+                          }
+                        />
+                      </View>
+                      
+                      <View style={styles.modalInputGroup}>
+                        <Text style={styles.modalLabel}>Calories</Text>
+                        <TextInput
+                          style={styles.modalInput}
+                          placeholder="e.g., 200"
+                          value={currentIngredient.calories || ''}
+                          onChangeText={(text) => 
+                            setCurrentIngredient({...currentIngredient, calories: text})
+                          }
+                          keyboardType="numeric"
+                        />
+                      </View>
+                    </View>
+                    <View style={styles.modalActions}>
+                      <TouchableOpacity
+                        style={styles.modalCancelButton}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.modalSaveButton, !currentIngredient.name.trim() && styles.modalSaveButtonDisabled]}
+                        onPress={handleSaveIngredient}
+                        disabled={!currentIngredient.name.trim()}
+                      >
+                        <Text style={styles.modalSaveButtonText}>Save</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+            </Modal>                
+          {/* Quantity Selection Modal */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={quantityModalVisible}
+            onRequestClose={() => setQuantityModalVisible(false)}
+          >
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>
+                    Add Servings
+                  </Text>
+                  <Text style={styles.modalSubtitle}>
+                    How many servings would you like to add to your fridge and freezer?
+                  </Text>
+                  
+                  <Text style={styles.modalNote}>
+                    Leave both servings at 0 if you would like to only add this to saved meals.
+                  </Text>
+                  
+                  <View style={styles.modalForm}>
+                    <View style={styles.modalInputGroup}>
+                      <Text style={styles.modalLabel}>Fridge Servings</Text>
+                      <TextInput
+                        style={styles.modalInput}
+                        placeholder="0"
+                        value={fridgeQuantity}
+                        onChangeText={setFridgeQuantity}
+                        keyboardType="numeric"
+                        onFocus={() => {
+                          if (fridgeQuantity === "0") {
+                            setFridgeQuantity("");
+                          }
+                        }}
+                      />
+                    </View>
+                    
+                    <View style={styles.modalInputGroup}>
+                      <Text style={styles.modalLabel}>Freezer Servings</Text>
+                      <TextInput
+                        style={styles.modalInput}
+                        placeholder="0"
+                        value={freezerQuantity}
+                        onChangeText={setFreezerQuantity}
+                        keyboardType="numeric"
+                        onFocus={() => {
+                          if (freezerQuantity === "0") {
+                            setFreezerQuantity("");
+                          }
+                        }}
+                      />
+                    </View>
+                  </View>
+                  
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={styles.modalCancelButton}
+                      onPress={() => {
+                        // Reset quantities and close modal without navigating
+                        setFridgeQuantity("0");
+                        setFreezerQuantity("0");
+                        setQuantityModalVisible(false);
+                      }}
+                    >
+                      <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                      style={styles.modalSaveButton}
+                      onPress={handleQuantitySubmit}
+                    >
+                      <Text style={styles.modalSaveButtonText}>Add Servings</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+          </Modal>
+        </KeyboardAvoidingView>
+      </Animated.View>
     </SafeAreaView>
+  </TouchableWithoutFeedback>
   );
 }
 
